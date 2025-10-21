@@ -2,26 +2,38 @@
 
 name: Echo 4 Prod Workflow
 
-# This workflow runs on any push to the main branch
 on:
   push:
     branches: [ main ]
 
 jobs:
   build:
-    # This is the key! It tells GitHub to use your runner.
     runs-on: self-hosted
 
     steps:
-      # This step performs the "initial pull" of your repo's code
       - name: Check out repository code ✅
         uses: actions/checkout@v4
 
-      - name: Deploy
-        run: 
-            # Activate the venv
-            source venv/bin/activate
-      
-      - name: Run 👋
-        run: 
-            python Discord.py
+      # 1. Set up Python (Essential step you were missing)
+      - name: Set up Python 3.11.2
+        uses: actions/setup-python@v5
+        with:
+          # Use the version you intend to run with
+          python-version: '3.11.2' 
+
+      # 2. Create Venv and Install Dependencies (Combined step)
+      # This step creates the venv and installs the required packages.
+      - name: Install dependencies in venv 📦
+        run: |
+          # Create the virtual environment named 'venv'
+          python -m venv venv
+          
+          ./venv/bin/pip install --upgrade pip
+          ./venv/bin/pip install -r requirements.txt
+
+      # 3. Run the Python Script using Venv's interpreter (Combined run step)
+      # Now you call the Python executable directly from the venv's bin directory.
+      - name: Run Discord Bot 👋
+        run: |
+          # Use the full path to the Python executable inside the VENV
+          ./venv/bin/python Discord.py
