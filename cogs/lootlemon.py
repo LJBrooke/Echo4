@@ -16,6 +16,7 @@ class LootlemonCommand(commands.Cog):
         await self.session.close()
 
     @app_commands.command(name='lemon', description='Search the LootLemon website straight from Discord!')
+    @app_commands.describe(query="The full name of the skill or item to look up.")
     async def search(self, interaction: discord.Interaction, query: str):
         # Defer the response because scraping a website can take time
         await interaction.response.defer()
@@ -68,3 +69,4 @@ class LootlemonCommand(commands.Cog):
 # Standard setup function to add the cog to the bot
 async def setup(bot: commands.Bot):
     await bot.add_cog(LootlemonCommand(bot))
+    print("✅ Cog 'LemonCommand' loaded.")
