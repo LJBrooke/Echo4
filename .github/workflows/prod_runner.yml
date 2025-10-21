@@ -1,0 +1,27 @@
+# .github/workflows/prod_runner.yml
+
+name: Echo 4 Prod Workflow
+
+# This workflow runs on any push to the main branch
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    # This is the key! It tells GitHub to use your runner.
+    runs-on: self-hosted
+
+    steps:
+      # This step performs the "initial pull" of your repo's code
+      - name: Check out repository code ✅
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        run: 
+            # Activate the venv
+            source venv/bin/activate
+      
+      - name: Run 👋
+        run: 
+            python Discord.py
