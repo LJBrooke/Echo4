@@ -18,6 +18,7 @@ jobs:
       # This step creates the venv and installs the required packages.
       - name: Install dependencies in venv 📦
         run: |
+          working-directory: Echo4
           # Create the virtual environment named 'venv'
           python -m venv venv
           
