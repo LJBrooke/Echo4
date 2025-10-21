@@ -1,0 +1,52 @@
+{
+    "Harlowe": [        
+        {
+            "name": "Elementary",
+            "damage type": "Elemental",
+            "element": null
+        },
+        {
+            "name": "Elementary (Status)",
+            "damage type": "Status Damage",
+            "element": null
+        },
+        {
+            "name": "Field-Ready Prototype",
+            "damage type": "Action Skill Damage",
+            "element": null
+        },
+        {
+            "name": "Enriched",
+            "damage type": "Elemental Damage",
+            "element": "Radiation"
+        },
+        {
+            "name": "Great Red Dot",
+            "damage type": "DoT Duration",
+            "element": null
+        },
+        {
+            "name": "Decoherence(Entangle)",
+            "damage type": "On Hit Harlowe",
+            "element": null
+        },
+        {
+            "name": "Decoherence(Flux)",
+            "damage type": "On Hit All Damage",
+            "element": null
+        },
+        {
+            "name": "Latent Charge",
+            "damage type": "On Hit Harlowe",
+            "element": null
+        },
+        {
+            "name": "Feedback Loop",
+            "damage type": "Action Skill Damage",
+            "element": null
+        }
+    ],
+    "Vex": [],
+    "Amon": [],
+    "Rafa": []
+}

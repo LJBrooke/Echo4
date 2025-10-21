@@ -1,0 +1,597 @@
+{
+    "COM": [        {
+            "name": "Gun Damage(P)",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Damage Dealt(P)",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Crit Damage(P)",
+            "damage type": "Gear Crit",
+            "element": null
+        },
+        {
+            "name": "Elemental(P)",
+            "damage type": "Soup",
+            "element": null
+        }
+    ],
+    "Enhancement": [        
+        {
+            "name": "Gun Damage(P)",
+            "damage type": "Enhance",
+            "element": null
+        },
+        {
+            "name": "Gun Type Damage(P)",
+            "damage type": "Enhance",
+            "element": null
+        },
+        {
+            "name": "Gun Splash Damage(P)",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Enhancement Crit Damage(P)",
+            "damage type": "Gear Crit",
+            "element": null
+        }
+    ],
+    "Harlowe": [
+        {
+            "name": "Group Study",
+            "damage type": "Enhance",
+            "element": null
+        },
+        {
+            "name": "Neutron Decay",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Creative Overflow",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Decoherence(Flux)",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Decoherence(Entangle)",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Latent Charge",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Gamma Ray Burst",
+            "damage type": "On Shot",
+            "element": null
+        },
+        {
+            "name": "Meltdown",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Parallel Circuit",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Periodic Table Flip",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Elementary",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Enriched",
+            "damage type": "Soup",
+            "element": "Radiation"
+        },
+        {
+            "name": "Indiscrete Math",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Freeze Framme",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Triple Point",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Chain Reactor",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Neutron Decay",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Unstable Ice-otope",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Poisoned Sun",
+            "damage type": "Soup",
+            "element": "Radiation"
+        },
+        {
+            "name": "Cryodynamics",
+            "damage type": "Soup",
+            "element": "Cryo"
+        },
+        {
+            "name": "Rounding Up",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Momentum",
+            "damage type": "Skill Crit",
+            "element": null
+        },
+        {
+            "name": "Excited State",
+            "damage type": "Skill Crit",
+            "element": null
+        },
+        {
+            "name": "Feedback Loop",
+            "damage type": "Action Skill Damage",
+            "element": null
+        },
+        {
+            "name": "Field Ready Prototype",
+            "damage type": "Action Skill Damage",
+            "element": null
+        },
+        {
+            "name": "Practical Applications",
+            "damage type": "Skill Damage",
+            "element": null
+        },
+        {
+            "name": "Mechanical Brilliance",
+            "damage type": "Skill Damage",
+            "element": null
+        }
+    ],
+    "Vex": [
+        {
+            "name": "Enchantment",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Blood Is Magic",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Yowl and Bay",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Claw and Bang",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Vorpal Fiends",
+            "damage type": "Skill Crit",
+            "element": null
+        },
+        {
+            "name": "Blasted Fiends",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Corporeal",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Shiver",
+            "damage type": "Soup",
+            "element": null
+		},	
+        {
+            "name": "Elemental Essence",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Yowl and Bay",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Infernal Sum",
+            "damage type": "Gear Crit",
+            "element": null
+        },
+        {
+            "name": "Sacrificial Essence",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Shocking Attunement",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Grave Current",
+            "damage type": "Bonus Element",
+            "element": null
+		},	
+        {
+            "name": "Infusion",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+        {
+            "name": "Stormblessed",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Unsealed",		
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Cold Iron",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Fell Inscriptions",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Portents of Suffering",
+            "damage type": "Soup",
+            "element": null
+		},	
+        {
+            "name": "Grave Fiends",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Wither",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Necrosis",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Burning Attunement",
+            "damage type": "Skill Crit",
+            "element": null
+        },
+        {
+            "name": "Recurrence",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Burnt Offering",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Prismatic Weaponry",
+            "damage type": "Bonus Element",
+            "element": null
+		},	
+        {
+            "name": "Obedient Fiends",
+            "damage type": "Minion Damage",
+            "element": null
+        },
+        {
+            "name": "Ancient Rites",
+            "damage type": "Minion Damage",
+            "element": null
+        },
+        {
+            "name": "Volatile Essence",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Grave Sights",
+            "damage type": "Skill Crit",
+            "element": null
+        },
+        {
+            "name": "Geistwave",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Grave Implements",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Material Components",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Radiant Attunement",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Iron Maiden",
+            "damage type": "On Shot",
+            "element": null
+        },		
+        {
+            "name": "Conjunction",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Havoc",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Witchy Trigger Finger",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Grave Elements",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Ars Arcana",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Blood Shot",
+            "damage type": "On Shot",
+            "element": null
+        },
+        {
+            "name": "Heartpiercer",
+            "damage type": "On Shot",
+            "element": null
+        },	
+        {
+            "name": "Blood Is Power",
+            "damage type": "Bonus Element",
+            "element": null
+        }
+    ],
+    "Amon": [],
+    "Rafa": [
+        {
+            "name": "Handshake Deal (Gun Damage)",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Handshake Deal (Melee Damage)",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Diamonds Hands",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "To The Last(Gun Damage)",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "To The Last(Action Skill Damage)",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Sinergia (Gun Damage)",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Sinergia (Melee Damage)",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Sitiar",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "El Soldado",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Instigator Legendary COM",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Overdrive Trait",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "El Valiente",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Temerario",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "El Soldado (While Charging)",
+            "damage type": "Enhance",
+            "element": null
+        },
+		{
+            "name": "El Paraguas",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Barrage",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "El Borracho",
+            "damage type": "Soup",
+            "element": "Corrosive"
+        },
+		{
+            "name": "The Right Tools",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Cruel Accruel",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Maestro",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "El Catrin (Crit Damage)",
+            "damage type": "Skill Crit",
+            "element": null
+        },
+		{
+            "name": "El Catrin (Bonus Shock Damage)",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "Arc-Knives Marks",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "APOPHIS: Lance Marks",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Errant Spark",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "Bullet Buddy Deluxe",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "Insta-Fort Battle System (Ordnance Damage)",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Vitriol",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "Asymmetric Warfare",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Concentrated Build-Up",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "Midnight Oil",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "Shock Market",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "Collaborate Ignition",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "Altered Cabron (Corrosive On Kill)",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "El Diablito",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
+            "name": "First Impression",
+            "damage type": "Amp",
+            "element": null
+        },
+        {
+            "name": "Beam Team (Action Skill Damage)",
+            "damage type": "Soup",
+            "element": null
+        },
+		{
+            "name": "Battery Subscription Service",
+            "damage type": "Soup",
+            "element": null
+        }
+    ]
+}
