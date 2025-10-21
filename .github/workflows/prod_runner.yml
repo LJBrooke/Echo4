@@ -17,7 +17,7 @@ jobs:
       # 2. Create Venv and Install Dependencies (Combined step)
       # This step creates the venv and installs the required packages.
       - name: Install dependencies in venv 📦
-        working-directory: echo4
+        working-directory: Echo4
         run: |
           # Create the virtual environment named 'venv'
           python -m venv venv
@@ -28,6 +28,7 @@ jobs:
       # 3. Run the Python Script using Venv's interpreter (Combined run step)
       # Now you call the Python executable directly from the venv's bin directory.
       - name: Run Discord Bot 👋
+        working-directory: Echo4
         run: |
           # Use the full path to the Python executable inside the VENV
           ./venv/bin/python Discord.py
