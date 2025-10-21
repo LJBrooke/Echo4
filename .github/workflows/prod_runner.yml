@@ -17,8 +17,8 @@ jobs:
       # 2. Create Venv and Install Dependencies (Combined step)
       # This step creates the venv and installs the required packages.
       - name: Install dependencies in venv 📦
+        working-directory: echo4
         run: |
-          working-directory: Echo4
           # Create the virtual environment named 'venv'
           python -m venv venv
           
