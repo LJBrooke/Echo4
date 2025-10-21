@@ -31,7 +31,7 @@ jobs:
       - name: Create .env file
         working-directory: EchoProd
         run: |
-            echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" > .env
+            echo "DISCORD_TOKEN=\""${{ secrets.DISCORD_TOKEN }}"\"" > .env
             echo "ADMIN_SERVER_ID=${{ secrets.ADMIN_SERVER_ID }}" >> .env
             echo "OWNER_ID=${{ secrets.OWNER_ID }}" >> .env
             # Add other environment variables as needed
@@ -45,7 +45,6 @@ jobs:
       # 3. Run the Python Script using Venv's interpreter (Combined run step)
       # Now you call the Python executable directly from the venv's bin directory.
       - name: Move Bot 👋
-        working-directory: EchoProd
         run: |
           mv EchoProd ../../../../EchoProd
       # 3. Run the Python Script using Venv's interpreter (Combined run step)
