@@ -15,11 +15,11 @@ jobs:
         uses: actions/checkout@v4
 
       # 1. Set up Python (Essential step you were missing)
-      - name: Set up Python 3.11
+      - name: Set up Python 3.14.0
         uses: actions/setup-python@v5
         with:
           # Use the version you intend to run with
-          python-version: '3.11' 
+          python-version: '3.14.0' 
 
       # 2. Create Venv and Install Dependencies (Combined step)
       # This step creates the venv and installs the required packages.
