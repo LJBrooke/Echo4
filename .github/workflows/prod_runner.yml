@@ -16,12 +16,12 @@ jobs:
         with:
           # This checks out your repository contents into 
           # .../actions-runner/_work/Echo4/Echo4/app
-          path: ../../../../EchoProd
+          path: EchoProd
 
       # 2. Create Venv and Install Dependencies (Combined step)
       # This step creates the venv and installs the required packages.
       - name: Install dependencies in venv 📦
-        working-directory: ../../../../EchoProd
+        working-directory: EchoProd
         run: |
             # Create the virtual environment named 'venv'
             python -m venv venv
@@ -29,7 +29,7 @@ jobs:
             ./venv/bin/pip install -r requirements.txt
 
       - name: Create .env file
-        working-directory: ../../../../EchoProd
+        working-directory: EchoProd
         run: |
             echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" > .env
             echo "ADMIN_SERVER_ID=${{ secrets.ADMIN_SERVER_ID }}" >> .env
@@ -42,6 +42,12 @@ jobs:
     #         cat .env # Verify the content
     #         # Your application can now read from .env
 
+      # 3. Run the Python Script using Venv's interpreter (Combined run step)
+      # Now you call the Python executable directly from the venv's bin directory.
+      - name: Move Bot 👋
+        working-directory: EchoProd
+        run: |
+          mv EchoProd ../../../../EchoProd
       # 3. Run the Python Script using Venv's interpreter (Combined run step)
       # Now you call the Python executable directly from the venv's bin directory.
       - name: Run Discord Bot 👋
