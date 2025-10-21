@@ -36,37 +36,58 @@ class LookupCommand(commands.Cog):
     @app_commands.describe(name="The full name of the skill or item to look up.")
     @app_commands.autocomplete(name=skill_name_autocomplete)
     async def lookup(self, interaction: discord.Interaction, name: str):
+        # 1. Initialize a list to store all matching items, not just one.
+        found_items = []
+        
+        # Pre-process the search name once to be more efficient
+        search_name = name.lower().strip()
 
-        found_item = None
-        source_key = None # MODIFIED: Add a variable to store the source
-
-        # Search through all data to find the matching item
+        # 2. Search through all data without breaking after the first match.
         for parent_key, items in SKILL_DATA.items():
             for item in items:
-                if item.get('name', '').lower().strip() == name.lower().strip():
-                    found_item = item
-                    source_key = parent_key # NEW: Store the source key when a match is found
-                    break
-            if found_item:
-                break
+                # 3. Use the 'in' operator for substring search.
+                if search_name in item.get('name', '').lower().strip():
+                    # Add a dictionary containing both the item and its source to our list.
+                    found_items.append({'item': item, 'source': parent_key})
 
         # --- Format and Send the Response ---
-        if not found_item:
-            await interaction.response.send_message(f"Could not find an item named `{name}`.", ephemeral=True)
+
+        # 4. Check if the list of found items is empty.
+        if not found_items:
+            await interaction.response.send_message(f"Could not find any item containing `{name}`.", ephemeral=True)
             return
 
-        response_lines = [f"🔎 Results for search: **{found_item.get('name')}**", "\n**# Skill Details**"]
+        # 5. Build the response message.
+        # Start with a summary of how many results were found.
+        response_lines = [f"🔎 Found **{len(found_items)}** results for: **{name}**"]
 
-        # NEW: Add the source to the output
-        if source_key:
+        # Loop through each match you found.
+        for match in found_items:
+            item_data = match['item']
+            source_key = match['source']
+
+            # Add a separator and a main header for each item for clarity.
+            response_lines.append("\n---")
+            response_lines.append(f"**# {item_data.get('name')}**")
+            
+            # Add the source.
             response_lines.append(f"- **Source**: {source_key}")
 
-        for key, value in found_item.items():
-            if value is not None:
-                formatted_key = key.replace('_', ' ').title()
-                response_lines.append(f"- **{formatted_key}**: {value}")
+            # Add all other details from the item's dictionary.
+            for key, value in item_data.items():
+                # Skip the 'name' key since we already used it in the header.
+                if key != 'name' and value is not None:
+                    formatted_key = key.replace('_', ' ').title()
+                    response_lines.append(f"- **{formatted_key}**: {value}")
 
-        await interaction.response.send_message("\n".join(response_lines))
+        final_response = "\n".join(response_lines)
+        
+        # Note: Discord messages have a 2000 character limit. 
+        # If the combined result is too long, you might need to implement pagination.
+        if len(final_response) > 2000:
+            final_response = final_response[:1990] + "\n... (truncated)"
+
+        await interaction.response.send_message(final_response)
 
 
 # --- Setup Function ---
