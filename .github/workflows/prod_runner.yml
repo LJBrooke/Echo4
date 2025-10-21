@@ -35,4 +35,4 @@ jobs:
         working-directory: EchoProd
         run: |
           # Use the full path to the Python executable inside the VENV
-          ./venv/bin/python Discord.py
+          nohup ./venv/bin/python Discord.py > bot.log 2>&1 &
