@@ -16,7 +16,7 @@ class FormulaCommand(commands.Cog):
         ][:25]
 
     # --- The Slash Command ---
-    @app_commands.command(name="formula_type", description="Overview of how the damage formula fits together.")
+    @app_commands.command(name="formula", description="Overview of how the damage formula fits together.")
     @app_commands.describe(formula_type="Returns the damage formula for a specific type of damage.")
     @app_commands.autocomplete(formula_type=formula_name_autocomplete)
     async def formula(self, interaction: discord.Interaction, formula_type: str):
