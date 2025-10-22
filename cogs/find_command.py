@@ -47,10 +47,10 @@ class FindCommand(commands.Cog):
     )
     @app_commands.autocomplete(damage_type=damage_type_autocomplete, source=source_autocomplete)
     async def find(self, interaction: discord.Interaction, damage_type: str, source: str = None):
-        """The main logic for the find command, same as before."""
+        """The main logfic for the find command, same as before."""
         results = {}
         search_area = {source: SKILL_DATA[source]} if source and source in SKILL_DATA else SKILL_DATA
-        if not source and damage_type.lower().strip()=='soup':
+        if (source==None and damage_type.lower().strip()=='soup'):
             search_area.pop('Amon', None)
             search_area.pop('Harlowe', None)
             search_area.pop('Rafa', None)
@@ -71,7 +71,7 @@ class FindCommand(commands.Cog):
         response_lines = [f"🔎 Results for damage type: **{damage_type.title()}**"]
         if source:
             response_lines.append(f"Filtered by source: **{source}**")
-        elif not source and damage_type.lower().strip()=='soup':
+        elif source==None and damage_type.lower().strip()=='soup':
             response_lines.append(f"\nTo see VH specific Soup, please filter by VH. \nApologies from DCLP. \n_DCLP=Discord Character Limit Police_")
         response_lines.append("-" * 20)
 

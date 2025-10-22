@@ -1,5 +1,6 @@
 {
-    "COM": [        {
+    "COM": [        
+        {
             "name": "Gun Damage(P)",
             "damage type": "Soup",
             "element": null
