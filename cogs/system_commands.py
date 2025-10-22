@@ -60,7 +60,7 @@ class SystemCommands(commands.Cog):
 - Ratore: Filled out Vex information.
 - JoeForLong: Filled out Rafa information.
         '''
-        await interaction.response.send_message("Shutting down...")
+        await interaction.response.send_message(credits)
 
 
 async def setup(bot: commands.Bot):
