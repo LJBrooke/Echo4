@@ -54,11 +54,12 @@ class SystemCommands(commands.Cog):
     @app_commands.command(name="creator", description="Who builds the Bot?.")
     async def creator(self, interaction: discord.Interaction):
         credits='''**Creator:**
-- Prismatic
+- **Prismatic**
 
 **Contributors**
-- Ratore: Filled out Vex information.
-- JoeForLong: Filled out Rafa information.
+- **Girthquake**: Filled out Amon information.
+- **JoeForLong**: Filled out Rafa information.
+- **Ratore**: Filled out Vex information.
         '''
         await interaction.response.send_message(credits)
 

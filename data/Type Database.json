@@ -515,7 +515,311 @@
             "element": null
         }
     ],
-    "Amon": [],
+    "Amon": [
+        {
+            "name": "Onslaughter Bonus Damage",
+            "damage type": "Bonus Element",
+            "element": "Fire"
+        },
+        {
+            "name": "Force of Nature",
+            "damage type": "Bonus Instance",
+            "element": "Fire",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "What Burns Within",
+            "damage type": "Soup",
+            "element": "Fire"
+        },
+        {
+            "name": "Gut Punch",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Wield the Storm",
+            "damage type": "Soup",
+            "element": "Fire",
+	        "note": "also adds duration"
+        },
+        {
+            "name": "Tritanium Knuckles Melee",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Tritanium Knuckles Skill",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Bullet Storm",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Brimming With Vigor",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Berserk",
+            "damage type": "Bonus Element",
+            "element": "Cryo"
+        },
+        {
+            "name": "There is Only Red",
+            "damage type": "Bonus Element",
+            "element": "Cryo",
+	        "note": "scales Berserk"
+        },
+        {
+            "name": "Into the Fray",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Harbinger",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Catastrophe",
+            "damage type": "Skill Tree Crit",
+            "element": null
+        },
+        {
+            "name": "Dragons Breath",
+            "damage type": "Amp",
+            "element": "Fire",
+	        "note": "converts shot to Fire and adds with other Amps"
+        },
+        {
+            "name": "Crackling Aegis Ordnance",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Crackling Aegis Status Effect",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Judgement",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Electrical Fire",
+            "damage type": "Bonus Instance",
+            "element": null,
+	        "note": "applies a second DOT"
+        },
+        {
+            "name": "Endless War Gun Damage",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Endless War Axe ricochet",
+            "damage type": "Bonus Instance",
+            "element": null,
+	        "note": "Double Dip"
+        },
+        {
+            "name": "Gathering Storm",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Executioner",
+            "damage type": "Skill Tree Crit",
+            "element": null
+        },
+        {
+            "name": "Destruction Engine Detonation",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Destruction Engine Forgeskill",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Bolt Action",
+            "damage type": "Bonus Element",
+            "element": "Shock"
+        },
+        {
+            "name": "Herald's Call",
+            "damage type": "Soup",
+            "element": "Shock"
+        },
+        {
+            "name": "Bellows",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Cacophany",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Masterwork",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Blast Furnace",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Lightning Rod",
+            "damage type": "Bonus Instance",
+            "element": "Shock",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "Raging Inferno",
+            "damage type": "Bonus Instance",
+            "element": "Fire",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "Permafrost",
+            "damage type": "Bonus Instance",
+            "element": "Cryo"
+        },
+        {
+            "name": "Freezer Burn Fire",
+            "damage type": "Soup",
+            "element": "Fire"
+        },
+        {
+            "name": "Freezer Burn Cryo",
+            "damage type": "Soup",
+            "element": "Cryo"
+        },
+        {
+            "name": "Wildheart Status",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Wildheart Hazard",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Cryonic Thrum",
+            "damage type": "Bonus Element",
+            "element": "Cryo"
+        },
+        {
+            "name": "Firewall",
+            "damage type": "On Shot",
+            "element": null,
+	        "note": "applies to all projectiles"
+        },
+
+        {
+            "name": "Battleborn",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Scorched Kairos",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Tail of the Comet",
+            "damage type": "Bonus Instance",
+            "element": "Cryo",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "Ancient Ways",
+            "damage type": "Soup",
+            "element": "Cryo"
+        },
+        {
+            "name": "Bullet Hail",
+            "damage type": "Bonus Instance",
+            "element": "Cryo",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "Wildfire Ricochet",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Wildfire Burning",
+            "damage type": "Soup",
+            "element": "Fire",
+	        "note": "also adds duration"
+        },
+        {
+            "name": "World Breaker",
+            "damage type": "Bonus Instance",
+                "element": "Fire"
+        },
+        {
+            "name": "Icy Rage",
+            "damage type": "Soup",
+                "element": null
+        },
+        {
+            "name": "Age of Ice",
+            "damage type": "Soup",
+                "element": null
+        },
+        {
+            "name": "Winter's Kiss",
+            "damage type": "Bonus Instance",
+            "element": "Cryo",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "Caroming Shard",
+            "damage type": "Bonus Instance",
+            "element": "Cryo",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "Blackout",
+            "damage type": "Bonus Instance",
+            "element": "Shock",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "Thunderous Rage",
+            "damage type": "Skill Tree Crit",
+            "element": null
+        },
+        {
+            "name": "Tactician",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Strike The Anvil",
+            "damage type": "Bonus Instance",
+            "element": "Shock",
+	        "note": "Double Dip"
+        },
+        {
+            "name": "High Voltage",
+            "damage type": "Bonus Instance",
+            "element": "Shock",
+	        "note": "Doubles ALL Bolts"
+        }
+    ],
     "Rafa": [
         {
             "name": "Handshake Deal (Gun Damage)",

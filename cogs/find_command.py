@@ -83,7 +83,7 @@ class FindCommand(commands.Cog):
 
         final_response = "\n".join(response_lines)
         if len(final_response) > 2000:
-            final_response = final_response[:1990] + "\n... (results truncated)"
+            final_response = final_response[:1975] + "\n... (results truncated)"
         
         await interaction.response.send_message(final_response)
 
