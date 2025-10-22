@@ -42,6 +42,120 @@
             "element": null
         }
     ],
+    "Firmware": [        
+        {
+            "name": "Action Fist 1",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Get Throwin 1",
+            "damage type": "Soup",
+            "element": null,
+            "note": "Fresh mult for Tediore"
+        },
+        {
+            "name": "God Killer 1",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Reel Big Fist 1",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Action Fist 2",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Air Strike 2",
+            "damage type": "Soup",
+            "element": null,
+            "note": "Wrong Card Value, this is 10%"
+        },
+        {
+            "name": "Atlas EX 2",
+            "damage type": " Enhancement",
+            "element": null
+        },
+        {
+            "name": "Atlas infinium 2",
+            "damage type": " Enhancement",
+            "element": null
+        },
+        {
+            "name": "Gadget Ahoy 2",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "GOOJFC 2",
+            "damage type": "Action Skill Damage",
+            "element": null
+        },
+        {
+            "name": "High Caliber 2",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Oscar Mike 2",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Reel Big Fist 2",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Deadeye 2",
+            "damage type": "Gear Crit",
+            "element": null
+        },
+        {
+            "name": "Trickshot 2",
+            "damage type": "Gear Crit",
+            "element": null
+        },
+        {
+            "name": "Action Fist 3",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Daed-dy O 3",
+            "damage type": "Enhancement",
+            "element": null
+        },
+        {
+            "name": "Deadeye 3",
+            "damage type": "Gear Crit",
+            "element": null
+        },
+        {
+            "name": "Gadjet Ahoy 3",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "God Killer 3",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Heating Up 3",
+            "damage type": "Soup",
+            "element": null
+        },
+        {
+            "name": "Risky Boots 3",
+            "damage type": "Soup",
+            "element": null
+        }
+    ],
     "Harlowe": [
         {
             "name": "Group Study",
