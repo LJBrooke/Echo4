@@ -46,6 +46,7 @@ jobs:
       # Now you call the Python executable directly from the venv's bin directory.
       - name: Move Bot 👋
         run: |
+          rm -rf ../../../../EchoProd
           mv EchoProd ../../../../EchoProd
       # 3. Run the Python Script using Venv's interpreter (Combined run step)
       # Now you call the Python executable directly from the venv's bin directory.
