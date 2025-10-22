@@ -264,12 +264,12 @@
         },
         {
             "name": "Momentum",
-            "damage type": "Skill Crit",
+            "damage type": "Skill Tree Crit",
             "element": null
         },
         {
             "name": "Excited State",
-            "damage type": "Skill Crit",
+            "damage type": "Skill Tree Crit",
             "element": null
         },
         {
@@ -316,7 +316,7 @@
         },
         {
             "name": "Vorpal Fiends",
-            "damage type": "Skill Crit",
+            "damage type": "Skill Tree Crit",
             "element": null
         },
         {
@@ -411,7 +411,7 @@
         },
         {
             "name": "Burning Attunement",
-            "damage type": "Skill Crit",
+            "damage type": "Skill Tree Crit",
             "element": null
         },
         {
@@ -446,7 +446,7 @@
         },
         {
             "name": "Grave Sights",
-            "damage type": "Skill Crit",
+            "damage type": "Skill Tree Crit",
             "element": null
         },
         {
@@ -619,7 +619,7 @@
         },
 		{
             "name": "El Catrin (Crit Damage)",
-            "damage type": "Skill Crit",
+            "damage type": "Skill Tree Crit",
             "element": null
         },
 		{
