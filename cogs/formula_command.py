@@ -16,9 +16,9 @@ class FormulaCommand(commands.Cog):
         ][:25]
 
     # --- The Slash Command ---
-    @app_commands.command(name="lookup", description="Looks up a specific item by its exact name.")
-    @app_commands.describe(name="The full name of the skill or item to look up.")
-    @app_commands.autocomplete(name=formula_name_autocomplete)
+    @app_commands.command(name="formula_type", description="Overview of how the damage formula fits together.")
+    @app_commands.describe(formula_type="Returns the damage formula for a specific type of damage.")
+    @app_commands.autocomplete(formula_type=formula_name_autocomplete)
     async def formula(self, interaction: discord.Interaction, formula_type: str):
         
         if formula_type.lower()=='overview':
