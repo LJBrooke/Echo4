@@ -72,7 +72,7 @@ class FindCommand(commands.Cog):
         if source:
             response_lines.append(f"Filtered by source: **{source}**")
         elif not source and damage_type.lower().strip()=='soup':
-            response_lines.append(f"To see VH specific Soup, please filter by VH. \nApologies from DCLP. \n_DCL=Discord Character Limit Police_")
+            response_lines.append(f"\nTo see VH specific Soup, please filter by VH. \nApologies from DCLP. \n_DCLP=Discord Character Limit Police_")
         response_lines.append("-" * 20)
 
         for parent_key, names in results.items():
