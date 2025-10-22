@@ -49,6 +49,18 @@ class SystemCommands(commands.Cog):
         
         await interaction.response.send_message("Shutting down...", ephemeral=True)
         await self.bot.close()
+        
+    # MODIFIED: Added the 'guilds' parameter to restrict this command
+    @app_commands.command(name="creator", description="Who builds the Bot?.")
+    async def creator(self, interaction: discord.Interaction):
+        credits='''**Creator:**
+- Prismatic
+
+**Contributors**
+- Ratore: Filled out Vex information.
+- JoeForLong: Filled out Rafa information.
+        '''
+        await interaction.response.send_message("Shutting down...")
 
 
 async def setup(bot: commands.Bot):
