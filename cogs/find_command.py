@@ -51,7 +51,8 @@ class FindCommand(commands.Cog):
         results = {}
         search_area = {source: SKILL_DATA[source]} if source and source in SKILL_DATA else SKILL_DATA
         if not source and damage_type.lower().strip()=='soup':
-            search_area={"COM", "Enhancement", "Firmware"}
+            del search_area["Amon", "Harlowe", "Rafa", "Vex"]
+            
         for parent_key, items in search_area.items():
             matching_items = [
                 item['name'] for item in items

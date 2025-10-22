@@ -23,12 +23,12 @@
     "Enhancement": [        
         {
             "name": "Gun Damage(P)",
-            "damage type": "Enhance",
+            "damage type": "Enhancement",
             "element": null
         },
         {
             "name": "Gun Type Damage(P)",
-            "damage type": "Enhance",
+            "damage type": "Enhancement",
             "element": null
         },
         {
@@ -77,12 +77,12 @@
         },
         {
             "name": "Atlas EX 2",
-            "damage type": " Enhancement",
+            "damage type": "Enhancement",
             "element": null
         },
         {
             "name": "Atlas infinium 2",
-            "damage type": " Enhancement",
+            "damage type": "Enhancement",
             "element": null
         },
         {
@@ -97,7 +97,7 @@
         },
         {
             "name": "High Caliber 2",
-            "damage type": "Soup",
+            "damage type": "Enhancement",
             "element": null
         },
         {
@@ -136,7 +136,7 @@
             "element": null
         },
         {
-            "name": "Gadjet Ahoy 3",
+            "name": "Gadget Ahoy 3",
             "damage type": "Soup",
             "element": null
         },
@@ -159,7 +159,7 @@
     "Harlowe": [
         {
             "name": "Group Study",
-            "damage type": "Enhance",
+            "damage type": "Enhancement",
             "element": null
         },
         {
@@ -584,7 +584,7 @@
         },
 		{
             "name": "El Soldado (While Charging)",
-            "damage type": "Enhance",
+            "damage type": "Enhancement",
             "element": null
         },
 		{
