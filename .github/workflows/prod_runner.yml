@@ -1,58 +1,57 @@
-# .github/workflows/prod_runner.yml
-
-name: Echo 4 Prod Workflow
+name: Echo 4 Prod Workflow (Docker)
 
 on:
   push:
     branches: [ main ]
 
+env:
+  # Use a consistent name for your Docker image and container
+  IMAGE_NAME: echo4-bot
+  CONTAINER_NAME: echo4-prod-container
+
 jobs:
-  build:
+  deploy:
     runs-on: self-hosted
 
     steps:
       - name: Check out repository code ✅
         uses: actions/checkout@v4
-        with:
-          # This checks out your repository contents into 
-          # .../actions-runner/_work/Echo4/Echo4/app
-          path: EchoProd
 
-      # 2. Create Venv and Install Dependencies (Combined step)
-      # This step creates the venv and installs the required packages.
-      - name: Install dependencies in venv 📦
-        working-directory: EchoProd
-        run: |
-            # Create the virtual environment named 'venv'
-            python -m venv venv
-            ./venv/bin/pip install --upgrade pip
-            ./venv/bin/pip install -r requirements.txt
-
-      - name: Create .env file
-        working-directory: EchoProd
+      # 1. Create .env file for build/runtime (optional, but good practice)
+      - name: Create .env file 📄
         run: |
             echo DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}" > .env
             echo ADMIN_SERVER_ID="${{ secrets.ADMIN_SERVER_ID }}" >> .env
             echo OWNER_ID="${{ secrets.OWNER_ID }}" >> .env
-            # Add other environment variables as needed
-        
-    #   - name: Use .env file (example)
-    #     working-directory: ../../../../EchoProd
-    #     run: |
-    #         cat .env # Verify the content
-    #         # Your application can now read from .env
+            # Note: This .env will be baked into the image, or used to load env vars at runtime
 
-      # 3. Run the Python Script using Venv's interpreter (Combined run step)
-      # Now you call the Python executable directly from the venv's bin directory.
-      - name: Move Bot 👋
+      # 2. Build the Docker Image 🏗️
+      # The '.' specifies the current directory as the build context.
+      - name: Build Docker image 🧱
         run: |
-          rm -rf ../../../../EchoProd
-          mv EchoProd ../../../../EchoProd
-      # 3. Run the Python Script using Venv's interpreter (Combined run step)
-      # Now you call the Python executable directly from the venv's bin directory.
-      - name: Run Discord Bot 👋
-        working-directory: ../../../../EchoProd
+          # The -t flag tags the image with the name from the environment variable
+          docker build -t $IMAGE_NAME .
+
+      # 3. Stop and Remove the Old Container, then Start the New One 🔄
+      - name: Deploy new container 🚀
         run: |
-          # Use the full path to the Python executable inside the VENV
-          # nohup ./venv/bin/python Discord.py > bot.log 2>&1 &
-          echo done no Autorun enabled.
+          # Kill and remove the currently running container (if it exists)
+          # '|| true' ensures the command doesn't fail if the container doesn't exist yet
+          echo "Stopping and removing old container..."
+          docker stop $CONTAINER_NAME || true
+          docker rm $CONTAINER_NAME || true
+          
+          echo "Starting new container..."
+          # Run the new container:
+          # -d: Detached mode (run in background)
+          # --name: Assign the container a recognizable name
+          # --restart=always: Ensure the bot restarts if it crashes or the Pi reboots
+          # --env-file .env: Pass environment variables (DISCORD_TOKEN, etc.) from the .env file
+          # $IMAGE_NAME: The image we just built
+          docker run -d \
+            --name $CONTAINER_NAME \
+            --restart=always \
+            --env-file .env \
+            $IMAGE_NAME
+          
+          echo "Deployment complete."
