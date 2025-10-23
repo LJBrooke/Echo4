@@ -50,8 +50,7 @@ class SystemCommands(commands.Cog):
         await interaction.response.send_message("Shutting down...", ephemeral=True)
         await self.bot.close()
         
-    # MODIFIED: Added the 'guilds' parameter to restrict this command
-    @app_commands.command(name="creator", description="Who builds the Bot?.")
+    @app_commands.command(name="creator", description="Who builds the Bot?")
     async def creator(self, interaction: discord.Interaction):
         credits='''**Creator:**
 - **Prismatic**
@@ -62,6 +61,12 @@ class SystemCommands(commands.Cog):
 - **Ratore**: Filled out Vex information.
         '''
         await interaction.response.send_message(credits)
+
+    @app_commands.command(name="news", description="BL4 Update Notes.")
+    async def updates(self, interaction: discord.Interaction):
+        updates='''[The latest Borderlands 4 Patch notes can be found here](https://borderlands.2k.com/borderlands-4/update-notes/)
+        '''
+        await interaction.response.send_message(updates)
 
 
 async def setup(bot: commands.Bot):
