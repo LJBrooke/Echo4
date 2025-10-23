@@ -62,7 +62,7 @@ class SystemCommands(commands.Cog):
         '''
         await interaction.response.send_message(credits)
 
-    @app_commands.command(name="news", description="BL4 Update Notes.")
+    @app_commands.command(name="news", description="Borderlands 4 Update Notes.")
     async def updates(self, interaction: discord.Interaction):
         updates='''[The latest Borderlands 4 Patch notes can be found here](https://borderlands.2k.com/borderlands-4/update-notes/)
         '''

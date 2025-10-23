@@ -1,0 +1,90 @@
+{   
+    "Formula": {
+        "Overview": {
+            "Affected by": "All, Gun Damage, Enhancement, Soup, Amp, Skill Damage, Action SKill Damage, Gear Crit, Skill Tree Crit, Minion Damage, Flat On Shot, Order Charge, Status Effect Damage",
+            "Base": "Base Damage",
+            "Vault Hunter": "All",
+            "Notes": "Base damage refers to a single bullet/damage instance"
+        },
+        "Gun Damage": {
+            "Affected by": "All, Gun Damage, Enhancement, Soup, Amp, Gear Crit, Skill Tree Crit, Flat On Shot, Order Charge",
+            "Base": "Gun Card Damage",
+            "Vault Hunter": "All",
+            "Notes": "Gun Card Damage refers to a single bullet/damage instance"
+        }
+    },
+    "Type Information": {
+        "Enhancement": {
+            "Applies to": "Guns, Underbarrels",
+            "Example": "Enhancement Gun Damage Effects",
+            "Check": "On Shot",
+            "Notes": "Most enhancement effects that add damage to guns apply here."
+        },
+        "Amp": {
+            "Applies to": "Guns, Underbarrels",
+            "Example": "Amp Shields",
+            "Check": "On Shot",
+            "Notes": null
+        },
+        "Order Charge": {
+            "Applies to": "Order Parts",
+            "Example": null,
+            "Check": "On Shot",
+            "Notes": null
+        },
+        "Flat On Shot": {
+            "Applies to": "Guns, Underbarrels",
+            "Example": "One Shot One Kill",
+            "Check": "On Shot",
+            "Notes": "Damage boosts based on flat numbers will be divided by total bullets fired per shot."
+        },
+        "Gun Damage": {
+            "Applies to": "Anything classed as gun damage",
+            "Example": "Oscar Mike II",
+            "Check": "On Hit",
+            "Notes": null
+        },
+        "Soup": {
+            "Applies to": "Everything",
+            "Example": "Damage Dealt Passive on Class Mods, Elemental Damage boosts",
+            "Check": "On Hit",
+            "Notes": "This applies to everything, and if something double dips it will be double dipped!"
+        },
+        "Skill Damage": {
+            "Applies to": "If it's from your skill tree and is a seperate damage instance, this probably works",
+            "Example": "Skill Passive on Class Mods, I am a Gun",
+            "Check": "On Hit",
+            "Notes": "All action skills are skills, not all skills are action skills."
+        },
+        "Action Skill Damage": {
+            "Applies to": "All Action Skills and specific special VH specific skills",
+            "Example": "Action Skill Damage on Class Mods",
+            "Check": "On Hit",
+            "Notes": null
+        },
+        "Gear Crit": {
+            "Applies to": "Almost exclusively guns, does not work on body shot crits.",
+            "Example": "Crit Damage innate to a gun",
+            "Check": "On Shot",
+            "Notes": null
+        },
+        "Skill Tree Crit": {
+            "Applies to": "All Critical Damage",
+            "Example": "Critical damage boosts found in your skill tree",
+            "Check": "On Hit",
+            "Notes": null
+        },
+        "Status Effect Damage": {
+            "Applies to": "Status Effects",
+            "Example": "Synthesizer Enhancement Effect",
+            "Check": "On Hit",
+            "Notes": null
+        },
+        "Minion Damage": {
+            "Applies to": "Vex Pets",
+            "Example": "@RAT HALP",
+            "Check": "On Hit",
+            "Notes": "What are you? A Vex main?"
+        }
+    }
+}
