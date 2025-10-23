@@ -190,7 +190,7 @@
         },
         {
             "name": "Gamma Ray Burst",
-            "damage type": "On Shot",
+            "damage type": "Flat On Shot",
             "element": null
         },
         {
@@ -224,7 +224,7 @@
             "element": null
         },
         {
-            "name": "Freeze Framme",
+            "name": "Freeze Frame",
             "damage type": "Bonus Element",
             "element": null
         },
@@ -239,8 +239,8 @@
             "element": null
         },
         {
-            "name": "Neutron Decay",
-            "damage type": "Bonus Element",
+            "name": "Neutron Capture",
+            "damage type": "Flat On Shot",
             "element": null
         },
         {
@@ -472,7 +472,7 @@
         },
         {
             "name": "Iron Maiden",
-            "damage type": "On Shot",
+            "damage type": "Flat On Shot",
             "element": null
         },		
         {
@@ -502,12 +502,12 @@
         },
         {
             "name": "Blood Shot",
-            "damage type": "On Shot",
+            "damage type": "Flat On Shot",
             "element": null
         },
         {
             "name": "Heartpiercer",
-            "damage type": "On Shot",
+            "damage type": "Flat On Shot",
             "element": null
         },	
         {
@@ -722,7 +722,7 @@
         },
         {
             "name": "Firewall",
-            "damage type": "On Shot",
+            "damage type": "Flat On Shot",
             "element": null,
 	        "note": "applies to all projectiles"
         },
