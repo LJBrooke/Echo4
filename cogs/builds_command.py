@@ -79,7 +79,6 @@ class BuildView(discord.ui.View):
             try:
                 # Edit the message, setting 'view=None' to remove all buttons
                 await self.message.edit(
-                    content=f"{self.message.content}\n\n**(Interaction timed out. Buttons disabled.)**", 
                     view=None
                 )
             except discord.NotFound:
