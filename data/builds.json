@@ -63,14 +63,6 @@
     ],
     "Vex": [
         {
-            "name": "Hexblade Vex",
-            "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
-            "tree": "Blue",
-            "description": "This build focuses on maximizing melee attack power while having ranged melee access through Haruspex.",
-            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/hexmancer-deadringer-melee",
-            "youtube": "https://youtu.be/dJadJ0axHUs"
-        },
-        {
             "name": "Gun Gal Vex",
             "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
             "tree": "Green",
@@ -86,22 +78,6 @@
             "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/u-a-vex-dronemancer-underbarrel-vex-uvh5",
             "youtube": "https://youtu.be/h1C0XWITnRI"
         },
-        {
-            "name": "Wattlock Vex",
-            "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
-            "tree": "Blue",
-            "description": "This build focuses on causing high elemental DoT effects through the loop of shoot-reloading Stelliums, a type of Maliwan Shotgun, and usage of the High Caliber firmware, which lets the Splash hit a second time and apply another DoT.",
-            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/wattlock-status-effect-vex-uvh5",
-            "youtube": "https://youtu.be/7aYnKjd93sE"
-        },
-        {
-            "name": "Blood Fang Vex",
-            "author": "[Ratore](<https://www.youtube.com/@Ratore>), Iserrot",
-            "tree": "Red",
-            "description": "Traditional heavy-hitter sniper rifle build, optimized for maximum passive damage with the capacity for big one-shots with bleed. Trouble helps with aggro relief!",
-            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/blood-fang-sniper-vex-uvh5",
-            "youtube": null
-        },			
         {
             "name": "Undead Eye/Blood Shot Sniper Build",
             "author": "Arachnica",
@@ -119,12 +95,36 @@
             "youtube": "https://www.youtube.com/watch?v=uogsHuHVRvQ"
         },	
         {
+            "name": "Hexblade Vex",
+            "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
+            "tree": "Blue",
+            "description": "This build focuses on maximizing melee attack power while having ranged melee access through Haruspex.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/hexmancer-deadringer-melee",
+            "youtube": "https://youtu.be/dJadJ0axHUs"
+        },
+        {
             "name": "Blue Blood",
             "author": "Katchenz",
             "tree": "Blue",
             "description": "Unique Finnity XXX-L setup that maximizes trigger rates of Blood Shot through bonus element mechanics.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/b454eeca-0164-4d9c-bc58-34846a9b3645/builds/398b17e4-5c75-4516-8a38-72b66e99d106",
             "youtube": null
-        }
+        },
+        {
+            "name": "Wattlock Vex",
+            "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
+            "tree": "Blue",
+            "description": "This build focuses on causing high elemental DoT effects through the loop of shoot-reloading Stelliums, a type of Maliwan Shotgun, and usage of the High Caliber firmware, which lets the Splash hit a second time and apply another DoT.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/wattlock-status-effect-vex-uvh5",
+            "youtube": "https://youtu.be/7aYnKjd93sE"
+        },
+        {
+            "name": "Blood Fang Vex",
+            "author": "[Ratore](<https://www.youtube.com/@Ratore>), Iserrot",
+            "tree": "Red",
+            "description": "Traditional heavy-hitter sniper rifle build, optimized for maximum passive damage with the capacity for big one-shots with bleed. Trouble helps with aggro relief!",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/blood-fang-sniper-vex-uvh5",
+            "youtube": null
+        }			
     ]
 }
