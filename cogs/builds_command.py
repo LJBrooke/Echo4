@@ -54,13 +54,19 @@ class BuildView(discord.ui.View):
         if build.get('moba') is not None: response = response+f"\n- [Mobalytics Written Guide](<{build.get('moba')}>)"
         if build.get('youtube') is not None: response = response+f"\n- [Youtube Video]({build.get('youtube')})"
         
-        await interaction.edit_original_response(
+        # Creates a fresh view object on button click. Refreshing an old one causes issues at time out.
+        new_view = BuildView(self.cog, self.vault_hunter)
+        
+        edited_message = await interaction.edit_original_response(
             content=response, 
-            view=BuildView(self.cog, self.vault_hunter)
+            view=new_view
         )
         
-        message = await interaction.original_response()
-        self.set_message(message)
+        new_view.set_message(edited_message)
+        
+        # Removed with introduction of fresh view object per interaction.
+        # message = await interaction.original_response()
+        # self.set_message(message)
         
     async def builds_button_callback(self, interaction: discord.Interaction):
         # Pass the build name to the core processing logic
