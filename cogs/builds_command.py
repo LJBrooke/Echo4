@@ -16,7 +16,7 @@ class BuildView(discord.ui.View):
         self.cog = cog
         self.vault_hunter = vault_hunter
         self.original_msg = original_msg
-        self.message = None
+        self.message = original_msg
         
         # Set a timeout (was 3 minutes, upped to 5.)
         super().__init__(timeout=300.0)
@@ -38,7 +38,7 @@ class BuildView(discord.ui.View):
                 # Use the name as the custom_id for easy lookup in the callback
                 custom_id=str(index), 
             )
-            # 3. Assign the unified callback to the button
+            # 3. Assign the unified callback to the buttonYes.
             button.callback = self.builds_button_callback
             
             # 4. Add the button to the View
@@ -91,7 +91,7 @@ class BuildCommands(commands.Cog):
         app_commands.Choice(name="Rafa", value="Rafa"),
     ])
     async def builds(self, interaction: discord.Interaction, vault_hunter: str):
-        initial_content =f'''# Community {vault_hunter} Builds \n_Button Colour indicates the builds focus skill tree._ \n\nHeres a selection our community recommended builds. This assortment was co created by The Soup Kitchen's best!\n\nAll creators present on this list are members of this community. Dont hesitate to ask for help!\n\n-# This message times out after 3 minutes._ _'''  
+        initial_content =f'''# Community {vault_hunter} Builds \n_Button Colour indicates the builds focus skill tree._ \n\nHeres a selection our community recommended builds. This assortment was co created by The Soup Kitchen's best!\n\nAll creators present on this list are members of this community. Dont hesitate to ask for help!\n\n-# This message times out after 5 minutes._ _'''  
         view = BuildView(self, vault_hunter, initial_content)
         
         # Send the message
