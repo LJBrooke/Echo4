@@ -12,11 +12,10 @@ except (FileNotFoundError, json.JSONDecodeError) as e:
     BUILD_DATA = {}
 
 class BuildView(discord.ui.View):
-    def __init__(self, cog: 'BuildCommands', vault_hunter: str, original_msg: str):
+    def __init__(self, cog: 'BuildCommands', vault_hunter: str):
         self.cog = cog
         self.vault_hunter = vault_hunter
-        self.original_msg = original_msg
-        self.message = original_msg
+        self.message = None
         
         # Set a timeout (was 3 minutes, upped to 5.)
         super().__init__(timeout=300.0)
@@ -57,8 +56,11 @@ class BuildView(discord.ui.View):
         
         await interaction.edit_original_response(
             content=response, 
-            view=BuildView(self.cog, self.vault_hunter, response)
+            view=BuildView(self.cog, self.vault_hunter)
         )
+        
+        message = await interaction.original_response()
+        self.set_message(message)
         
     async def builds_button_callback(self, interaction: discord.Interaction):
         # Pass the build name to the core processing logic
@@ -92,7 +94,7 @@ class BuildCommands(commands.Cog):
     ])
     async def builds(self, interaction: discord.Interaction, vault_hunter: str):
         initial_content =f'''# Community {vault_hunter} Builds \n_Button Colour indicates the builds focus skill tree._ \n\nHeres a selection our community recommended builds. This assortment was co created by The Soup Kitchen's best!\n\nAll creators present on this list are members of this community. Dont hesitate to ask for help!\n\n-# This message times out after 5 minutes._ _'''  
-        view = BuildView(self, vault_hunter, initial_content)
+        view = BuildView(self, vault_hunter)
         
         # Send the message
         await interaction.response.send_message(content=initial_content, view=view)
