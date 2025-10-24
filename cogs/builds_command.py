@@ -16,8 +16,10 @@ class BuildView(discord.ui.View):
         self.cog = cog
         self.vault_hunter = vault_hunter
         self.original_msg = original_msg
-        # Set a timeout (e.g., 3 minutes)
-        super().__init__(timeout=180.0)
+        self.message = None
+        
+        # Set a timeout (was 3 minutes, upped to 5.)
+        super().__init__(timeout=300.0)
         builds = BUILD_DATA.get(vault_hunter)
         index=0
         # 2. Loop through the list and create a button for each skill name
@@ -31,7 +33,7 @@ class BuildView(discord.ui.View):
                 button_style=discord.ButtonStyle.success
             button = discord.ui.Button(
                 label=build.get("name"),
-                # Use a specific style, e.g., gray
+                # Use a specific style, e.g., Blue
                 style=button_style, 
                 # Use the name as the custom_id for easy lookup in the callback
                 custom_id=str(index), 
@@ -41,7 +43,11 @@ class BuildView(discord.ui.View):
             
             # 4. Add the button to the View
             self.add_item(button)
-            index+=1      
+            index+=1
+            
+    def set_message(self, message: discord.Message):
+        """Stores the message object to be used for editing on timeout."""
+        self.message = message  
     
     async def _send_build(self, interaction: discord.Interaction, build_index: int):
         build = BUILD_DATA.get(self.vault_hunter)[build_index]
@@ -60,13 +66,15 @@ class BuildView(discord.ui.View):
         await self._send_build(interaction, int(interaction.data['custom_id']))
     
     async def on_timeout(self) -> None:
-        """Called when the view times out (after 180 seconds)."""
+        """Called when the view times out (after 300 seconds)."""
         if self.message:
             try:
                 # Edit the message, setting 'view=None' to remove all buttons
-                await self.message.edit(content=f"{self.message.content}\n\n**(Interaction timed out. Buttons disabled.)**", view=None)
+                await self.message.edit(
+                    content=f"{self.message.content}\n\n**(Interaction timed out. Buttons disabled.)**", 
+                    view=None
+                )
             except discord.NotFound:
-                # Handle case where the message might have been deleted by a user
                 pass
 
 class BuildCommands(commands.Cog):
@@ -85,10 +93,13 @@ class BuildCommands(commands.Cog):
     async def builds(self, interaction: discord.Interaction, vault_hunter: str):
         initial_content =f'''# Community {vault_hunter} Builds \n_Button Colour indicates the builds focus skill tree._ \n\nHeres a selection our community recommended builds. This assortment was co created by The Soup Kitchen's best!\n\nAll creators present on this list are members of this community. Dont hesitate to ask for help!\n\n-# This message times out after 3 minutes._ _'''  
         view = BuildView(self, vault_hunter, initial_content)
-        # view = SkillView(self, filtered_skill_names)
         
-        # 3. Send the message
+        # Send the message
         await interaction.response.send_message(content=initial_content, view=view)
+        
+        # Handle time out update to message.
+        message = await interaction.original_response()
+        view.set_message(message)
 
 # --- To load the Cog ---
 async def setup(bot):
