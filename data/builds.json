@@ -1,5 +1,46 @@
 {
-    "Amon":[],
+    "Amon":[
+        {
+            "name": "Slip N' Dip Amon",
+            "author": "Girthquake",
+            "tree": "Red",
+            "description": "Ever felt like kills skills were too much of a hassle? Did Zane's Seein Dead COM entice you back in the day? You aren't alone cuz GBX turned it into a skill tree.\nWell then Slip N' Dip Amon is for you. Activate all of your kill skills right off the bat with some fish.\nThis will shape up to be THE standard Amon gun build. Using proper weapons in combination with an easy to maintain loop this build is exceedingly powerful and easy to run. Requires little game knowledge once the skills are specced and the items are acquired.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/girthquake/builds/slip-n-dip",
+            "youtube": "https://youtu.be/N86-06e1v6I?si=IymC25OXHl6bBMAb"
+        },
+        {
+            "name": "HORBA",
+            "author": "AncientRune",
+            "tree": "Blue",
+            "description": "Heavy Ordnance Ricochet Banaza Amon\nAlso known as HORBA! This is the ultimate amon build that I predicted pre launch but with some adjustments with all the info post launch. Using Heavy Ordnance with high power you can do some insane stuff and melt bosses on Ultimate Vault Hunter 5.  a very strong setup with versitility.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ancientrune/builds/horba-heavy-ordnance-spam",
+            "youtube": "https://www.youtube.com/watch?v=XDL39usp1hA"
+        },
+        {
+            "name": "Hellshot Amon",
+            "author": "Nootmad",
+            "tree": "Red",
+            "description": "A build focused on mob clearing and stacking elemental damage on trash mobs and bosses alike to melt through their health. This build makes heavy use of a very involved gameplay loop of spam reloading, amp-ing through stim and ordnance spamming to synergise with the skills we pick up.",
+            "moba": "https://mobalytics.gg/borderlands-4/builds/hellshot-amon-nootmad",
+            "youtube": "https://www.youtube.com/watch?v=3XPIAqmUu00"
+        },
+        {
+            "name": "Kill Skill Vex Build",
+            "author": "Lazydata",
+            "tree": "Green",
+            "description": "Uses the  to benefit from both Ordnance and Gun skills for easy mob and boss clears!",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/lazydata/builds/endless-bombardment-hybrid-amon-build",
+            "youtube": "https://youtu.be/MlxaryL95Co"
+        },
+        {
+            "name": "Aim-On",
+            "author": "AncientRune",
+            "tree": "Red",
+            "description": "This build aims to maximize damage through the use of Bloodshot and amp on repkits, leading to the ability to annihilate anything you point your crosshairs at. If you're a fan of classic sniper builds and popping heads, this is the build for you.",
+            "moba": "https://mobalytics.gg/borderlands-4/builds/aim-on-amon",
+            "youtube": "https://youtu.be/gZfvnf0O-Hc?si=X2huKDC0b8MiVM8M"
+        }
+    ],
     "Harlowe":[],
     "Rafa":[],
     "Vex": [
@@ -20,12 +61,28 @@
             "youtube": "https://www.youtube.com/watch?v=uogsHuHVRvQ"
         },
         {
-            "name": "GUN GAL - Gunslinger Vex ",
+            "name": "GUN GAL - Gunslinger Vex",
             "author": "Ratore",
             "tree": "Green",
-            "description": "This is a  shotgun-centric build that has a flexible focus on Jakobs-licensed (and now Torgue too!) guns, and very potent baseline damage for just about anything. It abdicates most kill skills in favor of stacking movement speed and passive damage boosts through bonus elements to hit big numbers without needing weapons that are highly synergistic with Mortal Terror. Weapons that have a shoot-reload-shoot-reload loop feel great here!",
+            "description": "This is a shotgun-centric build that has a flexible focus on Jakobs-licensed (and now Torgue too!) guns, and very potent baseline damage for just about anything. It abdicates most kill skills in favor of stacking movement speed and passive damage boosts through bonus elements to hit big numbers without needing weapons that are highly synergistic with Mortal Terror. Weapons that have a shoot-reload-shoot-reload loop feel great here!",
             "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/gun-gal-vex-uvh5-shotgun-build",
             "youtube": "https://www.youtube.com/watch?v=xuONObjjfV8"
+        },
+        {
+            "name": "Kill Skill Vex Build",
+            "author": "Lazydata",
+            "tree": "Green",
+            "description": "A gun focused Vex build for strong DPS output, maximum DPS consistency, and strong health regen.",
+            "moba": "https://mobalytics.gg/borderlands-4/builds/kill-skill-vex-build",
+            "youtube": "https://www.youtube.com/watch?v=Nmq99x-5vRM"
+        },
+        {
+            "name": "Undead Eye/Blood Shot Sniper Build",
+            "author": "Arachnica",
+            "tree": "Green",
+            "description": "This build aims to maximize damage through the use of Bloodshot and amp on repkits, leading to the ability to annihilate anything you point your crosshairs at. If you're a fan of classic sniper builds and popping heads, this is the build for you.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/arachnica/builds/undead-eye-bloodshot-sniper-build-huge-one-shots-uvh5",
+            "youtube": "https://youtu.be/hdXwt9FrvWU"
         }
     ]
 }
