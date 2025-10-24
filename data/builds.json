@@ -51,7 +51,16 @@
             "youtube": "https://www.youtube.com/watch?v=Gv28zVBJzo0"
         }
     ],
-    "Rafa":[],
+    "Rafa":[
+        {
+            "name": "EL Tediore Primo Rafa",
+            "author": "JoeForLong",
+            "tree": "Blue",
+            "description": "A Grenazerker Rafa setup that primarily utilizes Tediore reloads but also can utilize a wide variety of Ordnances and the APOPHIS: Lance Action skill for utility and damage. Excels in both mobbing and bossing encounters.",
+            "moba": "https://mobalytics.gg/borderlands-4/builds/overdrive-soltado-tediore-primo-rafa-joeforlong",
+            "youtube": "https://youtu.be/6OCoowHY2RI?si=bKsO5uBIWSdmbr1Z"
+        }
+    ],
     "Vex": [
         {
             "name": "Sniper Vex",
