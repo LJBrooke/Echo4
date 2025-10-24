@@ -45,9 +45,9 @@ class BuildView(discord.ui.View):
     
     async def _send_build(self, interaction: discord.Interaction, build_index: int):
         build = BUILD_DATA.get(self.vault_hunter)[build_index]
-        response=f"# {build.get("name")}\n**Author(s):** {build.get("author")}\n{build.get("description")}\n"
-        if build.get("moba") is not None: response = response+f"\n- [Mobalytics Written Guide](<{build.get("moba")}>)"
-        if build.get("youtube") is not None: response = response+f"\n- [Youtube Video]({build.get("youtube")})"
+        response=f"# {build.get('name')}\n**Author(s):** {build.get('author')}\n{build.get('description')}\n"
+        if build.get('moba') is not None: response = response+f"\n- [Mobalytics Written Guide](<{build.get('moba')}>)"
+        if build.get('youtube') is not None: response = response+f"\n- [Youtube Video]({build.get('youtube')})"
         
         await interaction.edit_original_response(
             content=response, 
