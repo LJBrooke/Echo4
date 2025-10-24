@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Environment variables will be passed at runtime.
-CMD ["python", "Discord.py"]
+CMD ["python", "-u", "Discord.py"]
