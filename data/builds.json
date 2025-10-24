@@ -1,0 +1,31 @@
+{
+    "Amon":[],
+    "Harlowe":[],
+    "Rafa":[],
+    "Vex": [
+        {
+            "name": "Hexblade Vex",
+            "author": "Ratore",
+            "tree": "Blue",
+            "description": "This build focuses on maximizing melee attack power while having ranged melee access through Haruspex.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/hexmancer-deadringer-melee",
+            "youtube": "https://youtu.be/dJadJ0axHUs"
+        },
+        {
+            "name": "Sniper Vex",
+            "author": "LazyData",
+            "tree": "Green",
+            "description": "Destroy UVH 5 with the best Sniper Vex Build! Good for mobbing, insane for bossing! This build isn't niche, it's genuinely a very strong setup with versitility.",
+            "moba": null,
+            "youtube": "https://www.youtube.com/watch?v=uogsHuHVRvQ"
+        },
+        {
+            "name": "GUN GAL - Gunslinger Vex ",
+            "author": "Ratore",
+            "tree": "Green",
+            "description": "This is a  shotgun-centric build that has a flexible focus on Jakobs-licensed (and now Torgue too!) guns, and very potent baseline damage for just about anything. It abdicates most kill skills in favor of stacking movement speed and passive damage boosts through bonus elements to hit big numbers without needing weapons that are highly synergistic with Mortal Terror. Weapons that have a shoot-reload-shoot-reload loop feel great here!",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/gun-gal-vex-uvh5-shotgun-build",
+            "youtube": "https://www.youtube.com/watch?v=xuONObjjfV8"
+        }
+    ]
+}

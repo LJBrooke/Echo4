@@ -2,23 +2,35 @@
     "COM": [        
         {
             "name": "Gun Damage(P)",
-            "damage type": "Soup",
-            "element": null
+            "damage type": "Gun Damage",
+            "damage category": "Soup",
+            "affects": "Gun",
+            "element": null,
+            "note": null
         },
         {
             "name": "Damage Dealt(P)",
             "damage type": "Soup",
-            "element": null
+            "damage category": "Soup",
+            "affects": "All",
+            "element": null,
+            "note": null
         },
         {
             "name": "Crit Damage(P)",
             "damage type": "Gear Crit",
-            "element": null
+            "damage category": "Soup",
+            "affects": "Weakpoint Crits",
+            "element": null,
+            "note": null
         },
         {
             "name": "Elemental(P)",
             "damage type": "Soup",
-            "element": null
+            "damage category": "Soup",
+            "affects": "Elemental Damage",
+            "element": null,
+            "note": null
         }
     ],
     "Enhancement": [        
