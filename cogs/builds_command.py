@@ -51,13 +51,23 @@ class BuildView(discord.ui.View):
         
         await interaction.edit_original_response(
             content=response, 
-            view=BuildView(self.cog, self.vault_hunter, self.original_msg)
+            view=BuildView(self.cog, self.vault_hunter, response)
         )
         
     async def builds_button_callback(self, interaction: discord.Interaction):
         # Pass the build name to the core processing logic
         await interaction.response.defer()
         await self._send_build(interaction, int(interaction.data['custom_id']))
+    
+    async def on_timeout(self) -> None:
+        """Called when the view times out (after 180 seconds)."""
+        if self.message:
+            try:
+                # Edit the message, setting 'view=None' to remove all buttons
+                await self.message.edit(content=f"{self.message.content}\n\n**(Interaction timed out. Buttons disabled.)**", view=None)
+            except discord.NotFound:
+                # Handle case where the message might have been deleted by a user
+                pass
 
 class BuildCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
