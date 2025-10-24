@@ -41,7 +41,16 @@
             "youtube": "https://youtu.be/gZfvnf0O-Hc?si=X2huKDC0b8MiVM8M"
         }
     ],
-    "Harlowe":[],
+    "Harlowe":[
+        {
+            "name": "Nepta GRB",
+            "author": "Nepta",
+            "tree": "Green",
+            "description": "This is the true Endgame Green Tree Gun setup for Harlowe.\nWe are making use of Gamma Ray Burst to convert our shield capacity (which can go up to 120K!) into pure damage.\nWe are also taking advantage of the fact that some Gun's Alt-Fire like Kill Drone, Taser, Space Laser,... can retain the Amped Gamma Ray Burst Damage.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/nepta/builds/gamma-ray-burst-harlowe-best-harlowe-gun-build",
+            "youtube": "https://www.youtube.com/watch?v=Gv28zVBJzo0"
+        }
+    ],
     "Rafa":[],
     "Vex": [
         {
