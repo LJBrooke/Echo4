@@ -1,12 +1,12 @@
 {
     "Amon":[
         {
-            "name": "Slip N' Dip Amon",
-            "author": "Girthquake",
-            "tree": "Red",
-            "description": "Ever felt like kills skills were too much of a hassle? Did Zane's Seein Dead COM entice you back in the day? You aren't alone cuz GBX turned it into a skill tree.\nWell then Slip N' Dip Amon is for you. Activate all of your kill skills right off the bat with some fish.\nThis will shape up to be THE standard Amon gun build. Using proper weapons in combination with an easy to maintain loop this build is exceedingly powerful and easy to run. Requires little game knowledge once the skills are specced and the items are acquired.",
-            "moba": "https://mobalytics.gg/borderlands-4/profile/girthquake/builds/slip-n-dip",
-            "youtube": "https://youtu.be/N86-06e1v6I?si=IymC25OXHl6bBMAb"
+            "name": "Fire Slinger Amon",
+            "author": "Lazydata",
+            "tree": "Green",
+            "description": "Uses the  to benefit from both Ordnance and Gun skills for easy mob and boss clears!",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/lazydata/builds/endless-bombardment-hybrid-amon-build",
+            "youtube": "https://youtu.be/MlxaryL95Co"
         },
         {
             "name": "HORBA",
@@ -17,20 +17,20 @@
             "youtube": "https://www.youtube.com/watch?v=XDL39usp1hA"
         },
         {
+            "name": "Slip N' Dip Amon",
+            "author": "Girthquake",
+            "tree": "Red",
+            "description": "Ever felt like kills skills were too much of a hassle? Did Zane's Seein Dead COM entice you back in the day? You aren't alone cuz GBX turned it into a skill tree.\nWell then Slip N' Dip Amon is for you. Activate all of your kill skills right off the bat with some fish.\nThis will shape up to be THE standard Amon gun build. Using proper weapons in combination with an easy to maintain loop this build is exceedingly powerful and easy to run. Requires little game knowledge once the skills are specced and the items are acquired.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/girthquake/builds/slip-n-dip",
+            "youtube": "https://youtu.be/N86-06e1v6I?si=IymC25OXHl6bBMAb"
+        },
+        {
             "name": "Hellshot Amon",
             "author": "Nootmad",
             "tree": "Red",
             "description": "A build focused on mob clearing and stacking elemental damage on trash mobs and bosses alike to melt through their health. This build makes heavy use of a very involved gameplay loop of spam reloading, amp-ing through stim and ordnance spamming to synergise with the skills we pick up.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/hellshot-amon-nootmad",
             "youtube": "https://www.youtube.com/watch?v=3XPIAqmUu00"
-        },
-        {
-            "name": "Fire Slinger Amon",
-            "author": "Lazydata",
-            "tree": "Green",
-            "description": "Uses the  to benefit from both Ordnance and Gun skills for easy mob and boss clears!",
-            "moba": "https://mobalytics.gg/borderlands-4/profile/lazydata/builds/endless-bombardment-hybrid-amon-build",
-            "youtube": "https://youtu.be/MlxaryL95Co"
         },
         {
             "name": "Aim-On",
@@ -53,14 +53,6 @@
     ],
     "Rafa":[],
     "Vex": [
-        {
-            "name": "Hexblade Vex",
-            "author": "Ratore",
-            "tree": "Blue",
-            "description": "This build focuses on maximizing melee attack power while having ranged melee access through Haruspex.",
-            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/hexmancer-deadringer-melee",
-            "youtube": "https://youtu.be/dJadJ0axHUs"
-        },
         {
             "name": "Sniper Vex",
             "author": "LazyData",
@@ -92,6 +84,14 @@
             "description": "This build aims to maximize damage through the use of Bloodshot and amp on repkits, leading to the ability to annihilate anything you point your crosshairs at. If you're a fan of classic sniper builds and popping heads, this is the build for you.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/arachnica/builds/undead-eye-bloodshot-sniper-build-huge-one-shots-uvh5",
             "youtube": "https://youtu.be/hdXwt9FrvWU"
+        },
+        {
+            "name": "Hexblade Vex",
+            "author": "Ratore",
+            "tree": "Blue",
+            "description": "This build focuses on maximizing melee attack power while having ranged melee access through Haruspex.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/hexmancer-deadringer-melee",
+            "youtube": "https://youtu.be/dJadJ0axHUs"
         }
     ]
 }

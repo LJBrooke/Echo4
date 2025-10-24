@@ -73,7 +73,7 @@ class BuildCommands(commands.Cog):
         app_commands.Choice(name="Rafa", value="Rafa"),
     ])
     async def builds(self, interaction: discord.Interaction, vault_hunter: str):
-        initial_content =f'''# Community {vault_hunter} Builds \n_Button Colour indicates the builds focus skill tree._ \n\n<Girth wordification skills here>\n_ _'''  
+        initial_content =f'''# Community {vault_hunter} Builds \n_Button Colour indicates the builds focus skill tree._ \n\n<Girth wordification skills here>\n\n-# This message times out after 3 minutes._ _'''  
         view = BuildView(self, vault_hunter, initial_content)
         # view = SkillView(self, filtered_skill_names)
         
