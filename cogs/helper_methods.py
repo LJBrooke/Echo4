@@ -10,11 +10,12 @@ def _get_coms_by_skill(skill: str):
         
     if '(' in skill:
         skill = skill[:skill.find('(')]
-        
+    found = False
     response =[]
     response.append(f'\n\n## Class Mods with {skill}')
     for class_mod in COM_DATA.get('class mods'):
         if skill.strip() in class_mod.get("skills"):
+            found=True
             response.append(f"\n### {class_mod.get('name')}:")
             for key, value in class_mod.items():
                 # Skip the 'character' key, we already have character context from the skill.
@@ -25,7 +26,8 @@ def _get_coms_by_skill(skill: str):
                 elif key=='lootlemon' and value is not None:
                     formatted_key = key.replace('_', ' ').title()
                     response.append(f"- [Lootlemon Page](<{value}>)")
-    return "\n".join(response)
+    if found: return "\n".join(response)
+    return ""
 
 def _process_lookup(name: str):
     """
@@ -60,7 +62,7 @@ def _process_lookup(name: str):
 
     # 4. Check if the list of found items is empty.
     if not found_items:
-        return f"Could not find any item containing `{name}`.", True
+        return f"Could not find any skill information for `{name}`." + _get_coms_by_skill(name), True
 
     # 5. Build the response message.
     # Start with a summary of how many results were found.

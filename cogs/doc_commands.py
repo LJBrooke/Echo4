@@ -47,6 +47,7 @@ class DocCommands(commands.Cog):
         if resource=='Skill Info':
             format_example='''{
     "name": "Skill/Enhancement Effect/Passive Name",
+    "skill description": "When Theorycrafter thinks, take bonus soup damage.",
     "damage type": "All/Gun Damage/Enhancement/Debuff/Elemental/Amp/Skill Damage/Action SKill Damage/Weakpoint Crit/Skill Tree Crit/Minion Damage/Flat On Shot/Order Charge/Status Effect Damage",
     "damage category": "Enhancement/Flat On Shot/Soup",
     "affects": "Gun/Bullet/Skill/Action Skill/Minions/Dots/Ordnance/Melee",
