@@ -19,7 +19,7 @@ class DocCommands(commands.Cog):
         app_commands.Choice(name="Skill Info", value="Skill Info"),
     ])
     async def doc(self, interaction: discord.Interaction, resource: str):
-        response='To submit data for {resource} please follow this example: ```json\n'
+        response=f'To submit data for {resource} please follow this example: ```json\n'
         
         format_example=""
         if resource=='Class Mods':
