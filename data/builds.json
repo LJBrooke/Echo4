@@ -54,11 +54,35 @@
     "Rafa":[
         {
             "name": "EL Tediore Primo Rafa",
-            "author": "JoeForLong",
+            "author": "[JoeForLong](<https://www.youtube.com/@JoeForLong>)",
             "tree": "Blue",
             "description": "A Grenazerker Rafa setup that primarily utilizes Tediore reloads but also can utilize a wide variety of Ordnances and the APOPHIS: Lance Action skill for utility and damage. Excels in both mobbing and bossing encounters.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/overdrive-soltado-tediore-primo-rafa-joeforlong",
             "youtube": "https://youtu.be/6OCoowHY2RI?si=bKsO5uBIWSdmbr1Z"
+        },
+        {
+            "name": "Deadshot",
+            "author": "[Rezur](<https://www.youtube.com/@rezurwttic>)",
+            "tree": "Blue",
+            "description": "This build takes advantage of charging APOPHIS Lance constantly to give us a massive 'On-Shot' bonus from El Soldado that multiplies with our gun damage - and is boosted by Overdrive skills & gear such as Soltado, Jaque, and the Dancer classmod.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/9741fa52-b4d1-4d0b-a92c-06278f363b38/builds/d4bfba69-8e40-4ace-bb3d-7a6550c54395",
+            "youtube": "https://www.youtube.com/watch?v=cAnrDWcpzsg"
+        },
+        {
+            "name": "Slippery Soldier",
+            "author": "[Rezur](<https://www.youtube.com/@rezurwttic>)",
+            "tree": "Red",
+            "description": "A melee grenade build, ping Rezur to do a Mobalytics write up I can plagiarize here.",
+            "moba": null,
+            "youtube": "https://www.youtube.com/watch?v=q_QatFXaTms"
+        },
+        {
+            "name": "Drone Striker",
+            "author": "[Nepta](<https://www.youtube.com/@NeptaLeijon>)",
+            "tree": "Red",
+            "description": "The first ever Drone Rafa build.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/nepta/builds/drone-striker-rafa-off-meta",
+            "youtube": "https://www.youtube.com/watch?v=ff0h3lQ5B-E"
         }
     ],
     "Vex": [
