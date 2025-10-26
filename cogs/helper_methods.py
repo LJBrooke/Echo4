@@ -14,7 +14,7 @@ def _get_coms_by_skill(skill: str):
     response =[f'## Class Mods with {skill}']
     for class_mod in COM_DATA.get('class mods'):
         if skill.strip() in class_mod.get("skills"):
-            response.append(f"\n### {class_mod.get("name")}:")
+            response.append(f"\n### {class_mod.get('name')}:")
             for key, value in class_mod.items():
                 # Skip the 'character' key, we already have character context from the skill.
                 # Skip the name key as we manually add it as a heading.
