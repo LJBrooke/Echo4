@@ -27,7 +27,7 @@ def _get_coms_by_skill(skill: str):
                     formatted_key = key.replace('_', ' ').title()
                     response.append(f"- [Lootlemon Page](<{value}>)")
     if found: return "\n".join(response)
-    return ""
+    return None
 
 def _process_lookup(name: str):
     """
@@ -58,11 +58,16 @@ def _process_lookup(name: str):
                 found_items.append({'item': item, 'source': parent_key})
                 vh_skill = True
 
+    # --- Check class mods ---
+    
+    coms = _get_coms_by_skill(name)
     # --- Format and Send the Response ---
 
     # 4. Check if the list of found items is empty.
     if not found_items:
-        return f"Could not find any skill information for `{name}`." + _get_coms_by_skill(name), True
+        if not coms:
+            return f"Could not find any skill information for `{name}`.", True
+        return f"Could not find any skill information for `{name}`." + _get_coms_by_skill(name), False
 
     # 5. Build the response message.
     # Start with a summary of how many results were found.
