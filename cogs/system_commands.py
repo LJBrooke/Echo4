@@ -50,9 +50,9 @@ class SystemCommands(commands.Cog):
         await interaction.response.send_message("Shutting down...", ephemeral=True)
         await self.bot.close()
         
-    @app_commands.command(name="creator", description="Who builds the Bot?")
-    async def creator(self, interaction: discord.Interaction):
-        credits='''**Creator:**
+    @app_commands.command(name="credits", description="Who builds the Bot?")
+    async def creadits(self, interaction: discord.Interaction):
+        credits='''**Bot Developer:**
 - **Prismatic**
 
 **Contributors**
