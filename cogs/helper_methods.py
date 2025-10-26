@@ -11,7 +11,8 @@ def _get_coms_by_skill(skill: str):
     if '(' in skill:
         skill = skill[:skill.find('(')]
         
-    response =[f'## Class Mods with {skill}']
+    response =[]
+    response.append(f'## Class Mods with {skill}')
     for class_mod in COM_DATA.get('class mods'):
         if skill.strip() in class_mod.get("skills"):
             response.append(f"\n### {class_mod.get('name')}:")
