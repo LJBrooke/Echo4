@@ -1,19 +1,10 @@
-import json
-
-def _get_coms_by_skill(skill: str):
-    try:
-        with open('data/Gear.json', 'r', encoding='utf-8') as f:
-            COM_DATA = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"Error loading data/Gear.json for Get Coms command: {e}")
-        COM_DATA = {}
-        
+def _get_coms_by_skill(skill: str, com_data: tuple):
     if '(' in skill:
         skill = skill[:skill.find('(')]
     found = False
     response =[]
     response.append(f'\n\n## Class Mods with {skill}')
-    for class_mod in COM_DATA.get('class mods'):
+    for class_mod in com_data.get('class mods'):
         if skill.strip() in class_mod.get("skills"):
             found=True
             response.append(f"\n### {class_mod.get('name')}:")
@@ -26,48 +17,62 @@ def _get_coms_by_skill(skill: str):
                 elif key=='lootlemon' and value is not None:
                     formatted_key = key.replace('_', ' ').title()
                     response.append(f"- [Lootlemon Page](<{value}>)")
-    if found: return "\n".join(response)
-    return None
+    if found: return "\n".join(response), False
+    return None, True
 
-def _process_lookup(name: str):
+def get_coms_by_name(com_name: str, com_data: tuple):
+    found = False
+    response =[]
+    # response.append(f'\n\n## {com_name}')
+    for class_mod in com_data.get('class mods'):
+        if com_name.strip() in class_mod.get("name"):
+            found=True
+            response.append(f"# {class_mod.get('name')}:")
+            for key, value in class_mod.items():
+                # Skip the 'character' key, we already have character context from the skill.
+                # Skip the name key as we manually add it as a heading.
+                if key not in ['character', 'name', 'lootlemon'] and value is not None:
+                    formatted_key = key.replace('_', ' ').title()
+                    response.append(f"- **{formatted_key}**: {value}")
+                elif key=='lootlemon' and value is not None:
+                    formatted_key = key.replace('_', ' ').title()
+                    response.append(f"- [Lootlemon Page](<{value}>)")
+            break
+    if found: return "\n".join(response), False
+    return None, True
+
+def _process_lookup(name: str, com: int, skill_data: tuple, com_data: tuple):
     """
     Returns all information on a provided Skill or Item name.
 
     Returns:
         Str: String formatted for a Discord respnse listing properties of searched skill/item.
     """
-    try:
-        with open('data/Type Database.json', 'r', encoding='utf-8') as f:
-            SKILL_DATA = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"Error loading data/Type Database.json for look up command: {e}")
-        SKILL_DATA = {}
-    
+   
     found_items = []
-    vh_skill=None
     
     # Pre-process the search name once to be more efficient
     search_name = name.lower().strip()
 
     # 2. Search through all data without breaking after the first match.
-    for parent_key, items in SKILL_DATA.items():
+    for parent_key, items in skill_data.items():
         for item in items:
             # 3. Use the 'in' operator for substring search.
             if search_name in item.get('name', '').lower().strip():
                 # Add a dictionary containing both the item and its source to our list.
                 found_items.append({'item': item, 'source': parent_key})
-                vh_skill = True
 
     # --- Check class mods ---
     
-    coms = _get_coms_by_skill(name)
+    if com==1:
+        coms, ephemeral_state = _get_coms_by_skill(name, com_data)
     # --- Format and Send the Response ---
 
     # 4. Check if the list of found items is empty.
     if not found_items:
         if not coms:
             return f"Could not find any skill information for `{name}`.", True
-        return f"Could not find any skill information for `{name}`." + _get_coms_by_skill(name), False
+        return f"Could not find any skill information for `{name}`." + coms, ephemeral_state
 
     # 5. Build the response message.
     # Start with a summary of how many results were found.
@@ -94,9 +99,9 @@ def _process_lookup(name: str):
 
     final_response = "\n".join(response_lines)
     
-    if vh_skill: final_response = str(final_response) + str(_get_coms_by_skill(name))
+    if com==1: final_response = str(final_response) + str(_get_coms_by_skill(name))
     
     # Note: Discord messages have a 2000 character limit. 
     if len(final_response) > 2000:
         final_response = final_response[:1985] + "\n... (truncated)"
-    return final_response, False
+    return final_response, ephemeral_state
