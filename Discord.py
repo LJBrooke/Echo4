@@ -1,12 +1,14 @@
 import os
+import time
 import discord
 from discord.ext import commands
+from discord import app_commands, Interaction
 from dotenv import load_dotenv
 
 # --- Load Environment ---
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
-
+command_start_times = {}
 
 # --- Bot Definition ---
 # It's good practice to subclass the Bot for more complex setups.
@@ -17,6 +19,34 @@ class MyBot(commands.Bot):
             command_prefix="!",
             intents=discord.Intents.default()
         )
+        
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: Interaction):
+        # Log the start time as soon as the bot receives the interaction
+        if interaction.type == discord.InteractionType.application_command:
+            # Use a unique ID to map start time to completion time
+            command_start_times[interaction.id] = time.time()
+        
+    @commands.Cog.listener()
+    async def on_app_command_completion(self, interaction: Interaction, command: app_commands.Command):
+        end_time = time.time()
+        response_time = -1 # Declare var, and set known impossible value in case of no start_time.
+        # 1. Log the command name
+        command_name = command.name
+        
+        user = 'Prismatic'
+        # 2. Get the user/guild info
+        if interaction.user.id != int(os.getenv("OWNER_ID")):
+            user="User"
+        guild_id = interaction.guild.id if interaction.guild else "DMs"
+        
+        start_time = command_start_times.pop(interaction.id, None)
+    
+        if start_time:
+            response_time = (end_time - start_time) * 1000 # Convert to milliseconds
+        
+        print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] COMMAND USED: /{command_name}, Response took: {response_time:.2f}ms \nUser:{user} in {guild_id}")
+        
 
     async def setup_hook(self):
         """This function is called when the bot is preparing to connect."""
