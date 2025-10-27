@@ -9,9 +9,8 @@ def _get_coms_by_skill(skill: str, com_data: tuple):
             found=True
             response.append(f"\n### {class_mod.get('name')}:")
             for key, value in class_mod.items():
-                # Skip the 'character' key, we already have character context from the skill.
                 # Skip the name key as we manually add it as a heading.
-                if key not in ['character', 'name', 'lootlemon'] and value is not None:
+                if key not in ['name', 'lootlemon'] and value is not None:
                     formatted_key = key.replace('_', ' ').title()
                     response.append(f"- **{formatted_key}**: {value}")
                 elif key=='lootlemon' and value is not None:
