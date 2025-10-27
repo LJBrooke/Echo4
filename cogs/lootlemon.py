@@ -46,8 +46,9 @@ class LootlemonCommand(commands.Cog):
                 soup = BeautifulSoup(html_page, "html.parser")
                 
                 # Find the container for search results
-                grid = soup.find("div",{"class":"card_grid search-result-items"})
-                if not grid: grid=soup.find("div",{"class":"card_grid search-results search-result-items"})
+                # grid = soup.find("div",{"class":"card_grid search-result-items"})
+                grid=soup.find("div",{"class":"card_grid search-results search-result-items"})
+                # if not grid: grid=soup.find("div",{"class":"card_grid search-results search-result-items"})
                 if not grid:
                     await interaction.followup.send(f"No results found for '{query}' on LootLemon.")
                     return
