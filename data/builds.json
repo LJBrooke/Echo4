@@ -2,15 +2,23 @@
     "Amon":[
         {
             "name": "Fire Slinger Amon",
-            "author": "LazyData",
+            "author": "[Lazydata](<https://www.youtube.com/@LazyData>)",
             "tree": "Green",
             "description": "Uses the Firepot to benefit from both Ordnance and Gun skills for easy mob and boss clears!",
             "moba": "https://mobalytics.gg/borderlands-4/profile/lazydata/builds/endless-bombardment-hybrid-amon-build",
             "youtube": "https://youtu.be/MlxaryL95Co"
         },
         {
+            "name": "A.M.O.K",
+            "author": "[Girthquake](<https://www.youtube.com/@girthquake1707>)",
+            "tree": "Blue",
+            "description": "Ever thought to yourself \"Man guns and such are cool but Id love to actually be throwing massive spears made of lightning!\" Of course you have. That's why you're playing Amon.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/girthquake/builds/my-build",
+            "youtube": "https://youtu.be/3YyFTUSQYtY?si=rNdY3-2HNvnozDc-"
+        },
+        {
             "name": "HORBA",
-            "author": "AncientRune",
+            "author": "[AncientRune](<https://youtube.com/@ancient_rune?si=mfyvUvv8Ff67OIf2>)",
             "tree": "Blue",
             "description": "Heavy Ordnance Ricochet Banaza Amon\nAlso known as HORBA! This is the ultimate amon build that I predicted pre launch but with some adjustments with all the info post launch. Using Heavy Ordnance with high power you can do some insane stuff and melt bosses on Ultimate Vault Hunter 5.  a very strong setup with versitility.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/ancientrune/builds/horba-heavy-ordnance-spam",
@@ -30,11 +38,11 @@
             "tree": "Red",
             "description": "Ever felt like kills skills were too much of a hassle? Did Zane's Seein Dead COM entice you back in the day? You aren't alone cuz GBX turned it into a skill tree.\nWell then Slip N' Dip Amon is for you. Activate all of your kill skills right off the bat with some fish.\nThis will shape up to be THE standard Amon gun build. Using proper weapons in combination with an easy to maintain loop this build is exceedingly powerful and easy to run. Requires little game knowledge once the skills are specced and the items are acquired.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/girthquake/builds/slip-n-dip",
-            "youtube": "https://youtu.be/N86-06e1v6I?si=IymC25OXHl6bBMAb"
+            "youtube": "https://youtu.be/ZSUBb8n0ZtU?si=zCS90yyNENOAk_ru"
         },
         {
             "name": "Hellshot Amon",
-            "author": "Nootmad",
+            "author": "[Nootmad](<https://www.youtube.com/@Nootmad>)",
             "tree": "Red",
             "description": "A build focused on mob clearing and stacking elemental damage on trash mobs and bosses alike to melt through their health. This build makes heavy use of a very involved gameplay loop of spam reloading, amp-ing through stim and ordnance spamming to synergise with the skills we pick up.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/hellshot-amon-nootmad",
@@ -42,7 +50,7 @@
         },
         {
             "name": "Aim-On",
-            "author": "AncientRune",
+            "author": "[AncientRune](<https://youtube.com/@ancient_rune?si=mfyvUvv8Ff67OIf2>)",
             "tree": "Red",
             "description": "This build aims to maximize damage through the use of Bloodshot and amp on repkits, leading to the ability to annihilate anything you point your crosshairs at. If you're a fan of classic sniper builds and popping heads, this is the build for you.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/aim-on-amon",
@@ -120,7 +128,7 @@
         },
         {
             "name": "Sniper Vex",
-            "author": "LazyData",
+            "author": "[Lazydata](<https://www.youtube.com/@LazyData>)",
             "tree": "Green",
             "description": "Destroy UVH 5 with the best Sniper Vex Build! Good for mobbing, insane for bossing! This build isn't niche, it's genuinely a very strong setup with versatility.",
             "moba": null,
