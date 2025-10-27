@@ -94,7 +94,7 @@ def _process_lookup(name: str):
 
     final_response = "\n".join(response_lines)
     
-    if vh_skill: final_response = final_response + _get_coms_by_skill(name)
+    if vh_skill: final_response = str(final_response) + str(_get_coms_by_skill(name))
     
     # Note: Discord messages have a 2000 character limit. 
     if len(final_response) > 2000:
