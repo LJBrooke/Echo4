@@ -4,6 +4,7 @@
             "name": "Fire Slinger Amon",
             "author": "[Lazydata](<https://www.youtube.com/@LazyData>)",
             "tree": "Green",
+            "com": ["Cyborg"],
             "description": "Uses the Firepot to benefit from both Ordnance and Gun skills for easy mob and boss clears!",
             "moba": "https://mobalytics.gg/borderlands-4/profile/lazydata/builds/endless-bombardment-hybrid-amon-build",
             "youtube": "https://youtu.be/MlxaryL95Co"
@@ -12,6 +13,7 @@
             "name": "A.M.O.K",
             "author": "[Girthquake](<https://www.youtube.com/@girthquake1707>)",
             "tree": "Blue",
+            "com": ["Shatterweight"],
             "description": "Ever thought to yourself \"Man guns and such are cool but Id love to actually be throwing massive spears made of lightning!\" Of course you have. That's why you're playing Amon.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/girthquake/builds/my-build",
             "youtube": "https://youtu.be/3YyFTUSQYtY?si=rNdY3-2HNvnozDc-"
@@ -20,6 +22,7 @@
             "name": "HORBA",
             "author": "[AncientRune](<https://youtube.com/@ancient_rune?si=mfyvUvv8Ff67OIf2>)",
             "tree": "Blue",
+            "com": ["Cyborg", "Icebringer"],
             "description": "Heavy Ordnance Ricochet Banaza Amon\nAlso known as HORBA! This is the ultimate amon build that I predicted pre launch but with some adjustments with all the info post launch. Using Heavy Ordnance with high power you can do some insane stuff and melt bosses on Ultimate Vault Hunter 5.  a very strong setup with versitility.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/ancientrune/builds/horba-heavy-ordnance-spam",
             "youtube": "https://www.youtube.com/watch?v=XDL39usp1hA"
@@ -28,6 +31,7 @@
             "name": "DOT Shot",
             "author": "[Girthquake](<https://www.youtube.com/@girthquake1707>)",
             "tree": "Red",
+            "com": ["Furnace"],
             "description": "Using High Cal Tech you can 1 Shot anyone you come across",
             "moba": "https://mobalytics.gg/borderlands-4/builds/dotshot-amon-girthquake",
             "youtube": "https://youtu.be/8Xj1A9Yd_Kk?si=aTuNdtpdeDd-UI4o"
@@ -36,6 +40,7 @@
             "name": "Slip N' Dip Amon",
             "author": "[Girthquake](<https://www.youtube.com/@girthquake1707>)",
             "tree": "Red",
+            "com": ["Forge Master"],
             "description": "Ever felt like kills skills were too much of a hassle? Did Zane's Seein Dead COM entice you back in the day? You aren't alone cuz GBX turned it into a skill tree.\nWell then Slip N' Dip Amon is for you. Activate all of your kill skills right off the bat with some fish.\nThis will shape up to be THE standard Amon gun build. Using proper weapons in combination with an easy to maintain loop this build is exceedingly powerful and easy to run. Requires little game knowledge once the skills are specced and the items are acquired.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/girthquake/builds/slip-n-dip",
             "youtube": "https://youtu.be/ZSUBb8n0ZtU?si=zCS90yyNENOAk_ru"
@@ -44,6 +49,7 @@
             "name": "Hellshot Amon",
             "author": "[Nootmad](<https://www.youtube.com/@Nootmad>)",
             "tree": "Red",
+            "com": ["Forge Master"],
             "description": "A build focused on mob clearing and stacking elemental damage on trash mobs and bosses alike to melt through their health. This build makes heavy use of a very involved gameplay loop of spam reloading, amp-ing through stim and ordnance spamming to synergise with the skills we pick up.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/hellshot-amon-nootmad",
             "youtube": "https://www.youtube.com/watch?v=3XPIAqmUu00"
@@ -52,6 +58,7 @@
             "name": "Aim-On",
             "author": "[AncientRune](<https://youtube.com/@ancient_rune?si=mfyvUvv8Ff67OIf2>)",
             "tree": "Red",
+            "com": ["Forge Master"],
             "description": "This build aims to maximize damage through the use of Bloodshot and amp on repkits, leading to the ability to annihilate anything you point your crosshairs at. If you're a fan of classic sniper builds and popping heads, this is the build for you.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/aim-on-amon",
             "youtube": "https://youtu.be/gZfvnf0O-Hc?si=X2huKDC0b8MiVM8M"
@@ -62,6 +69,7 @@
             "name": "Nepta GRB",
             "author": "[Nepta](<https://www.youtube.com/@NeptaLeijon>)",
             "tree": "Green",
+            "com": ["Radiologist"],
             "description": "This is the true Endgame Green Tree Gun setup for Harlowe.\nWe are making use of Gamma Ray Burst to convert our shield capacity (which can go up to 120K!) into pure damage.\nWe are also taking advantage of the fact that some Gun's Alt-Fire like Kill Drone, Taser, Space Laser,... can retain the Amped Gamma Ray Burst Damage.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/nepta/builds/gamma-ray-burst-harlowe-best-harlowe-gun-build",
             "youtube": "https://www.youtube.com/watch?v=Gv28zVBJzo0"
@@ -72,6 +80,7 @@
             "name": "EL Tediore Primo Rafa",
             "author": "[JoeForLong](<https://www.youtube.com/@JoeForLong>)",
             "tree": "Blue",
+            "com": ["Grenazerker"],
             "description": "A Grenazerker Rafa setup that primarily utilizes Tediore reloads but also can utilize a wide variety of Ordnances and the APOPHIS: Lance Action skill for utility and damage. Excels in both mobbing and bossing encounters.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/overdrive-soltado-tediore-primo-rafa-joeforlong",
             "youtube": "https://youtu.be/6OCoowHY2RI?si=bKsO5uBIWSdmbr1Z"
@@ -80,6 +89,7 @@
             "name": "Deadshot",
             "author": "[Rezur](<https://www.youtube.com/@rezurwttic>)",
             "tree": "Blue",
+            "com": ["Dancer"],
             "description": "This build takes advantage of charging APOPHIS Lance constantly to give us a massive 'On-Shot' bonus from El Soldado that multiplies with our gun damage - and is boosted by Overdrive skills & gear such as Soltado, Jaque, and the Dancer classmod.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/9741fa52-b4d1-4d0b-a92c-06278f363b38/builds/d4bfba69-8e40-4ace-bb3d-7a6550c54395",
             "youtube": "https://www.youtube.com/watch?v=cAnrDWcpzsg"
@@ -88,6 +98,7 @@
             "name": "Slippery Soldier",
             "author": "[Rezur](<https://www.youtube.com/@rezurwttic>)",
             "tree": "Red",
+            "com": ["Grenazerker"],
             "description": "This build takes advantage of the Slippy grenades Melee/Ordnance attributes by frontloading all of Rafa's skill points into a heavy This Year's Gimmick spec.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/9741fa52-b4d1-4d0b-a92c-06278f363b38/builds/1fa04a0c-9001-442d-a1c7-d2c032321083",
             "youtube": "https://www.youtube.com/watch?v=q_QatFXaTms"
@@ -96,6 +107,7 @@
             "name": "Drone Striker",
             "author": "[Nepta](<https://www.youtube.com/@NeptaLeijon>)",
             "tree": "Red",
+            "com": ["Instigator"],
             "description": "The first ever Drone Rafa build.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/nepta/builds/drone-striker-rafa-off-meta",
             "youtube": "https://www.youtube.com/watch?v=ff0h3lQ5B-E"
@@ -104,6 +116,7 @@
             "name": "Alt Fuego",
             "author": "[Nepta](<https://www.youtube.com/@NeptaLeijon>)",
             "tree": "Red",
+            "com": ["Dancer"],
             "description": "Ever get annoyed by the alt fire cooldown? Well this build solve that!",
             "moba": "https://mobalytics.gg/borderlands-4/profile/nepta/builds/alt-fuego-rafa",
             "youtube": "https://youtu.be/fGqX-eEFPm0"
@@ -114,6 +127,7 @@
             "name": "Gun Gal Vex",
             "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
             "tree": "Green",
+            "com": ["Teen Witch"],
             "description": "This is a Vex shotgun-centric build that has a flexible focus on Jakobs-licensed (and now Torgue too!) guns, and very potent baseline damage for just about anything. It abdicates most kill skills in favor of stacking movement speed and passive damage boosts through bonus elements to hit big numbers without needing weapons that are highly synergistic with Mortal Terror. Weapons that have a shoot-reload-shoot-reload loop feel great here!",
             "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/gun-gal-vex-uvh5-shotgun-build",
             "youtube": "https://www.youtube.com/watch?v=xuONObjjfV8"
@@ -122,6 +136,7 @@
             "name": "Dronemancer Vex",
             "author": "[Ratore](<https://www.youtube.com/@Ratore>), Katchenz, Iserrot, [Nepta](<https://www.youtube.com/@NeptaLeijon>)",
             "tree": "Green",
+            "com": ["Teen Witch"],
             "description": "This is a build centered around snapshotting on-shot damage boosts like Blood Shot, Amp and some Enhancement boosts into Order Assault Rifle Drone underbarrels. It also excels at the usage of powerful underbarrels in general.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/u-a-vex-dronemancer-underbarrel-vex-uvh5",
             "youtube": "https://youtu.be/h1C0XWITnRI"
@@ -130,6 +145,7 @@
             "name": "Sniper Vex",
             "author": "[Lazydata](<https://www.youtube.com/@LazyData>)",
             "tree": "Green",
+            "com": ["Teen Witch"],
             "description": "Destroy UVH 5 with the best Sniper Vex Build! Good for mobbing, insane for bossing! This build isn't niche, it's genuinely a very strong setup with versatility.",
             "moba": null,
             "youtube": "https://www.youtube.com/watch?v=uogsHuHVRvQ"
@@ -138,6 +154,7 @@
             "name": "Hexblade Vex",
             "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
             "tree": "Blue",
+            "com": ["Teen Witch"],
             "description": "This build focuses on maximizing melee attack power while having ranged melee access through Haruspex.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/hexmancer-deadringer-melee",
             "youtube": "https://youtu.be/dJadJ0axHUs"
@@ -146,6 +163,7 @@
             "name": "Blue Blood",
             "author": "Katchenz",
             "tree": "Blue",
+            "com": ["Undead Eye"],
             "description": "Unique Finnity XXX-L setup that maximizes trigger rates of Blood Shot through bonus element mechanics.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/b454eeca-0164-4d9c-bc58-34846a9b3645/builds/398b17e4-5c75-4516-8a38-72b66e99d106",
             "youtube": null
@@ -154,6 +172,7 @@
             "name": "Wattlock Vex",
             "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
             "tree": "Blue",
+            "com": ["Alchemist","Commander"],
             "description": "This build focuses on causing high elemental DoT effects through the loop of shoot-reloading Stelliums, a type of Maliwan Shotgun, and usage of the High Caliber firmware, which lets the Splash hit a second time and apply another DoT.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/wattlock-status-effect-vex-uvh5",
             "youtube": "https://youtu.be/7aYnKjd93sE"
@@ -162,6 +181,7 @@
             "name": "Blood Fang Vex",
             "author": "[Ratore](<https://www.youtube.com/@Ratore>), Iserrot",
             "tree": "Red",
+            "com": ["Undead Eye"],
             "description": "Traditional heavy-hitter sniper rifle build, optimized for maximum passive damage with the capacity for big one-shots with bleed. Trouble helps with aggro relief!",
             "moba": "https://mobalytics.gg/borderlands-4/profile/ratore/builds/blood-fang-sniper-vex-uvh5",
             "youtube": null

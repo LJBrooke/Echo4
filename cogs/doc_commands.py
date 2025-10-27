@@ -27,11 +27,11 @@ class DocCommands(commands.Cog):
     "character": "Harlowe",
     "rarity": "Legendary",
     "name": "Class Mod Name",
+    "red_text": "Brrr",
     "skills": ["Skill1", "Skill2", "Skill3", "Skill4"],
     "skill_notes": "X skill gets Y points max instead of X",
     "passive_count": 2,
     "fixed_stat": "Something",
-    "red_text": "Brrr",
     "drop_location": "Graveward",
     "lootlemon": "https://www.lootlemon.com/class-mod/some-com-name-bl4"
 }'''
@@ -40,6 +40,7 @@ class DocCommands(commands.Cog):
     "name": "Descriptive name, I will block your clickbait, try me.",
     "author": "Rat, [Youtuber Manuel](<Manuel's Youtube Channel Link>)",
     "tree": "Green/Red/Blue",
+    "com": ["Com1", "Com2"],
     "description": "Functional, concise description on why I should be interested in this build.",
     "moba": "https://mobalytics.gg/borderlands-4/....",
     "youtube": "https://youtube/..."

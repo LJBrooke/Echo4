@@ -63,6 +63,7 @@ def _process_lookup(name: str, com: int, skill_data: tuple, com_data: tuple):
 
     # --- Check class mods ---
     
+    ephemeral_state=False
     if com==1:
         coms, ephemeral_state = _get_coms_by_skill(name, com_data)
     # --- Format and Send the Response ---
