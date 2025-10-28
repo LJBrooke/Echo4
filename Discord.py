@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 # --- Load Environment ---
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+OWNER_ID = int(os.getenv("OWNER_ID"))
 command_start_times = {}
 
 # --- Bot Definition ---
@@ -36,7 +37,7 @@ class MyBot(commands.Bot):
         
         user = 'Prismatic'
         # 2. Get the user/guild info
-        if interaction.user.id != int(os.getenv("OWNER_ID")):
+        if interaction.user.id != OWNER_ID:
             user="User"
         guild_id = interaction.guild.id if interaction.guild else "DMs"
         
