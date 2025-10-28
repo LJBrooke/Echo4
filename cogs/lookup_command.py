@@ -1,6 +1,7 @@
 import json
 import discord
 from cogs.helper_methods import _process_lookup, get_coms_by_name
+from cogs.builds_command import BuildView
 from discord import app_commands
 from discord.ext import commands
 
@@ -51,9 +52,10 @@ class LookupCommand(commands.Cog):
     @app_commands.describe(name="Which Class Mod do you want information on?")
     @app_commands.autocomplete(name=com_name_autocomplete)
     async def com_search(self, interaction: discord.Interaction, name: str):
-        response, show = get_coms_by_name(name, COM_DATA)
+        response, vault_hunter, show = get_coms_by_name(name, COM_DATA)
+        view = BuildView(self, vault_hunter, name)
 
-        await interaction.response.send_message(response, ephemeral=show)
+        await interaction.response.send_message(response, view=view, ephemeral=show)
        
     # --- The Slash Command ---
     # Choices does not support bool, hence the use of an int.

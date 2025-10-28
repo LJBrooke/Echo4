@@ -22,10 +22,12 @@ def _get_coms_by_skill(skill: str, com_data: tuple):
 def get_coms_by_name(com_name: str, com_data: tuple):
     found = False
     response =[]
+    vault_hunter = None
     # response.append(f'\n\n## {com_name}')
     for class_mod in com_data.get('class mods'):
         if com_name.strip() in class_mod.get("name"):
             found=True
+            vault_hunter = class_mod.get("character")
             response.append(f"# {class_mod.get('name')}:")
             for key, value in class_mod.items():
                 # Skip the 'character' key, we already have character context from the skill.
@@ -37,7 +39,7 @@ def get_coms_by_name(com_name: str, com_data: tuple):
                     formatted_key = key.replace('_', ' ').title()
                     response.append(f"- [Lootlemon Page](<{value}>)")
             break
-    if found: return "\n".join(response), False
+    if found: return "\n".join(response), vault_hunter, False
     return None, True
 
 def _process_lookup(name: str, com: int, skill_data: tuple, com_data: tuple):
@@ -99,7 +101,7 @@ def _process_lookup(name: str, com: int, skill_data: tuple, com_data: tuple):
 
     final_response = "\n".join(response_lines)
     
-    if com==1: final_response = str(final_response) + str(coms)
+    if com==1: final_response = str(final_response) + str(_get_coms_by_skill(name))
     
     # Note: Discord messages have a 2000 character limit. 
     if len(final_response) > 2000:
