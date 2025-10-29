@@ -1,16 +1,53 @@
 {   
     "Formula": {
         "Overview": {
-            "Affected by": "All, Gun Damage, Enhancement, Soup, Amp, Skill Damage, Action SKill Damage, Gear Crit, Skill Tree Crit, Minion Damage, Flat On Shot, Order Charge, Status Effect Damage",
+            "Affected by": ["Gun Damage", "Enhancement", "Debuff", "Elemental", "Damage Dealt", "Amp", "Skill Damage", "Action SKill Damage", "Gear Crit", "Skill Tree Crit", "Minion Damage", "Flat On Shot", "Order Charge", "Status Effect Damage"],
             "Base": "Base Damage",
-            "Vault Hunter": "All",
-            "Notes": "Base damage refers to a single bullet/damage instance"
+            "Vault Hunter": "All Vault Hunters",
+            "Notes": "Base damage refers to a single bullet/damage instance",
+            "Visible": false
         },
         "Gun Damage": {
-            "Affected by": "All, Gun Damage, Enhancement, Soup, Amp, Gear Crit, Skill Tree Crit, Flat On Shot, Order Charge",
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
             "Base": "Gun Card Damage",
-            "Vault Hunter": "All",
-            "Notes": "Gun Card Damage refers to a single bullet/damage instance"
+            "Vault Hunter": "All Vault Hunters",
+            "Notes": "Gun Card Damage refers to a single bullet/damage instance",
+            "Visible": true
+        },
+        "Bloodshot Damage": {
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Damage", "Skill Tree Crit", "Splash"],
+            "Base": "Gun Card Damage",
+            "Vault Hunter": "Vex",
+            "Notes": "Gun Card Damage refers to a single bullet/damage instance",
+            "Visible": true
+        },
+        "Dots": {
+            "Affected by": ["Enhancement", "Debuff", "Elemental", "Damage Dealt", "Amp", "Splash", "Skill Tree Crit", "Flat On Shot", "Status Effect Damage"],
+            "Base": "Gun Card Dot x 0.33",
+            "Vault Hunter": "All Vault Hunters",
+            "Notes": "Dots tick 3 times per second, this is the per tick Formula.\n  - Splash from Enhancments apply, splash from skills or class mods does not.",
+            "Visible": false
+        },
+        "Melee Damage": {
+            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Gear Crit", "Skill Tree Crit", "Melee Damage"],
+            "Base": "Base Damage",
+            "Vault Hunter": "All Vault Hunters",
+            "Notes": "Base damage is per skill dependent. Special cases this can be based on damage dealt by something else, leading to double dips.",
+            "Visible": true
+        },
+        "Skill Damage": {
+            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Gear Crit", "Skill Tree Crit", "Skill Damage"],
+            "Base": "Base Damage",
+            "Vault Hunter": "All Vault Hunters",
+            "Notes": "Base damage is per skill dependent. Special cases this can be based on damage dealt by something else, leading to double dips.",
+            "Visible": true
+        },
+        "Action Skill Damage": {
+            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Gear Crit", "Skill Tree Crit", "Skill Damage", "Action Skill Damage"],
+            "Base": "Base Damage",
+            "Vault Hunter": "All Vault Hunters",
+            "Notes": "Base damage is per skill dependent. Special cases this can be based on damage dealt by something else, leading to double dips.",
+            "Visible": true
         }
     },
     "Type Information": {
@@ -44,9 +81,21 @@
             "Check": "On Hit",
             "Notes": null
         },
-        "Soup": {
+        "Debuff": {
             "Applies to": "Everything",
-            "Example": "Damage Dealt Passive on Class Mods, Elemental Damage boosts",
+            "Example": "The Amp part on knives, Underbarrels that make foes take more damage.",
+            "Check": "On Hit",
+            "Notes": "This applies to everything, and if something double dips it will be double dipped!"
+        },
+        "Elemental": {
+            "Applies to": "Everything",
+            "Example": "Elemental Damage boosts, ",
+            "Check": "On Hit",
+            "Notes": "This applies to everything, and if something double dips it will be double dipped!"
+        },
+        "Damage Dealt": {
+            "Applies to": "Everything",
+            "Example": "Damage Dealt Passive.",
             "Check": "On Hit",
             "Notes": "This applies to everything, and if something double dips it will be double dipped!"
         },
@@ -71,6 +120,18 @@
         "Skill Tree Crit": {
             "Applies to": "All Critical Damage",
             "Example": "Critical damage boosts found in your skill tree",
+            "Check": "On Hit",
+            "Notes": null
+        },
+        "Splash": {
+            "Applies to": "All Splash Damage",
+            "Example": "Splash Damage on Class Mods",
+            "Check": "On Hit",
+            "Notes": "Ask Girth"
+        },
+        "Melee Damage": {
+            "Applies to": "Melee Hits",
+            "Example": "Melee Damage on COM",
             "Check": "On Hit",
             "Notes": null
         },

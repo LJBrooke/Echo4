@@ -59,7 +59,7 @@ class LookupCommand(commands.Cog):
        
     # --- The Slash Command ---
     # Choices does not support bool, hence the use of an int.
-    @app_commands.command(name="lookup", description="Looks up a specific skill by its name.")
+    @app_commands.command(name="lookup", description="Looks up a specific skill/item by its name.")
     @app_commands.describe(name="The name of the skill or item to look up.",
                            com="Include Class mods with this skill, defaults to No.")
     @app_commands.autocomplete(name=skill_name_autocomplete)
