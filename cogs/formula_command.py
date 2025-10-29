@@ -39,6 +39,8 @@ def _gen_formula(formula: str):
     if 'Amp' in formula_list: on_shot_formula = on_shot_formula + str(indent) + ' × (1 + Amp)'
     if 'Flat On Shot' in formula_list: on_shot_formula = '[  '+ indent + '('+ on_shot_formula + str(indent) + ')' + ' + Flat On Shot\n]'
     
+    if formula_dict.get('Bonus Element') is not None: on_hit_formula = on_hit_formula + '\n × '+formula_dict.get('Bonus Element')
+    
     # On Hit Formula
     on_hit_formula = '[\n  1\n'
     for on_shot in ["Gun Damage", "Skill Damage", "Action Skill Damage", "Melee Damage", "Status Effect Damage", "Minion Damage", "Splash", "Elemental", "Debuff", "Damage Dealt"]:

@@ -23,9 +23,10 @@
         },
         "Dots": {
             "Affected by": ["Enhancement", "Debuff", "Elemental", "Damage Dealt", "Amp", "Splash", "Skill Tree Crit", "Flat On Shot", "Status Effect Damage"],
-            "Base": "Gun Card Dot x 0.33",
+            "Base": "Gun Card Damage",
             "Vault Hunter": "All Vault Hunters",
             "Notes": "Dots tick 3 times per second, this is the per tick Formula.\n  - Splash from Enhancments apply, splash from skills or class mods does not.",
+            "Bonus Element": "0.33 × Gun Damage to Dot Ratio",
             "Visible": false
         },
         "Melee Damage": {
@@ -41,6 +42,62 @@
             "Vault Hunter": "All Vault Hunters",
             "Notes": "Base damage is per skill dependent. Special cases this can be based on damage dealt by something else, leading to double dips.",
             "Visible": true
+        },
+        "Nuclear Winter": {
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Skill Damage", "Action Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
+            "Base": "Gun Card",
+            "Vault Hunter": "Harlowe",
+            "Notes": "This is the formula for Cryo, Radiation does not benefit gun damage on hit such as creative overflow and class mod gun damage boosts.",
+            "Bonus Element": "0.25",
+            "Visible": true
+        },
+        "Decoherence (Entangle)": {
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
+            "Base": "Gun Card",
+            "Vault Hunter": "Harlowe",
+            "Notes": "This is the formula for Cryo, Radiation does not benefit gun damage on hit such as creative overflow and class mod gun damage boosts.",
+            "Bonus Element": "Decoherence %",
+            "Visible": true
+        },
+        "Chain Reactor": {
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
+            "Base": "Gun Card",
+            "Vault Hunter": "Harlowe",
+            "Notes": "This is the formula for Cryo, Radiation does not benefit gun damage on hit such as creative overflow and class mod gun damage boosts.",
+            "Bonus Element": "Decoherence %",
+            "Visible": true
+        },
+        "Latent Charge": {
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
+            "Base": "Gun Card",
+            "Vault Hunter": "Harlowe",
+            "Notes": "This is Latent Charge without Decoherence, if you have Decoherence the formula is the same for both bonus elements",
+            "Bonus Element": "Latent Charge % × (Current Overshield / Full Overshield )",
+            "Visible": true
+        },
+        "Meltdown": {
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
+            "Base": "Gun Card",
+            "Vault Hunter": "Harlowe",
+            "Notes": "Meltdown cannot naturally crit, it will only benefit from critical boosts if you force a crit through something like Crit knife.",
+            "Bonus Element": "Meltdown %",
+            "Visible": true
+        },
+        "Triple Point": {
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
+            "Base": "Gun Card",
+            "Vault Hunter": "Harlowe",
+            "Notes": "Triple Point cannot naturally crit, it will only benefit from critical boosts if you force a crit through something like Crit knife.",
+            "Bonus Element": "Triple Point %",
+            "Visible": true
+        },
+        "Wildcat Destabilization": {
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
+            "Base": "Gun Card",
+            "Vault Hunter": "Harlowe",
+            "Notes": "Wildcat Destabilization cannot naturally crit, it will only benefit from critical boosts if you force a crit through something like Crit knife.",
+            "Bonus Element": "Wildcat Destabilization %",
+            "Visible": false
         },
         "Action Skill Damage": {
             "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Skill Damage", "Action Skill Damage"],
