@@ -22,12 +22,12 @@
             "Visible": true
         },
         "Dots": {
-            "Affected by": ["Enhancement", "Debuff", "Elemental", "Damage Dealt", "Amp", "Splash", "Skill Tree Crit", "Flat On Shot", "Status Effect Damage"],
+            "Affected by": ["Enhancement", "Amp", "Flat On Shot", "Debuff", "Elemental", "Damage Dealt", "Splash", "Skill Tree Crit", "Flat On Shot", "Status Effect Damage"],
             "Base": "Gun Card Damage",
             "Vault Hunter": "All Vault Hunters",
             "Notes": "Dots tick 3 times per second, this is the per tick Formula.\n  - Splash from Enhancments apply, splash from skills or class mods does not.",
             "Bonus Element": "0.33 × Gun Damage to Dot Ratio",
-            "Visible": false
+            "Visible": true
         },
         "Melee Damage": {
             "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Melee Damage"],
@@ -68,7 +68,7 @@
             "Visible": true
         },
         "Latent Charge": {
-            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
             "Base": "Gun Card",
             "Vault Hunter": "Harlowe",
             "Notes": "This is Latent Charge without Decoherence, if you have Decoherence the formula is the same for both bonus elements",

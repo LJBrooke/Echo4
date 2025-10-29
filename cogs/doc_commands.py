@@ -62,6 +62,7 @@ class DocCommands(commands.Cog):
     "Base": "40 × 1.09ˡᵛˡ",
     "Vault Hunter": "All Vault Hunters",
     "Notes": "Base damage refers to a single bullet/damage instance",
+    "Bonus Element": "Bonus Element %",
     "Visible": false
 }'''
         
