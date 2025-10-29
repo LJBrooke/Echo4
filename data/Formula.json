@@ -1,8 +1,8 @@
 {   
     "Formula": {
         "Overview": {
-            "Affected by": ["Gun Damage", "Enhancement", "Debuff", "Elemental", "Damage Dealt", "Amp", "Skill Damage", "Action SKill Damage", "Gear Crit", "Skill Tree Crit", "Minion Damage", "Flat On Shot", "Order Charge", "Status Effect Damage"],
-            "Base": "Base Damage",
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Skill Damage", "Action Skill Damage", "Status Effect Damage", "Melee Damage", "Minion Damage", "Debuff", "Elemental", "Damage Dealt", "Splash", "Skill Tree Crit"],
+            "Base": "40 × 1.09ˡᵛˡ",
             "Vault Hunter": "All Vault Hunters",
             "Notes": "Base damage refers to a single bullet/damage instance",
             "Visible": false
@@ -15,7 +15,7 @@
             "Visible": true
         },
         "Bloodshot Damage": {
-            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Damage", "Skill Tree Crit", "Splash"],
+            "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
             "Base": "Gun Card Damage",
             "Vault Hunter": "Vex",
             "Notes": "Gun Card Damage refers to a single bullet/damage instance",
@@ -30,7 +30,7 @@
         },
         "Melee Damage": {
             "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Melee Damage"],
-            "Base": "Base Damage",
+            "Base": "40 × 1.09ˡᵛˡ",
             "Vault Hunter": "All Vault Hunters",
             "Notes": "Base damage is per skill dependent. Special cases this can be based on damage dealt by something else, leading to double dips.",
             "Visible": true

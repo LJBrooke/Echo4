@@ -17,6 +17,7 @@ class DocCommands(commands.Cog):
         app_commands.Choice(name="Class Mods", value="Class Mods"),
         app_commands.Choice(name="Builds", value="Builds"),
         app_commands.Choice(name="Skill Info", value="Skill Info"),
+        app_commands.Choice(name="Formula", value="Formula"),
     ])
     async def doc(self, interaction: discord.Interaction, resource: str):
         response=f'To submit data for {resource} please follow this example: ```json\n'
@@ -54,6 +55,14 @@ class DocCommands(commands.Cog):
     "affects": "Gun/Bullet/Skill/Action Skill/Minions/Dots/Ordnance/Melee",
     "element": null,
     "note": "This is weird, GBX?"
+}'''
+        if resource=='Formula':
+            format_example='''{
+    "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Skill Damage", "Action Skill Damage", "Status Effect Damage", "Melee Damage", "Minion Damage", "Debuff", "Elemental", "Damage Dealt", "Splash", "Skill Tree Crit"],
+    "Base": "40 × 1.09ˡᵛˡ",
+    "Vault Hunter": "All Vault Hunters",
+    "Notes": "Base damage refers to a single bullet/damage instance",
+    "Visible": false
 }'''
         
         response+= format_example+"```\n_ _"
