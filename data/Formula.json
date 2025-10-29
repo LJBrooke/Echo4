@@ -29,21 +29,21 @@
             "Visible": false
         },
         "Melee Damage": {
-            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Gear Crit", "Skill Tree Crit", "Melee Damage"],
+            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Melee Damage"],
             "Base": "Base Damage",
             "Vault Hunter": "All Vault Hunters",
             "Notes": "Base damage is per skill dependent. Special cases this can be based on damage dealt by something else, leading to double dips.",
             "Visible": true
         },
         "Skill Damage": {
-            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Gear Crit", "Skill Tree Crit", "Skill Damage"],
+            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Skill Damage"],
             "Base": "Base Damage",
             "Vault Hunter": "All Vault Hunters",
             "Notes": "Base damage is per skill dependent. Special cases this can be based on damage dealt by something else, leading to double dips.",
             "Visible": true
         },
         "Action Skill Damage": {
-            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Gear Crit", "Skill Tree Crit", "Skill Damage", "Action Skill Damage"],
+            "Affected by": ["Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Skill Damage", "Action Skill Damage"],
             "Base": "Base Damage",
             "Vault Hunter": "All Vault Hunters",
             "Notes": "Base damage is per skill dependent. Special cases this can be based on damage dealt by something else, leading to double dips.",
