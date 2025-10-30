@@ -64,7 +64,7 @@
             "character": "Amon",
             "rarity": "Legendary",
             "name": "Viking",
-            "red_text": "Crucible gains +2 Charges, increased Duration and grants Amon increase Damage Reduction while active",
+            "red_text": "Crucible gains +2 Charges, increased Duration and grants Amon increased Damage Reduction while active",
             "skills": ["Cacophany", "Blast Furnace", "Fists of Stone", "Reactive Armor"],
             "skill_notes": null,
             "passive_count": 2,
@@ -431,6 +431,78 @@
             "fixed_stat": "Sniper Damage",
             "drop_location": "Vile Lictor",
             "lootlemon": "https://www.lootlemon.com/class-mod/undead-eye-vex-bl4"
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Legendary",
+            "name": "Buster",
+            "red_text": "APOPHIS Lance gains a 25% Chance to not consume Charges. The more Charges used at once, the greater the Chance.",
+            "skills": ["Las Jaras", "Conductivo", "Awe", "Per my Last"],
+            "skill_notes": "Does not proc Battery Subscription Service augment if Charges aren't consumed.",
+            "passive_count": 2,
+            "fixed_stat": "Skill Damage",
+            "drop_location": "Origo",
+            "lootlemon": "https://www.lootlemon.com/class-mod/buster-rafa-bl4"
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Legendary",
+            "name": "Dancer",
+            "red_text": "Overdrive bonuses are increased by +100%. Overdrive ends whenever Rafa's Action Skill ends.",
+            "skills": ["Sustainable Energy", "The Thrill", "Temerario", "Soltado"],
+            "skill_notes": "Actually doubles all Overdrive bonuses. 2/1 Soltado currently does nothing. Sustainable Energy is practically useless with this COM.",
+            "passive_count": 2,
+            "fixed_stat": "Action Skill Cooldown Rate",
+            "drop_location": "Idolator Sol",
+            "lootlemon": "https://www.lootlemon.com/class-mod/dancer-rafa-bl4"
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Legendary",
+            "name": "Esgrimidor",
+            "red_text": "Rafa's Melee Attacks gain +10% Crit Chance. Critical Hits with Melee Attacks restore 5% Action Skill Duration.",
+            "skills": ["Dial In", "Booming Business", "Empuje", "Cruel Accrual"],
+            "skill_notes": "Booming Business breaks above 5 total invested points between Skill Tree and COM.",
+            "passive_count": 2,
+            "fixed_stat": "Melee Damage",
+            "drop_location": "Callis, the Ripper Queen",
+            "lootlemon": "https://www.lootlemon.com/class-mod/esgrimidor-rafa-bl4"
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Legendary",
+            "name": "Filántropo",
+            "red_text": "Whenever Rafa retriggers his Action Skill, he spawns a free Grenade. If he has a Grenade equipped, he spawns one based on that. This Skill has a 4 second cooldown.",
+            "skills": ["Hemolitions", "Booming Business", "Arriba", "Barrage"],
+            "skill_notes": "Booming Business breaks above 5 total invested points between Skill Tree and COM.",
+            "passive_count": 2,
+            "fixed_stat": "Ordnance Damage",
+            "drop_location": "Inceptus",
+            "lootlemon": "https://www.lootlemon.com/class-mod/filantropo-rafa-bl4"
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Legendary",
+            "name": "Grenazerker",
+            "red_text": "Whenever Rafa throws a Grenade or Tediore Gun, he throws an additional one.",
+            "skills": ["Sinergia", "Arriba", "Abajo", "Confeti"],
+            "skill_notes": "Point in Arriba is required for the COM to roll points in Abajo.",
+            "passive_count": 2,
+            "fixed_stat": "Gun Damage",
+            "drop_location": "Radix",
+            "lootlemon": "https://www.lootlemon.com/class-mod/grenazerker-rafa-bl4"
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Legendary",
+            "name": "Instigator",
+            "red_text": "Whenever Peacebreaker Cannons fire at an enemy, gain a Stack of Instigator and lose all Stacks when Peacebreaker Cannons fire at a new enemy. Rafa gains +2% Gun Damage for every Stack of Instigator.",
+            "skills": ["Deft Hands", "Concentrated Build Up", "Lateral Plinking", "El Alacrán"],
+            "skill_notes": null,
+            "passive_count": 2,
+            "fixed_stat": "Action Skill Duration",
+            "drop_location": "Vile Lictor",
+            "lootlemon": "https://www.lootlemon.com/class-mod/instigator-rafa-bl4"
         }
     ]
 }
