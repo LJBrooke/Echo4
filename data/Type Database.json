@@ -945,6 +945,11 @@
             "element": null
         },
 		{
+            "name": "Confeti",
+            "damage type": "Bonus Element",
+            "element": null
+        },
+		{
             "name": "Arc-Knives Marks",
             "damage type": "Soup",
             "element": null
