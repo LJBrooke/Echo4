@@ -46,23 +46,31 @@ jobs:
         run: |
           docker build -t $IMAGE_NAME .
 
-      # 5. Stop and Remove the Old Container,🔄
-      - name: Remove old container 🚀
-        run: |
-          echo "Stopping and removing old container..."
-          docker stop $CONTAINER_NAME || true
-          docker rm $CONTAINER_NAME || true
+      # # 5. Stop and Remove the Old Container,🔄
+      # - name: Remove old container 🚀
+      #   run: |
+      #     echo "Stopping and removing old container..."
+      #     docker stop $CONTAINER_NAME || true
+      #     docker rm $CONTAINER_NAME || true
 
-      # 6. Start the New Container 🔄
-      # Deploys the new image built in step 4
-      - name: Deploy new container 🚀
-        run: |          
-          echo "Starting new container..."
-          docker run -d \
-            --name $CONTAINER_NAME \
-            --restart=always \
-            --env-file .env \
-            $IMAGE_NAME
+      # # 6. Start the New Container 🔄
+      # # Deploys the new image built in step 4
+      # - name: Deploy new container 🚀
+      #   run: |          
+      #     echo "Starting new container..."
+      #     docker run -d \
+      #       --name $CONTAINER_NAME \
+      #       --restart=always \
+      #       --env-file .env \
+      #       $IMAGE_NAME
+      
+      # New Docker Compose handling to maintain Database container being introduced.
+      - name: Deploy Docker Compose Stack (Bot + DB) 🚀
+        run: |
+          echo "Deploying new Docker Compose stack..."
+          # The 'up' command with '-d' and '--build' handles stopping/removing the old containers
+          # and recreating them, as defined in your docker-compose.yml.
+          docker-compose up -d --build
           
           echo "Deployment complete. Monitoring for health..."
 
