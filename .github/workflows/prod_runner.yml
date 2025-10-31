@@ -9,6 +9,9 @@ env:
   IMAGE_NAME: echo4-bot                 # Live image Tag
   IMAGE_BACKUP_TAG: echo4-bot-backup    # Tag for rollback
   CONTAINER_NAME: echo4-prod-container
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
 jobs:
   deploy:

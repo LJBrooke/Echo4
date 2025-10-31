@@ -1,0 +1,64 @@
+version: '3.8' # Specifies the compose file version
+
+services:
+  # --- PostgreSQL Database Service ---
+  db:
+    # Use an official Postgres image. It will auto-detect your RPi's ARM architecture.
+    image: postgres:15-alpine
+    container_name: discord-bot-db
+    restart: always # Always restart the container if it stops
+
+    # Environment variables to configure the database
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}    # The name of your database
+      POSTGRES_USER: ${POSTGRES_USER}     # The username for your database
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    # This section mounts a persistent volume
+    # This is CRITICAL. It stores your database data *outside* the container.
+    # If the container is deleted, your data in 'pg_data' survives.
+    volumes:
+      - pg_data:/home/prismatic/Discord/bot/database/pg_data:/var/lib/postgresql/data
+
+    # Add this service to our custom network
+    networks:
+      - echo-network
+
+  # --- Your Discord Bot Service ---
+  bot:
+    # 'build: .' tells compose to look for a 'Dockerfile' in the current directory
+    # If your bot's Dockerfile is elsewhere, adjust the path (e.g., './bot-code')
+    build: /home/prismatic/Discord/bot/actions-runner/_work/Echo4/Echo4
+    container_name: echo4-prod-container
+    restart: always
+
+    # This ensures the database container is started *before* your bot starts
+    depends_on:
+      - db
+
+    # Pass database connection details to your bot as environment variables
+    # Your bot code will read these to connect.
+    environment:
+      DATABASE_HOST: db   # This is the 'service name' of your database (from above)
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB}       # Must match POSTGRES_DB
+      DATABASE_USER: ${POSTGRES_USER}     # Must match POSTGRES_USER
+      DATABASE_PASS: ${POSTGRES_PASSWORD} # Must match POSTGRES_PASSWORD
+
+    # Add this service to our custom network
+    networks:
+      - echo-network
+
+# --- Top-Level Definitions ---
+
+# Defines the persistent volume we named above
+volumes:
+  pg_data:
+    # 'driver: local' just means it's stored on this machine
+    driver: local
+
+# Defines the custom network
+# Services on the same network can find each other by their service name (e.g., 'db')
+networks:
+  echo-network:
+    driver: bridge
