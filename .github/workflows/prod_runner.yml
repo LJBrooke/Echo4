@@ -4,9 +4,10 @@ on:
   push:
     branches: [ main ]
 
+# Docker env set up.
 env:
-  # Use a consistent name for your Docker image and container
-  IMAGE_NAME: echo4-bot
+  IMAGE_NAME: echo4-bot                 # Live image Tag
+  IMAGE_BACKUP_TAG: echo4-bot-backup    # Tag for rollback
   CONTAINER_NAME: echo4-prod-container
 
 jobs:
@@ -14,44 +15,104 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      # 1: Fetch updated code.
       - name: Check out repository code ✅
         uses: actions/checkout@v4
 
-      # 1. Create .env file for build/runtime (optional, but good practice)
+      # 2: Docker Env supplement for the Echo 4's usage.
       - name: Create .env file 📄
         run: |
-            echo DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}" > .env
-            echo ADMIN_SERVER_ID="${{ secrets.ADMIN_SERVER_ID }}" >> .env
-            echo OWNER_ID="${{ secrets.OWNER_ID }}" >> .env
-            # Note: This .env will be baked into the image, or used to load env vars at runtime
+          echo DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}" > .env
+          echo ADMIN_SERVER_ID="${{ secrets.ADMIN_SERVER_ID }}" >> .env
+          echo OWNER_ID="${{ secrets.OWNER_ID }}" >> .env
 
-      # 2. Build the Docker Image 🏗️
-      # The '.' specifies the current directory as the build context.
+      # 3: Create Back up
+      - name: Tag existing image as backup 🏷️
+        run: |
+          if docker inspect --type=image $IMAGE_NAME >/dev/null 2>&1; then
+            echo "Backing up current image $IMAGE_NAME to $IMAGE_BACKUP_TAG..."
+            docker rmi $IMAGE_BACKUP_TAG || true # Remove old backup
+            docker tag $IMAGE_NAME $IMAGE_BACKUP_TAG
+          else
+            echo "No existing $IMAGE_NAME image found. This is likely the first deployment."
+          fi
+
+      # 4. Build the Docker Image 🏗️
+      # This overwrites the $IMAGE_NAME tag, pointing it to the new build
       - name: Build Docker image 🧱
         run: |
-          # The -t flag tags the image with the name from the environment variable
           docker build -t $IMAGE_NAME .
 
-      # 3. Stop and Remove the Old Container, then Start the New One 🔄
-      - name: Deploy new container 🚀
+      # 5. Stop and Remove the Old Container,🔄
+      - name: Remove old container 🚀
         run: |
-          # Kill and remove the currently running container (if it exists)
-          # '|| true' ensures the command doesn't fail if the container doesn't exist yet
           echo "Stopping and removing old container..."
           docker stop $CONTAINER_NAME || true
           docker rm $CONTAINER_NAME || true
-          
+
+      # 6. Start the New Container 🔄
+      # Deploys the new image built in step 4
+      - name: Deploy new container 🚀
+        run: |          
           echo "Starting new container..."
-          # Run the new container:
-          # -d: Detached mode (run in background)
-          # --name: Assign the container a recognizable name
-          # --restart=always: Ensure the bot restarts if it crashes or the Pi reboots
-          # --env-file .env: Pass environment variables (DISCORD_TOKEN, etc.) from the .env file
-          # $IMAGE_NAME: The image we just built
           docker run -d \
             --name $CONTAINER_NAME \
             --restart=always \
             --env-file .env \
             $IMAGE_NAME
           
-          echo "Deployment complete."
+          echo "Deployment complete. Monitoring for health..."
+
+      # 7: Health check and rollback logic
+      - name: Health check and potential rollback 🩺
+        run: |
+          echo "Waiting 30 seconds for container to boot..."
+          sleep 30
+
+          echo "Checking logs for failure..."
+          # Get logs from the container. 2>&1 captures both stdout and stderr
+          LOGS=$(docker logs $CONTAINER_NAME 2>&1)
+
+          # Check for the failure string. -q is for quiet mode.
+          if echo "$LOGS" | grep -q "❌ Failed to load cog"; then
+            # ----- FAILURE CASE -----
+            echo "🔴 Failure detected: 'Failed to load cog' found in logs."
+            echo "Initiating rollback..."
+
+            # 1. Stop and remove the new, failed container
+            echo "Stopping and removing failed container: $CONTAINER_NAME"
+            docker stop $CONTAINER_NAME && docker rm $CONTAINER_NAME
+
+            # 2. Remove the new, failed image
+            echo "Removing failed image: $IMAGE_NAME"
+            docker rmi $IMAGE_NAME
+
+            # 3. Relaunch the old image (if backup exists)
+            if docker inspect --type=image $IMAGE_BACKUP_TAG >/dev/null 2>&1; then
+              echo "Relaunching backup image: $IMAGE_BACKUP_TAG"
+              docker run -d \
+                --name $CONTAINER_NAME \
+                --restart=always \
+                --env-file .env \
+                $IMAGE_BACKUP_TAG
+              
+              # 4. Restore the main tag to the backup version for the *next* run
+              echo "Restoring $IMAGE_NAME tag to backup version."
+              docker tag $IMAGE_BACKUP_TAG $IMAGE_NAME
+            else
+              echo "⚠️ No backup image ($IMAGE_BACKUP_TAG) found to roll back to. System is left in a stopped state."
+            fi
+            
+            # 5. Fail the workflow
+            echo "Rollback complete. Failing workflow."
+            exit 1
+            
+          else
+            # ----- SUCCESS CASE -----
+            echo "✅ Health check passed. No cog failures detected."
+            
+            # 6. Clean up the old backup image
+            echo "Cleaning up old backup image: $IMAGE_BACKUP_TAG"
+            docker rmi $IMAGE_BACKUP_TAG || true
+            echo "Deployment successful."
+          fi
