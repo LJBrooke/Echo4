@@ -70,7 +70,7 @@ jobs:
           echo "Deploying new Docker Compose stack..."
           # The 'up' command with '-d' and '--build' handles stopping/removing the old containers
           # and recreating them, as defined in your docker-compose.yml.
-          docker-compose up -d --build
+          docker compose up -d --build
           
           echo "Deployment complete. Monitoring for health..."
 
