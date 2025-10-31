@@ -7,6 +7,9 @@ services:
     image: postgres:15-alpine
     container_name: discord-bot-db
     restart: always # Always restart the container if it stops
+    
+    ports:
+      - "5432:5432" # Host_Port:Container_Port
 
     # Environment variables to configure the database
     environment:
