@@ -40,17 +40,24 @@ jobs:
             echo "No existing $IMAGE_NAME image found. This is likely the first deployment."
           fi
           
+      # 4. Clean out old containers 🔄
+      - name: Stop old containers 🚀
+        run: |          
+          echo "Stopping and removing old bot container..."
+          docker stop $CONTAINER_NAME || true
+          docker rm $CONTAINER_NAME || true
+
           echo "Stopping and removing old DB container..."
           docker stop discord-bot-db || true
-          docker rm discord-bot-db || true
+          docker rm discord-bot-db || true      
 
       # 4. Build the Docker Image 🏗️
       # This overwrites the $IMAGE_NAME tag, pointing it to the new build
-      - name: Build Docker image 🧱
-        run: |
-          docker build -t $IMAGE_NAME .
+      # - name: Build Docker image 🧱
+      #   run: |
+      #     docker build -t $IMAGE_NAME .
      
-      # New Docker Compose handling to maintain Database container being introduced.
+      # 5: New Docker Compose handling to maintain Database container being introduced.
       - name: Deploy Docker Compose Stack (Bot + DB) 🚀
         run: |
           echo "Deploying new Docker Compose stack..."
@@ -60,7 +67,7 @@ jobs:
           
           echo "Deployment complete. Monitoring for health..."
 
-      # 7: Health check and rollback logic
+      # 6: Health check and rollback logic
       - name: Health check and potential rollback 🩺
         run: |
           echo "Waiting 30 seconds for container to boot..."
