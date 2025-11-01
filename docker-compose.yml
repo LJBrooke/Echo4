@@ -23,6 +23,16 @@ services:
     volumes:
       - pg_data:/home/prismatic/Discord/bot/database/pg_data:/var/lib/postgresql/data
 
+    # --- ADD THIS BLOCK ---
+    healthcheck:
+      # This command checks if Postgres is ready to accept connections
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s     # Check every 10 seconds
+      timeout: 5s       # Give up after 5 seconds
+      retries: 5        # Try 5 times before failing
+      start_period: 10s # Wait 10 seconds before the first check
+    # --- END OF BLOCK ---
+
     # Add this service to our custom network
     networks:
       - echo-network
@@ -37,7 +47,8 @@ services:
 
     # This ensures the database container is started *before* your bot starts
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
     # Pass database connection details to your bot as environment variables
     # Your bot code will read these to connect.
