@@ -41,7 +41,7 @@ services:
   bot:
     # 'build: .' tells compose to look for a 'Dockerfile' in the current directory
     # If your bot's Dockerfile is elsewhere, adjust the path (e.g., './bot-code')
-    build: /home/prismatic/Discord/bot/actions-runner/_work/Echo4/Echo4
+    build: .
     container_name: echo4-prod-container
     restart: always
 
