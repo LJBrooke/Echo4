@@ -127,7 +127,7 @@ class EditorCommands(commands.Cog):
         weapon_type=weapon_type_autocomplete,
         part_type=part_type_autocomplete
     )
-    async def inspect(self, interaction: discord.Interaction, manufacturer: str, weapon_type: str, part_type: str):
+    async def parts(self, interaction: discord.Interaction, manufacturer: str, weapon_type: str, part_type: str):
         message = await item_parser.possible_parts_driver(
             db_pool=self.bot.db_pool,
             manufacturer=manufacturer,
