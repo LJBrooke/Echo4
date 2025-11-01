@@ -28,10 +28,9 @@ jobs:
           echo DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}" > .env
           echo ADMIN_SERVER_ID="${{ secrets.ADMIN_SERVER_ID }}" >> .env
           echo OWNER_ID="${{ secrets.OWNER_ID }}" >> .env
-          echo DATABASE_HOST="discord-bot-db" >> .env
-          echo DATABASE_NAME="${{ secrets.POSTGRES_DB }}" >> .env
-          echo DATABASE_USER="${{ secrets.POSTGRES_USER }}" >> .env
-          echo DATABASE_PWD="${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> .env
+          echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> .env
+          echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> .env
 
       # 3: Create Back up
       - name: Tag existing image as backup 🏷️
