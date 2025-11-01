@@ -2,4 +2,4 @@ discord.py
 python-dotenv
 BeautifulSoup4
 aiohttp
-psycopg2-binary
+asyncpg

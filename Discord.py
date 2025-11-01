@@ -1,6 +1,8 @@
 import os
 import time
 import discord
+import aiohttp
+import asyncpg
 from discord.ext import commands
 from discord import app_commands, Interaction
 from dotenv import load_dotenv
@@ -55,6 +57,21 @@ class MyBot(commands.Bot):
         
         # Define the path to your CSV file
         cogs_csv_path = 'cogs/cogs.csv'
+        
+        # 1. Create the async web session
+        self.session = aiohttp.ClientSession()
+        
+        # 2. Create the async database pool
+        try:
+            self.db_pool = await asyncpg.create_pool(
+                host=os.getenv("DATABASE_HOST"),
+                database=os.getenv("DATABASE_NAME"),
+                user=os.getenv("DATABASE_USER"),
+                password=os.getenv("DATABASE_PWD")
+            )
+        except Exception as e:
+            print(f"Failed to connect to database: {e}")
+            return # Don't load cogs if DB fails
         
         try:
             # Open and read the CSV file

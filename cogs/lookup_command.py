@@ -1,6 +1,6 @@
 import json
 import discord
-from cogs.helper_methods import _process_lookup, get_coms_by_name
+from helpers.helper_methods import _process_lookup, get_coms_by_name
 from cogs.builds_command import BuildView
 from discord import app_commands
 from discord.ext import commands
