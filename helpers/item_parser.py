@@ -247,8 +247,18 @@ async def part_list_driver(session, db_pool, part_data: dict, item_code: str) ->
     # This function is now async
     part_list_str = await compile_part_list(db_pool, part_data, item_code)
     
+    
+    item_name = "Unknown Item" # A safe default
+    additional_data = deserial_data.get('additional_data')
+
+    # Check if data exists and has quotes
+    if additional_data and '"' in additional_data:
+        parts = additional_data.split('"')
+        if len(parts) > 1:
+            item_name = parts[1] # Get the text between the quotes
+            
     if serialization_required:
-        return f"# Part List for: {deserial_data.get('additional_data').split('\"')[1]} \n**Serial:** `{original_code}`\n\n**Component String:** `{item_code}`\n\n```\n{part_list_str}\n```"
+        return f"# Part List for: {item_name} \n**Serial:** `{original_code}`\n\n**Component String:** `{item_code}`\n\n```\n{part_list_str}\n```"
     else:
         return f"**Part List for:** `{original_code}`\n```\n{part_list_str}\n```"
 
