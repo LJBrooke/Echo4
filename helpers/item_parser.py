@@ -1,4 +1,4 @@
-# File: helpers/bl_parser.py
+# File: helpers/item_parser.py
 import re
 
 # Serialization URL, Nicnl and InflamedSebi are amazing.
@@ -89,7 +89,7 @@ async def query_part_list(db_pool, Manufacturer: str, Weapon_Type: str, part_lis
     
     return results # Returns a list of Record objects
 
-async def query_part_list(db_pool, Manufacturer: str, Weapon_Type: str, Part_Type: str) -> list:
+async def query_possible_parts(db_pool, Manufacturer: str, Weapon_Type: str, Part_Type: str) -> list:
     """
     Uses the async asyncpg pool to possible multiple parts.
     Args:
@@ -268,7 +268,7 @@ async def possible_parts_driver(db_pool, manufacturer: str, weapon_type: str, pa
     """
 
     # This function is now async
-    part_list_str = await query_part_list(db_pool, manufacturer, weapon_type, part_type)
+    part_list_str = await query_possible_parts(db_pool, manufacturer, weapon_type, part_type)
     formatted_response = f'ID: {str("Part String").ljust(30)}: Requirements : Stats : Effects\n\n'
     for part in part_list_str:
         line = f"{part[0]:<2}: {part[1]:<30}: {str(part[3]):<13}: {str(part[2]):<6}: {part[4]}\n"
