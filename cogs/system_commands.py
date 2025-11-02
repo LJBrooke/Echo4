@@ -2,6 +2,7 @@ import os
 import discord
 from discord import app_commands
 from discord.ext import commands
+from helpers import sync_parts
 
 # Load your specific user ID from the .env file.
 OWNER_ID = int(os.getenv("OWNER_ID", 0))
@@ -12,7 +13,41 @@ ADMIN_SERVER_ID = int(os.getenv("ADMIN_SERVER_ID", 0))
 class SystemCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        
+    @app_commands.command(name="sync_sheet", description="[Owner Only] Force-sync the Google Sheet with the database.")
+    @app_commands.is_owner()
+    async def sync_part_sheet(self, interaction: discord.Interaction):
+        """
+        Runs the Google Sheet sync process.
+        """
+        try:
+            # Defer the response, as this will take several seconds
+            await interaction.response.defer(ephemeral=True)
+            
+            # Call the helper function, passing the bot's session and db_pool
+            status_message = await sync_parts.sync_google_sheet(
+                session=self.bot.session,
+                db_pool=self.bot.db_pool
+            )
+            
+            # Send the result
+            await interaction.followup.send(status_message, ephemeral=True)
+            
+        except Exception as e:
+            await interaction.followup.send(f"An error occurred: {e}", ephemeral=True)
 
+    @sync_part_sheet.error
+    async def on_sync_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        """Error handler for the sync command"""
+        if isinstance(error, app_commands.NotOwner):
+            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+        else:
+            print(f"Error in sync command: {error}")
+            if interaction.response.is_done():
+                await interaction.followup.send("An unknown error occurred.", ephemeral=True)
+            else:
+                await interaction.response.send_message("An unknown error occurred.", ephemeral=True)
+                
     # MODIFIED: Added the 'guilds' parameter to restrict this command
     @app_commands.command(name="refresh", description="[Owner Only] Refreshes all cogs and syncs commands.")
     @app_commands.guilds(ADMIN_SERVER_ID)

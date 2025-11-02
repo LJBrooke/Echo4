@@ -7,6 +7,8 @@ from discord.ext import commands
 from discord import app_commands, Interaction
 from dotenv import load_dotenv
 
+from helpers import sync_parts
+
 # --- Load Environment ---
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -72,6 +74,13 @@ class MyBot(commands.Bot):
         except Exception as e:
             print(f"Failed to connect to database: {e}")
             return # Don't load cogs if DB fails
+        
+        print("BOT: Running initial Google Sheet sync...")
+        try:
+            sync_status = await sync_parts.sync_part_sheet(self.session, self.db_pool)
+            print(f"BOT: Initial sync complete. {sync_status}")
+        except Exception as e:
+            print(f"CRITICAL: Initial sync failed: {e}")
         
         try:
             # Open and read the CSV file
