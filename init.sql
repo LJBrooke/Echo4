@@ -71,4 +71,4 @@ CREATE TABLE part_list (
     requirements TEXT
 );
 
-insert into part_list (id) values (1);
+-- insert into part_list (id) values (1);
