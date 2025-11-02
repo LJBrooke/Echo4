@@ -25,7 +25,7 @@ class SystemCommands(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             
             # Call the helper function, passing the bot's session and db_pool
-            status_message = await sync_parts.sync_google_sheet(
+            status_message = await sync_parts.sync_part_sheet(
                 session=self.bot.session,
                 db_pool=self.bot.db_pool
             )

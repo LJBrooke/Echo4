@@ -40,22 +40,53 @@ async def sync_part_sheet(session: aiohttp.ClientSession, db_pool: asyncpg.Pool)
         # Get the header row (column names) from the CSV
         header = next(reader)
         # Get the rest of the data as a list of tuples/lists
+        # File: helpers/sync_parts.py
+
         records = list(reader)
+
+        if not records:
+            return "Sync Failed: Downloaded data was empty."
+            
+        # --- FINAL SURGICAL DATA CLEANING FIX (ID at Index 2) ---
         cleaned_records = []
         for row in records:
             cleaned_row = []
-            for cell in row:
-                stripped_cell = cell.strip()  # Strip leading/trailing whitespace
-
-                if not stripped_cell:
-                    # If empty after stripping (e.g., "", " ", or "\t"), use None (NULL)
-                    cleaned_row.append(None)
-                else:
-                    # If it's a valid string, keep it. If it goes into an INTEGER column 
-                    # with a non-numeric string (like "N/A"), the error will happen here,
-                    # which is why you must clean the sheet data.
-                    cleaned_row.append(stripped_cell)
             
+            # 1. Process the entire row up to the ID column (Indices 0 and 1)
+            # These are TEXT columns.
+            for i in range(2): # Process indices 0 and 1
+                cell = row[i] if len(row) > i else None
+                
+                if cell is None:
+                    cleaned_row.append(None)
+                    continue
+                    
+                stripped_cell = str(cell).strip()
+                cleaned_row.append(stripped_cell if stripped_cell else None)
+
+            # 2. Process the ID column (Index 2)
+            # This is the INTEGER column.
+            id_cell = row[2] if len(row) > 2 else None # <--- Your corrected line
+            
+            if id_cell:
+                stripped_id = str(id_cell).strip()
+                # Check if it's a valid integer string. If not, convert to None (NULL).
+                cleaned_id = stripped_id if stripped_id.isdigit() else None
+            else:
+                cleaned_id = None
+            
+            cleaned_row.append(cleaned_id)
+            
+            # 3. Process all remaining columns (Index 3 onwards)
+            # These are all TEXT columns.
+            for cell in row[3:]:
+                if cell is None:
+                    cleaned_row.append(None)
+                    continue
+                    
+                stripped_cell = str(cell).strip()
+                cleaned_row.append(stripped_cell if stripped_cell else None)
+
             cleaned_records.append(cleaned_row)
         
         if not records:
