@@ -73,7 +73,7 @@ async def sync_part_sheet(session: aiohttp.ClientSession, db_pool: asyncpg.Pool)
         error_msg = f"❌ Sync Failed: Error downloading file. {e}"
         print(error_msg)
         return error_msg
-    except asyncpg.Error as e:
+    except asyncpg.exceptions.PostgresError as e:
         error_msg = f"❌ Sync Failed: Database error. {e}"
         print(error_msg)
         return error_msg
