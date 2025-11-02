@@ -14,8 +14,8 @@ class SystemCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         
+    @commands.is_owner() # <--- This matches your import
     @app_commands.command(name="sync_sheet", description="[Owner Only] Force-sync the Google Sheet with the database.")
-    @app_commands.is_owner() # <--- This matches your import
     async def sync_part_sheet(self, interaction: discord.Interaction):
         """
         Runs the Google Sheet sync process.

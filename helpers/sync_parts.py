@@ -41,7 +41,22 @@ async def sync_part_sheet(session: aiohttp.ClientSession, db_pool: asyncpg.Pool)
         header = next(reader)
         # Get the rest of the data as a list of tuples/lists
         records = list(reader)
-        cleaned_records = [[cell if cell != "" else None for cell in row] for row in records]
+        cleaned_records = []
+        for row in records:
+            cleaned_row = []
+            for cell in row:
+                stripped_cell = cell.strip()  # Strip leading/trailing whitespace
+
+                if not stripped_cell:
+                    # If empty after stripping (e.g., "", " ", or "\t"), use None (NULL)
+                    cleaned_row.append(None)
+                else:
+                    # If it's a valid string, keep it. If it goes into an INTEGER column 
+                    # with a non-numeric string (like "N/A"), the error will happen here,
+                    # which is why you must clean the sheet data.
+                    cleaned_row.append(stripped_cell)
+            
+            cleaned_records.append(cleaned_row)
         
         if not records:
             return "Sync Failed: Downloaded data was empty."
