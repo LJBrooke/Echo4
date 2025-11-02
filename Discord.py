@@ -22,7 +22,8 @@ class MyBot(commands.Bot):
         # Set up intents and the command prefix
         super().__init__(
             command_prefix="!",
-            intents=discord.Intents.default()
+            intents=discord.Intents.default(),
+            owner_id=OWNER_ID
         )
         
     @commands.Cog.listener()
