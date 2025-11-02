@@ -216,7 +216,7 @@ async def compile_part_list(db_pool, part_data: dict, item_code: str) -> str:
             line = f"- {str(part['id']):<3}: {part['part_string'].ljust(50)}"
             if part['stats'] and len(part['stats']) > 0:
                 line += part['stats']
-            formatted_response += '\n' +line + '\n'
+            formatted_response += line + '\n'
         
         return formatted_response if formatted_response else "No parts found."
         
@@ -272,6 +272,6 @@ async def possible_parts_driver(db_pool, manufacturer: str, weapon_type: str, pa
     formatted_response = f'ID: {str("Part String").ljust(30)}: Requirements : Stats : Effects\n\n'
     for part in part_list_str:
         line = f"{part[0]:<2}: {part[1]:<30}: {str(part[3]):<13}: {str(part[2]):<6}: {part[4]}\n"
-        formatted_response = formatted_response + line
+        formatted_response = formatted_response + '\n' + line
     
     return f"# {manufacturer} {part_type} for {weapon_type}s\n```{formatted_response}```"
