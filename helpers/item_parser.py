@@ -216,7 +216,7 @@ async def compile_part_list(db_pool, part_data: dict, item_code: str) -> str:
             line = f"- {str(part['id']):<3}: {part['part_string'].ljust(50)}"
             if part['stats'] and len(part['stats']) > 0:
                 line += part['stats']
-            formatted_response += line + '\n'
+            formatted_response += '\n' +line + '\n'
         
         return formatted_response if formatted_response else "No parts found."
         
