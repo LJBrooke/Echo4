@@ -1,3 +1,4 @@
+# cogs/editor_command.py
 import json
 import discord
 from discord import app_commands
@@ -139,7 +140,46 @@ class EditorCommands(commands.Cog):
         footer = """\n\n-# Part information thanks to [this Amazing resource](<https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/edit?gid=1385091622#gid=1385091622>)"""
         message = message+footer
         await interaction.response.send_message(content=message)
-        
+
+        # --- The Slash Command ---
+    @app_commands.command(name="element_id", description="Fetch the part id for elements on a gun")
+    @app_commands.describe(primary_element="The Primary or only element on your gun")
+    @app_commands.describe(secondary_element="The element you can switch to if the gun has the option, otherwise 'None'")
+    @app_commands.describe(underbarrel="Do you want the id for the second element of a dual element gun?")
+    @app_commands.choices(
+        primary_element=[
+            app_commands.Choice(name="Corrosive", value="Corrosive"),
+            app_commands.Choice(name="Cryo", value="Cryo"),
+            app_commands.Choice(name="Fire", value="Fire"),
+            app_commands.Choice(name="Radiation", value="Radiation"),
+            app_commands.Choice(name="Shock", value="Shock"),
+        ],
+        secondary_element=[
+            app_commands.Choice(name="None", value="None"),
+            app_commands.Choice(name="Corrosive", value="Corrosive"),
+            app_commands.Choice(name="Cryo", value="Cryo"),
+            app_commands.Choice(name="Fire", value="Fire"),
+            app_commands.Choice(name="Radiation", value="Radiation"),
+            app_commands.Choice(name="Shock", value="Shock"),
+        ],
+        underbarrel=[
+            app_commands.Choice(name="No", value='False'),
+            app_commands.Choice(name="Yes", value='True'),
+        ]
+    )
+    async def get_element_id(self, interaction: discord.Interaction, primary_element: str, secondary_element: str, underbarrel: str):
+        if underbarrel == 'True': underbarrel=True
+        else: underbarrel=False
+        message = await item_parser.query_element_id(
+            db_pool=self.bot.db_pool,
+            primary=primary_element,
+            secondary=secondary_element,
+            underbarrel=underbarrel
+        )
+        footer = """\n\n-# Part information thanks to [this Amazing resource](<https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/edit?gid=1385091622#gid=1385091622>)"""
+        message = f"Primary Element: {primary_element}\nSecondary Element: {None}\nUnderbarrel: {str(underbarrel)}\n\n**Element ID:** {message} {footer}"
+        await interaction.response.send_message(content=message)
+         
 # --- Setup Function ---
 async def setup(bot: commands.Bot):
     await bot.add_cog(EditorCommands(bot))

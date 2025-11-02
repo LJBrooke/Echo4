@@ -63,6 +63,27 @@ async def query_id(db_pool, Manufacturer: str, Weapon_Type: str, id: int) -> str
     
     return result['part_string'] if result else None
 
+async def query_element_id(db_pool, primary: str, secondary: str, underbarrel: bool) -> str:
+    """
+    Uses the async asyncpg pool to fetch a single element part id.
+    Args:
+        db_pool: The bot's asyncpg.Pool
+    """
+    query = f"""
+    SELECT id 
+    FROM element_list 
+    WHERE primary_element = '{primary}'
+    and underbarrel is {underbarrel}"""
+
+    if secondary=='None': query=query + ' and secondary_element is null'
+    else: query=query + f" and secondary_element ='{secondary}'"    
+    print(query)
+    # Use 'with pool.acquire()' to get a connection
+    async with db_pool.acquire() as conn:
+        result = await conn.fetchrow(query)
+    print(result.get('id'))
+    return '{1:'+str(result.get('id'))+'}' if result else None
+
 async def query_part_list(db_pool, Manufacturer: str, Weapon_Type: str, part_list: list) -> list:
     """
     Uses the async asyncpg pool to fetch multiple parts.
