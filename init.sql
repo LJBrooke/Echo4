@@ -62,7 +62,7 @@ values
 CREATE TABLE part_list (
     manufacturer TEXT,
     weapon_type TEXT,
-    id INTEGER PRIMARY KEY,
+    id INTEGER,
     part_type TEXT,
     part_string TEXT,
     model_name TEXT,

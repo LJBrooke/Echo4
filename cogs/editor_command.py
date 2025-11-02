@@ -27,15 +27,15 @@ class EditorCommands(commands.Cog):
         try:
             async with self.bot.db_pool.acquire() as conn:
                 # Fetch and store manufacturers
-                m_records = await conn.fetch("SELECT DISTINCT manufacturer FROM part_list ORDER BY manufacturer")
+                m_records = await conn.fetch("SELECT DISTINCT manufacturer FROM part_list where part_type is not null ORDER BY manufacturer")
                 self.manufacturer_options = [r['manufacturer'] for r in m_records]
                 
                 # Fetch and store weapon types
-                wt_records = await conn.fetch("SELECT DISTINCT weapon_type FROM part_list ORDER BY weapon_type")
+                wt_records = await conn.fetch("SELECT DISTINCT weapon_type FROM part_list where part_type is not null ORDER BY weapon_type")
                 self.weapon_type_options = [r['weapon_type'] for r in wt_records]
                 
                 # Fetch and store part types
-                pt_records = await conn.fetch("SELECT DISTINCT part_type FROM part_list ORDER BY part_type")
+                pt_records = await conn.fetch("SELECT DISTINCT part_type FROM part_list where part_type is not null ORDER BY part_type")
                 self.part_type_options = [r['part_type'] for r in pt_records]
                 
             # print(f"Cog: Autocomplete caches built. (Manufacturers: {len(self.manufacturer_options)})")

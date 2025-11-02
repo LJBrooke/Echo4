@@ -21,7 +21,7 @@ services:
     # This is CRITICAL. It stores your database data *outside* the container.
     # If the container is deleted, your data in 'pg_data' survives.
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - pg_data:/home/prismatic/Discord/bot/database/pg_data:/var/lib/postgresql/data
 
     # --- ADD THIS BLOCK ---

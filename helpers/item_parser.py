@@ -210,7 +210,7 @@ async def compile_part_list(db_pool, part_data: dict, item_code: str) -> str:
         for element in reversed(elements):
             if element[1] is None:
                 formatted_response = formatted_response+ f'Primary Element: {element[0]}\n'
-            else: formatted_response = formatted_response+ f'Secondary Element: {element[0]}\n\n'
+            else: formatted_response = formatted_response+ f'Secondary Element: {element[1]}\n\n'
         for part in str_part_list:
             # 'part' is now an asyncpg.Record, access by key
             line = f"- {str(part['id']):<3}: {part['part_string'].ljust(50)}"
