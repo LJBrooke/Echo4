@@ -37,7 +37,7 @@ class EditorCommands(commands.Cog):
             #     # Fetch and store part types
             #     pt_records = await conn.fetch("SELECT DISTINCT part_type FROM part_list where part_type is not null ORDER BY part_type")
             #     self.part_type_options = [r['part_type'] for r in pt_records]
-            self.manufacturer_options = ["Daedalus" "Jakobs" "Maliwan" "Order" "Ripper" "Tediore" "Torgue" "Vladof"]
+            self.manufacturer_options = ["Daedalus", "Jakobs", "Maliwan", "Order", "Ripper", "Tediore", "Torgue", "Vladof"]
             self.weapon_type_options = ["Assault Rifle", "Pistol", "SMG", "Shotgun", "Sniper"]
             self.part_type_options = ["Barrel", "Barrel Accessory", "Body", "Body Accessory", "Foregrip", "Grip", "Magazine", "Manufacturer Part", "Scope", "Scope Accessory", "Stat Modifier", "Underbarrel", "Underbarrel Accessory"]    
             # print(f"Cog: Autocomplete caches built. (Manufacturers: {len(self.manufacturer_options)})")
