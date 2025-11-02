@@ -61,7 +61,6 @@ async def sync_part_sheet(session: aiohttp.ClientSession, db_pool: asyncpg.Pool)
                 await conn.copy_records_to_table(
                     TABLE_NAME,
                     records=records,
-                    columns=header,  # Map CSV columns to table columns
                     timeout=120.0    # Give it 2 minutes
                 )
 
