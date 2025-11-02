@@ -3,3 +3,4 @@ python-dotenv
 BeautifulSoup4
 aiohttp
 asyncpg
+psycopg2-binary
