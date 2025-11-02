@@ -60,14 +60,6 @@ async def sync_part_sheet(session: aiohttp.ClientSession, db_pool: asyncpg.Pool)
     """
     Async driver that coordinates download and safe synchronous database sync.
     """
-    # 1. Get DB connection details from the pool (This is an async method)
-    # We must retrieve these details to pass to the synchronous psycopg2 connection
-    async with db_pool.acquire() as conn:
-        db_host = conn.get_parameters().get('host')
-        db_name = conn.get_parameters().get('database')
-        db_user = conn.get_parameters().get('user')
-        db_pass = conn.get_parameters().get('password')
-
     try:
         # 2. Download the CSV data (Async, non-blocking)
         print(f"Sync: Downloading data from Google Sheet...")
@@ -77,6 +69,10 @@ async def sync_part_sheet(session: aiohttp.ClientSession, db_pool: asyncpg.Pool)
             
         # 3. Execute the synchronous core logic in a separate thread
         print(f"Sync: Running blocking database operation...")
+        db_host = os.getenv("DATABASE_HOST")
+        db_name = os.getenv("DATABASE_NAME")
+        db_user = os.getenv("DATABASE_USER")
+        db_pass = os.getenv("DATABASE_PWD")
         
         # NOTE: This is the critical change: Use asyncio.to_thread()
         rows_synced = await asyncio.to_thread(
