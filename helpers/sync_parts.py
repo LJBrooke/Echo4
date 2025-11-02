@@ -41,7 +41,8 @@ async def sync_part_sheet(session: aiohttp.ClientSession, db_pool: asyncpg.Pool)
         header = next(reader)
         # Get the rest of the data as a list of tuples/lists
         records = list(reader)
-
+        cleaned_records = [[cell if cell != "" else None for cell in row] for row in records]
+        
         if not records:
             return "Sync Failed: Downloaded data was empty."
         
@@ -60,7 +61,7 @@ async def sync_part_sheet(session: aiohttp.ClientSession, db_pool: asyncpg.Pool)
                 print(f"Sync: Loading new data...")
                 await conn.copy_records_to_table(
                     TABLE_NAME,
-                    records=records,
+                    records=cleaned_records,
                     timeout=120.0    # Give it 2 minutes
                 )
 
