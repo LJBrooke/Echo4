@@ -5,6 +5,10 @@ from discord import app_commands
 from discord.ext import commands
 from helpers import item_parser
 
+# Footers are standard for all messages dependent on data presented. Hence declared globally.
+serial_footer = """\n-# Serialization thanks to [Nicnl and InflamedSebi](https://borderlands4-deserializer.nicnl.com/)"""
+parts_footer = """\n-# Part information thanks to [this amazing resource](<https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/edit?gid=1385091622#gid=1385091622>)"""
+
 # --- Define the Cog Class ---
 class EditorCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -88,10 +92,8 @@ class EditorCommands(commands.Cog):
         
         print(response)
         message = '**Item:** '+response.get('additional_data') + '\n**Deserialized String:** '+response.get('deserialized')
-        
-        footer = '\n\n-# Deserialization thanks to [Nicnl and InflamedSebi](https://borderlands4-deserializer.nicnl.com/)'
-        
-        message = message+footer
+               
+        message = message+parts_footer
         await interaction.response.send_message(content=message)
 
     # --- The Slash Command ---
@@ -102,8 +104,7 @@ class EditorCommands(commands.Cog):
         
         message = '**Item:** '+response.get('additional_data') + '\n**Serialized String:** '+response.get('serial_b85')
         
-        footer = '\n\n-# Serialization thanks to [Nicnl and InflamedSebi](https://borderlands4-deserializer.nicnl.com/)'
-        message = message+footer
+        message = message+serial_footer
         await interaction.response.send_message(content=message)
     
     # --- The Slash Command ---
@@ -116,8 +117,7 @@ class EditorCommands(commands.Cog):
             part_data=self.part_data,
             item_code=weapon_id
         )
-        footer = """\n\n-# Serialization thanks to [Nicnl and InflamedSebi](https://borderlands4-deserializer.nicnl.com/)\n-# Part information thanks to [this Amazing resource](<https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/edit?gid=1385091622#gid=1385091622>)"""
-        message = message+footer
+        message = message+serial_footer+parts_footer
         await interaction.response.send_message(content=message)
 
     # --- The Slash Command ---
@@ -137,8 +137,7 @@ class EditorCommands(commands.Cog):
             weapon_type=weapon_type,
             part_type=part_type
         )
-        footer = """\n\n-# Part information thanks to [this Amazing resource](<https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/edit?gid=1385091622#gid=1385091622>)"""
-        message = message+footer
+        message = message+parts_footer
         await interaction.response.send_message(content=message)
 
         # --- The Slash Command ---
@@ -176,8 +175,7 @@ class EditorCommands(commands.Cog):
             secondary=secondary_element,
             underbarrel=underbarrel
         )
-        footer = """\n\n-# Part information thanks to [this Amazing resource](<https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/edit?gid=1385091622#gid=1385091622>)"""
-        message = f"Primary Element: {primary_element}\nSecondary Element: {None}\nUnderbarrel: {str(underbarrel)}\n\n**Element ID:** {message} {footer}"
+        message = f"Primary Element: {primary_element}\nSecondary Element: {None}\nUnderbarrel: {str(underbarrel)}\n\n**Element ID:** {message}\n{parts_footer}"
         await interaction.response.send_message(content=message)
          
 # --- Setup Function ---
