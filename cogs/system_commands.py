@@ -14,13 +14,17 @@ class SystemCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         
-    @commands.is_owner() # <--- This matches your import
     @app_commands.command(name="sync_sheet", description="[Owner Only] Force-sync the Google Sheet with the database.")
+    @commands.is_owner()
     async def sync_part_sheet(self, interaction: discord.Interaction):
         """
         Runs the Google Sheet sync process.
         """
         try:
+            # Failsafe for commands.is_owner() not working.
+            if interaction.user.id != OWNER_ID:
+                await interaction.response.send_message("You do not have permission to use this command. If you have found old data please report it to Prismatic.", ephemeral=True)
+            
             # Defer the response, as this will take several seconds
             await interaction.response.defer(ephemeral=True)
             
@@ -29,8 +33,6 @@ class SystemCommands(commands.Cog):
                 session=self.bot.session,
                 db_pool=self.bot.db_pool
             )
-            
-            # Send the result
             await interaction.followup.send(status_message, ephemeral=True)
             
         except Exception as e:
@@ -91,7 +93,7 @@ class SystemCommands(commands.Cog):
 - **Prismatic**
 
 **Contributors**
-- **Girthquake**: Filled out Amon information.
+- **Girthquake**: Filled out Amon information and endless support promoting this bot.
 - **JoeForLong**: Filled out Rafa information.
 - **Ratore**: Filled out Vex information.
         '''

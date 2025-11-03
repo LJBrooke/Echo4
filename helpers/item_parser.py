@@ -279,7 +279,7 @@ async def part_list_driver(session, db_pool, part_data: dict, item_code: str) ->
             item_name = parts[1] # Get the text between the quotes
             
     if serialization_required:
-        return f"# Part List for: {item_name} \n**Serial:** ```{original_code}```\n\n**Component String:** `{item_code}`\n\n```\n{part_list_str}\n```"
+        return f"# Part List for: {item_name} \n**Serial:** ```{original_code}```\n**Component String:** ```{item_code}```\n```\n{part_list_str}\n```"
     else:
         return f"**Part List for:** `{original_code}`\n```\n{part_list_str}\n```"
 
