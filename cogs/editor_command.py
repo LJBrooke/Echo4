@@ -19,35 +19,9 @@ class EditorCommands(commands.Cog):
         This function is called by discord.py when the cog is loaded.
         It's the perfect place for async setup.
         """
-        # Load your JSON data here
-        try:
-            with open('data/part_data.json', 'r', encoding='utf-8') as f:
-                self.part_data = json.load(f)
-            # print("Cog: Part Data loaded.")
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error loading Part Data for cog: {e}")
-            
-        # --- 2. Populate the autocomplete caches from the DB ---
-        # print("Cog: Building autocomplete caches...")
-        try:
-            # async with self.bot.db_pool.acquire() as conn:
-            #     # Fetch and store manufacturers
-            #     m_records = await conn.fetch("SELECT DISTINCT manufacturer FROM part_list where part_type is not null ORDER BY manufacturer")
-            #     self.manufacturer_options = [r['manufacturer'] for r in m_records]
-                
-            #     # Fetch and store weapon types
-            #     wt_records = await conn.fetch("SELECT DISTINCT weapon_type FROM part_list where part_type is not null ORDER BY weapon_type")
-            #     self.weapon_type_options = [r['weapon_type'] for r in wt_records]
-                
-            #     # Fetch and store part types
-            #     pt_records = await conn.fetch("SELECT DISTINCT part_type FROM part_list where part_type is not null ORDER BY part_type")
-            #     self.part_type_options = [r['part_type'] for r in pt_records]
-            self.manufacturer_options = ["Daedalus", "Jakobs", "Maliwan", "Order", "Ripper", "Tediore", "Torgue", "Vladof"]
-            self.weapon_type_options = ["Assault Rifle", "Pistol", "SMG", "Shotgun", "Sniper"]
-            self.part_type_options = ["Barrel", "Barrel Accessory", "Body", "Body Accessory", "Foregrip", "Grip", "Magazine", "Manufacturer Part", "Scope", "Scope Accessory", "Stat Modifier", "Underbarrel", "Underbarrel Accessory"]    
-            # print(f"Cog: Autocomplete caches built. (Manufacturers: {len(self.manufacturer_options)})")
-        except Exception as e:
-            print(f"CRITICAL: Failed to build autocomplete caches: {e}")
+        self.manufacturer_options = ["Daedalus", "Jakobs", "Maliwan", "Order", "Ripper", "Tediore", "Torgue", "Vladof"]
+        self.weapon_type_options = ["Assault Rifle", "Pistol", "SMG", "Shotgun", "Sniper"]
+        self.part_type_options = ["Barrel", "Barrel Accessory", "Body", "Body Accessory", "Foregrip", "Grip", "Magazine", "Manufacturer Part", "Scope", "Scope Accessory", "Stat Modifier", "Underbarrel", "Underbarrel Accessory"]    
             
     async def manufacturer_autocomplete(self, 
         interaction: discord.Interaction, 
@@ -114,7 +88,6 @@ class EditorCommands(commands.Cog):
         message = await item_parser.part_list_driver(
             session=self.bot.session,
             db_pool=self.bot.db_pool,
-            part_data=self.part_data,
             item_code=weapon_id
         )
         message = message+serial_footer+parts_footer
@@ -144,7 +117,7 @@ class EditorCommands(commands.Cog):
     @app_commands.command(name="element_id", description="Fetch the part id for elements on a gun")
     @app_commands.describe(primary_element="The Primary or only element on your gun")
     @app_commands.describe(secondary_element="The element you can switch to if the gun has the option, otherwise 'None'")
-    @app_commands.describe(underbarrel="Do you want the id for the second element of a dual element gun?")
+    @app_commands.describe(maliwan="Is this a Maliwan gun?")
     @app_commands.choices(
         primary_element=[
             app_commands.Choice(name="Corrosive", value="Corrosive"),
@@ -161,13 +134,13 @@ class EditorCommands(commands.Cog):
             app_commands.Choice(name="Radiation", value="Radiation"),
             app_commands.Choice(name="Shock", value="Shock"),
         ],
-        underbarrel=[
+        maliwan=[
             app_commands.Choice(name="No", value='False'),
             app_commands.Choice(name="Yes", value='True'),
         ]
     )
-    async def get_element_id(self, interaction: discord.Interaction, primary_element: str, secondary_element: str, underbarrel: str):
-        if underbarrel == 'True': underbarrel=True
+    async def get_element_id(self, interaction: discord.Interaction, primary_element: str, secondary_element: str, maliwan: str):
+        if maliwan == 'True' and secondary_element!="None": underbarrel=True
         else: underbarrel=False
         message = await item_parser.query_element_id(
             db_pool=self.bot.db_pool,
@@ -175,7 +148,7 @@ class EditorCommands(commands.Cog):
             secondary=secondary_element,
             underbarrel=underbarrel
         )
-        message = f"Primary Element: {primary_element}\nSecondary Element: {None}\nUnderbarrel: {str(underbarrel)}\n\n**Element ID:** {message}\n{parts_footer}"
+        message = f"Primary Element: {primary_element}\nSecondary Element: {secondary_element}\nMaliwan: {str(underbarrel)}\n\n**Element ID:** {message}\n{parts_footer}"
         await interaction.response.send_message(content=message)
          
 # --- Setup Function ---
