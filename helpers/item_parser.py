@@ -128,9 +128,9 @@ async def query_possible_parts(db_pool, Manufacturer: str, Weapon_Type: str, Par
         effects
     FROM part_list 
     WHERE 
-        part_type = $1 AND 
-        weapon_type = $2 AND 
-        manufacturer = $3
+        lower(part_type) = lower($1) AND 
+        lower(weapon_type) = lower($2) AND 
+        lower(manufacturer) = lower($3)
     """
     async with db_pool.acquire() as conn:
         results = await conn.fetch(query, Part_Type, Weapon_Type, Manufacturer)
@@ -281,7 +281,7 @@ async def part_list_driver(session, db_pool, part_data: dict, item_code: str) ->
     if serialization_required:
         return f"# Part List for: {item_name} \n**Serial:** ```{original_code}```\n**Component String:** ```{item_code}```\n```\n{part_list_str}\n```"
     else:
-        return f"**Part List for:** `{original_code}`\n```\n{part_list_str}\n```"
+        return f"**Part List for:** ```{original_code}```\n```\n{part_list_str}\n```"
 
 async def possible_parts_driver(db_pool, manufacturer: str, weapon_type: str, part_type: str) -> str:
     """
