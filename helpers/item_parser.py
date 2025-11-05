@@ -63,8 +63,7 @@ async def query_id(db_pool, Manufacturer: str, Weapon_Type: str, id: int) -> str
     
     return result['part_string'] if result else None
 
-async def query_type(db_pool, id: int) -> str:
-    print(id)
+async def query_type(db_pool, id: int) -> list[str]:
     """
     Uses the async asyncpg pool to fetch a single part.
     Args:
@@ -78,8 +77,8 @@ async def query_type(db_pool, id: int) -> str:
     # Use 'with pool.acquire()' to get a connection
     async with db_pool.acquire() as conn:
         result = await conn.fetchrow(query, id)
-    print(result['manufactuer'])
-    return result['item_type'], result['manufactuer'] if result else None
+    print(result.get('manufactuer'))
+    return result.get('item_type'), result.get('manufactuer') if result else None
 
 async def query_element_id(db_pool, primary: str, secondary: str, underbarrel: bool) -> str:
     """
