@@ -194,7 +194,7 @@ def split_item_str(item_str: str) -> list[int, int, list[int]]:
     pattern = r"\{.*?\}"
     part_list = re.findall(pattern, parts)
     
-    return int(item_type), int(level), int(part_list)
+    return item_type, level, part_list
 
 def find_aspect(part_data: dict, part: str, id: str) -> dict:
     """
@@ -238,7 +238,7 @@ async def compile_part_list(db_pool, item_code: str) -> str:
     try:
         item_type, level, part_list = split_item_str(item_code)
         
-        type, manufacturer = await query_type(db_pool, item_type)
+        type, manufacturer = await query_type(db_pool, int(item_type))
         if type not in ['pistol', 'shotgun', 'assault_rifle', 'smg', 'sniper']:
             return "Sorry, only weapons are supported currently"
 
