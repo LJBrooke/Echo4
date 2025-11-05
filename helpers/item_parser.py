@@ -181,7 +181,7 @@ async def query_element(db_pool, element_list: list) -> list:
 # LOGIC FUNCTIONS (Now accept part_data)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def split_item_str(item_str: str) -> list[str, int, list[int]]:
+def split_item_str(item_str: str) -> list[int, int, list[int]]:
     base_aspect, part_aspect = item_str.split('||')
     base, unknown = base_aspect.split('|')
     item_type, base_0, base_1, level = base.split(', ')
@@ -194,7 +194,7 @@ def split_item_str(item_str: str) -> list[str, int, list[int]]:
     pattern = r"\{.*?\}"
     part_list = re.findall(pattern, parts)
     
-    return item_type, level, part_list
+    return int(item_type), int(level), int(part_list)
 
 def find_aspect(part_data: dict, part: str, id: str) -> dict:
     """
