@@ -218,7 +218,7 @@ async def create_part_and_element_list(db_pool, part_list: list) -> list[list]:
     int_ele_list = []
     print(part_list)
     for part in part_list:
-        if ':' not in part and part.startswith('{') and part.endswith('}'):
+        if ':' not in part:
             int_part_list.append(int(part.strip()[1:-1]))
         elif ':' in part:
             # print(part)
