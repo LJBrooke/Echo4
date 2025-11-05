@@ -61,7 +61,7 @@ async def query_id(db_pool, Manufacturer: str, Weapon_Type: str, id: int) -> str
     async with db_pool.acquire() as conn:
         result = await conn.fetchrow(query, id, Weapon_Type, Manufacturer)
     
-    return result['part_string'] if result else None
+    return result.get('part_string') if result else None
 
 async def query_type(db_pool, id: int) -> list[str]:
     """
@@ -77,8 +77,8 @@ async def query_type(db_pool, id: int) -> list[str]:
     # Use 'with pool.acquire()' to get a connection
     async with db_pool.acquire() as conn:
         result = await conn.fetchrow(query, id)
-    print(result.get('manufactuer'))
-    return result.get('item_type'), result.get('manufactuer') if result else None
+    print(result.get('manufacturer'))
+    return result.get('item_type'), result.get('manufacturer') if result else None
 
 async def query_element_id(db_pool, primary: str, secondary: str, underbarrel: bool) -> str:
     """
@@ -112,19 +112,20 @@ async def query_part_list(db_pool, Manufacturer: str, Weapon_Type: str, part_lis
     query = f"""
     SELECT
         part_string, 
+        part_type,
         id,
         stats,
         effects
     FROM part_list 
     WHERE 
-        id = ANY($1) AND 
+        id = ANY($1) AND
         lower(weapon_type) = lower($2) AND 
         lower(Manufacturer) = lower($3)
     """
-    # Using ANY($1) is the safe, correct way to handle a list
+
     async with db_pool.acquire() as conn:
         results = await conn.fetch(query, part_list, Weapon_Type, Manufacturer)
-    
+
     return results # Returns a list of Record objects
 
 async def query_possible_parts(db_pool, Manufacturer: str, Weapon_Type: str, Part_Type: str) -> list:
@@ -181,7 +182,7 @@ async def query_element(db_pool, element_list: list) -> list:
 # LOGIC FUNCTIONS (Now accept part_data)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def split_item_str(item_str: str) -> list[int, int, list[int]]:
+def split_item_str(item_str: str) -> list[str, int, list[int]]:
     base_aspect, part_aspect = item_str.split('||')
     base, unknown = base_aspect.split('|')
     item_type, base_0, base_1, level = base.split(', ')
@@ -196,27 +197,10 @@ def split_item_str(item_str: str) -> list[int, int, list[int]]:
     
     return item_type, level, part_list
 
-def find_aspect(part_data: dict, part: str, id: str) -> dict:
-    """
-    Finds an aspect from the passed-in part_data dictionary.
-    Args:
-        part_data: The loaded part_data.json
-        part (str): Aspect type to Query, Manufacturer or Element
-        id: instance of part to find.
-    """
-    options = part_data.get(part)
-    if not options:
-        return None
-        
-    for option in options:
-        if str(option.get('id')) == str(id):
-            return option
-    return None
-
 async def create_part_and_element_list(db_pool, part_list: list) -> list[list]:
     int_part_list = []
     int_ele_list = []
-    print(part_list)
+    
     for part in part_list:
         if ':' not in part:
             int_part_list.append(int(part.strip()[1:-1]))
@@ -229,6 +213,19 @@ async def create_part_and_element_list(db_pool, part_list: list) -> list[list]:
     elements = await query_element(db_pool, int_ele_list)
     
     return int_part_list, elements
+
+async def get_button_dict(db_pool: str, session, item_serial: str) -> dict:
+    item_components = deserialize(session, item_serial)
+    item_type, level, part_list = split_item_str(item_components)
+    type, manufacturer = query_type(db_pool, item_type)
+    if type.lower() in ["assault rifle", "pistol", "smg", "shotgun", "sniper"]:
+        return 1 # Wrapping function must return this as an item type unsupported error
+    parts, elements = create_part_and_element_list(db_pool, part_list)
+    part_dict = query_part_list(db_pool, manufacturer, type, parts)
+    
+    # TODO FINISH THIS FUNC
+    return part_dict
+    
 
 async def compile_part_list(db_pool, item_code: str) -> str:
     """
@@ -243,7 +240,7 @@ async def compile_part_list(db_pool, item_code: str) -> str:
             return "Sorry, only weapons are supported currently"
 
         int_part_list, elements = await create_part_and_element_list(db_pool, part_list)
-        
+        print(int_part_list)
         # This function is now async, so we must 'await' it
         str_part_list = await query_part_list(
             db_pool, 
@@ -253,7 +250,6 @@ async def compile_part_list(db_pool, item_code: str) -> str:
         )
         
         formatted_response = ''
-        
         for element in elements:
             if element[1] is None:
                 formatted_response = formatted_response+ f'Primary Element: {element[0]}\n'
