@@ -238,7 +238,7 @@ async def compile_part_list(db_pool, item_code: str) -> str:
     try:
         item_type, level, part_list = split_item_str(item_code)
         
-        type, manufacturer = query_type(db_pool, item_type)
+        type, manufacturer = await query_type(db_pool, item_type)
         if type not in ['pistol', 'shotgun', 'assault_rifle', 'smg', 'sniper']:
             return "Sorry, only weapons are supported currently"
 
