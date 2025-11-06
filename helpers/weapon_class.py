@@ -343,6 +343,8 @@ class Weapon:
             if not secondary_token:
                 raise ValueError(f"Could not find dual-element ID for {new_primary_name} + {new_secondary_name} (Maliwan={is_maliwan}).")
         
+        self.primary_element_name = new_primary_name
+        self.secondary_element_name = new_secondary_name
         # 4. Update the stored parts
         self.parts["Primary Element"] = [primary_token]
         self.parts["Secondary Element"] = [secondary_token] if secondary_token else []
