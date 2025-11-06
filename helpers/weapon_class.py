@@ -81,7 +81,7 @@ class Weapon:
         self.item_name = "Unknown Item"
 
     @classmethod
-    async def create(cls, db_pool, session, initial_serial: str):
+    async def create(cls, db_pool, session, initial_serial: str, deserialized_json: dict, item_type_int: int, manufacturer: str, item_type: str):        
         """
         Asynchronously creates and initializes a Weapon instance.
         """
@@ -90,9 +90,11 @@ class Weapon:
         
         # Now, perform all async operations and populate the instance
         try:
-            derialized_json = await item_parser.deserialize(weapon.session, weapon.original_serial)
-            weapon.item_str = derialized_json.get('deserialized')
-            weapon.additional_data = derialized_json.get('additional_data', '')
+            # REMOVED: Deserialization is now done in the cog
+            # derialized_json = await item_parser.deserialize(weapon.session, weapon.original_serial)
+            
+            weapon.item_str = deserialized_json.get('deserialized')
+            weapon.additional_data = deserialized_json.get('additional_data', '')
             base_aspect, part_aspect = weapon.item_str.split('||')
             base, weapon.skin_data = base_aspect.split('|')
             if weapon.additional_data and '"' in weapon.additional_data:
@@ -100,7 +102,8 @@ class Weapon:
                 if len(parts) > 1:
                     weapon.item_name = parts[1]
             
-            weapon.item_type_int, base_0, base_1, weapon.level = base.split(', ')
+            # We already have item_type_int, but we still need to parse level
+            _, base_0, base_1, weapon.level = base.split(', ')
             parts_string, weapon.extra = part_aspect.split('|')
                         
             all_part_tokens = re.findall(r"\{[\d:]+\}", parts_string)
@@ -111,10 +114,10 @@ class Weapon:
             
             regular_part_tokens = [int(p[1:-1]) for p in all_part_tokens if ':' not in p]
             
-            weapon.type, weapon.manufacturer = await item_parser.query_type(
-                weapon.db_pool, int(weapon.item_type_int)
-            )
-            
+            # --- ASSIGN PRE-FETCHED DATA ---
+            weapon.item_type_int = item_type_int
+            weapon.type = item_type
+            weapon.manufacturer = manufacturer
             part_list_results = await item_parser.query_part_list(
                 weapon.db_pool, weapon.manufacturer, weapon.type, regular_part_tokens
             )
@@ -138,7 +141,6 @@ class Weapon:
             
         except Exception as e:
             print(f"Error during Weapon.create: {e}")
-            # Re-raise the exception to be caught by the command
             raise e
 
     async def get_serial(self) -> str:

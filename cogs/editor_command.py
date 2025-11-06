@@ -4,6 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 from helpers import item_parser
 from helpers import weapon_class
+from helpers import shield_class
 import traceback 
 import re
 
@@ -326,12 +327,6 @@ class PartOptionSelect(discord.ui.Select):
         self.view.selected_values = self.values
         
         await interaction.response.defer()
-        # selected_values = ", ".join(self.values)
-        # print(f"User {interaction.user.id} selected: {selected_values}")
-
-        # # 4. Delete this ephemeral message (the select menu)
-        # # The user's feedback is the main embed updating (which we'll do next)
-        # await interaction.delete_original_response()
 
 class LevelModal(discord.ui.Modal, title="Set Weapon Level"):
     level_input = discord.ui.TextInput(
@@ -689,49 +684,137 @@ class EditorCommands(commands.Cog):
         message = message+serial_footer+parts_footer
         await interaction.response.send_message(content=message)
 
-    @app_commands.command(name="edit", description="Edit the parts on your gun!")
-    @app_commands.describe(weapon_serial="weapon serial")
+    @app_commands.command(name="edit", description="Edit the parts on your gun or shield!")
+    @app_commands.describe(weapon_serial="Item serial")
     async def edit(self, interaction: discord.Interaction, weapon_serial: str):
         try:
             await interaction.response.defer()
             
-            # 1. Instantiate the Weapon class using the async factory
-            weapon = await weapon_class.Weapon.create(
-                self.bot.db_pool, 
-                self.bot.session, 
-                weapon_serial
-            )
+            # --- STEP 1: Deserialize and Get Type (as you requested) ---
             
-            # 2. Get the item name (now stored on the weapon object)
-            item_name = weapon.item_name
-            part_list_string = await weapon.get_parts_for_embed()
-            weapon_color = weapon.get_rarity_color()
+            # 1. Deserialize the item
+            deserialized_json = await item_parser.deserialize(self.bot.session, weapon_serial.strip())
+            item_str = deserialized_json.get('deserialized')
+
+            if not item_str:
+                await interaction.followup.send(
+                    "Error: Could not deserialize this serial. It might be invalid.",
+                    ephemeral=True
+                )
+                return
+
+            # 2. Parse the item_type_int from the string
+            # '24, 0, 1, 50|...' -> '24'
+            base_aspect, _ = item_str.split('||')
+            base, _ = base_aspect.split('|')
+            item_type_int_str, _, _, _ = base.split(', ')
+            item_type_int = int(item_type_int_str)
+
+            # 3. Query the item type
+            item_type, manufacturer = await item_parser.query_type(self.bot.db_pool, item_type_int)
+
+            if not item_type:
+                await interaction.followup.send(
+                    f"Error: Unknown item type ID: `{item_type_int}`. Cannot edit.",
+                    ephemeral=True
+                )
+                return
+
+            # --- STEP 2: Route to the correct Class and View ---
             
-            # Create a clean embed for the response
+            item_object = None
+            editor_view = None
+
+            if item_type.lower() == 'shield':
+                # --- SHIELD PATH ---
+                item_object = await shield_class.Shield.create(
+                    self.bot.db_pool, 
+                    self.bot.session, 
+                    weapon_serial.strip(), 
+                    deserialized_json,
+                    item_type_int,
+                    manufacturer,
+                    item_type
+                )
+                
+                # TODO: We need to create a 'MainShieldEditorView'
+                # For now, we'll just send the "inspect" embed without edit buttons
+                # editor_view = MainShieldEditorView(self, item_object, interaction.user.id)
+
+            elif item_type_int < 100: # Your logic for weapons
+                # --- WEAPON PATH ---
+                item_object = await weapon_class.Weapon.create(
+                    self.bot.db_pool, 
+                    self.bot.session, 
+                    weapon_serial.strip(), 
+                    deserialized_json,
+                    item_type_int,
+                    manufacturer,
+                    item_type
+                )
+                # Use the existing MainEditorView for weapons
+                editor_view = MainEditorView(self, item_object, interaction.user.id)
+            
+            else:
+                await interaction.followup.send(
+                    f"Sorry, item type '{item_type}' is not supported for editing.",
+                    ephemeral=True
+                )
+                return
+
+            # --- STEP 3: Send the response ---
+            
+            item_name = item_object.item_name
+            part_list_string = await item_object.get_parts_for_embed()
+            item_color = item_object.get_rarity_color()
+            
             embed = discord.Embed(
                 title=f"{item_name}",
                 description=part_list_string,
-                color=weapon_color
+                color=item_color
             )
             
-            editor_view = MainEditorView(self, weapon, interaction.user.id)
+            message_content = f"```{await item_object.get_serial()}```\n_ _\n"
             
-            # Combine footers into the embed footer
-            # embed.set_footer(text=f"Serial: {weapon.original_serial}\n{serial_footer}\n{parts_footer}")
-            message_content = f"```{await weapon.get_serial()}```\n_ _\n"
-            # 5. Send the followup message
-            sent_message = await interaction.followup.send(
-                content=message_content, 
-                embed=embed, 
-                view=editor_view
+            # Send the message. If editor_view is None (e.g., for shields),
+            # it will send a non-interactive message.
+            # --- STEP 3: Send the response ---
+            
+            item_name = item_object.item_name
+            part_list_string = await item_object.get_parts_for_embed()
+            item_color = item_object.get_rarity_color()
+            
+            embed = discord.Embed(
+                title=f"{item_name}",
+                description=part_list_string,
+                color=item_color
             )
             
-            # 4. --- FIX: Assign the sent message to the view instance ---
-            # This is what ensures self.message is not None in the on_timeout/callback methods
-            editor_view.message = sent_message
+            message_content = f"```{await item_object.get_serial()}```\n_ _\n"
+
+            # Create the payload as a dict
+            send_kwargs = {
+                "content": message_content,
+                "embed": embed
+            }
+            
+            # Only add the 'view' key if editor_view is not None
+            if editor_view:
+                send_kwargs["view"] = editor_view
+
+            # Send the message by unpacking the kwargs dict
+            sent_message = await interaction.followup.send(**send_kwargs)
+            
+            # If we created a view, assign the message to it
+            if editor_view:
+                editor_view.message = sent_message
+            
+            # If we created a view, assign the message to it
+            if editor_view:
+                editor_view.message = sent_message
 
         except Exception as e:
-            # Added robust error handling
+            # (Your existing robust error handling)
             error_traceback = traceback.format_exc()
             print("--- EDIT COMMAND CRASHED ---")
             print(error_traceback)
@@ -744,101 +827,6 @@ class EditorCommands(commands.Cog):
                     description=f"An error occurred:\n```\n{error_traceback[:1900]}\n```"
                 )
             )
-        
-    # --- The Unit Test Slash Command ---
-    @app_commands.command(name="test", description="Run a round-trip serialization test on a serial")
-    @app_commands.describe(serial="The item serial to test")
-    async def test(self, interaction: discord.Interaction, serial: str):
-        
-        original_serial = serial.strip()
-        
-        try:
-            await interaction.response.defer() # Acknowledge
-            # 1. Instantiate the Weapon class using the async factory
-            weapon = await weapon_class.Weapon.create(self.bot.db_pool, self.bot.session, original_serial)
-            
-            # 2. Get the reconstructed component list (synchronous)
-            component_list = weapon.get_component_list()
-            
-            # 3. Get the re-serialized string (async)
-            new_serial = await weapon.get_serial()
-            
-            # 4. Compare and build the result message
-            if new_serial == original_serial:
-                result_emoji = "✅"
-                result_text = "**PASS**"
-                color = discord.Color.green()
-            else:
-                result_emoji = "❌"
-                result_text = "**FAIL**"
-                color = discord.Color.red()
-            # ... (rest of your embed logic is correct)
-            # ...
-            
-            embed = discord.Embed(
-                title=f"{result_emoji} Serialization Round-Trip Test",
-                color=color,
-                description=f"**Test Status:** {result_text}"
-            )
-            embed.add_field(
-                name="Original Serial",
-                value=f"```{original_serial}```",
-                inline=False
-            )
-            embed.add_field(
-                name="Reconstructed Component List",
-                value=f"```{component_list}```",
-                inline=False
-            )
-            embed.add_field(
-                name="Re-serialized Serial",
-                value=f"```{new_serial}```",
-                inline=False
-            )
-            
-            await interaction.followup.send(embed=embed)
-
-        except Exception as e:
-            # 1. Get the full stack trace as a string
-            error_traceback = traceback.format_exc()
-            
-            # 2. Print it to your console for immediate debugging
-            print("--- TEST CRASHED ---")
-            print(error_traceback)
-            print("--------------------")
-
-            # 3. Format it for the Discord embed (truncate if it's too long)
-            # Discord embed descriptions have a 4096 character limit
-            # We'll use 1900 to be safe within a code block
-            description_text = f"An error occurred during the test:\n```\n{error_traceback[:1900]}\n```"
-
-            await interaction.followup.send(
-                embed=discord.Embed(
-                    title="💥 TEST CRASHED",
-                    color=discord.Color.red(),
-                    description=f"An error occurred during the test:\n```\n{e}\n```"
-                )
-            )  
-
-    # --- The Slash Command ---
-    @app_commands.command(name="parts", description="Filter possible parts")
-    @app_commands.describe(manufacturer="The Weapon Manufacturer")
-    @app_commands.describe(weapon_type="What type of weapon do you parts for want?")
-    @app_commands.describe(part_type="Which part type do you want?")
-    @app_commands.autocomplete(
-        manufacturer=manufacturer_autocomplete,
-        weapon_type=weapon_type_autocomplete,
-        part_type=part_type_autocomplete
-    )
-    async def parts(self, interaction: discord.Interaction, manufacturer: str, weapon_type: str, part_type: str):
-        message = await item_parser.possible_parts_driver(
-            db_pool=self.bot.db_pool,
-            manufacturer=manufacturer,
-            weapon_type=weapon_type,
-            part_type=part_type
-        )
-        message = message+parts_footer
-        await interaction.response.send_message(content=message)
 
     # --- The Slash Command ---
     @app_commands.command(name="element_id", description="Fetch the part id for elements on a gun")

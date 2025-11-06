@@ -301,6 +301,42 @@ async def query_element(db_pool, element_list: list) -> list:
     
     return results # Returns a list of Record objects
 
+async def query_shield_perks(db_pool, part_type: str, perk_ids: list[int]) -> list:
+    """
+    Fetches the full perk details from the shield_parts table.
+
+    Args:
+        db_pool: The bot's asyncpg.Pool
+        part_type (str): The type of perk ('General', 'Energy', 'Armor').
+        perk_ids (list[int]): A list of perk IDs to query.
+    
+    Returns:
+        A list of asyncpg.Record objects, e.g.:
+        [{'id': 7, 'name': 'Baker', 'perk_type': 'Firmware'}]
+    """
+    if not perk_ids:
+        return []
+
+    query = f"""
+    SELECT
+        id,
+        name,
+        perk_type
+    FROM shield_parts 
+    WHERE 
+        lower(shield_type) = lower($1) AND
+        id = ANY($2)
+    ORDER BY
+        id
+    """
+
+    async with db_pool.acquire() as conn:
+        # $1 = part_type, $2 = perk_ids
+        results = await conn.fetch(query, part_type, perk_ids)
+
+    # Return the full list of Record objects
+    return results
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # LOGIC FUNCTIONS (Now accept part_data)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
