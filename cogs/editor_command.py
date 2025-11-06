@@ -1,18 +1,647 @@
 # cogs/editor_command.py
-import json
 import discord
 from discord import app_commands
 from discord.ext import commands
 from helpers import item_parser
+from helpers import weapon_class
+import traceback 
+import re
 
 # Footers are standard for all messages dependent on data presented. Hence declared globally.
 serial_footer = """\n-# Serialization thanks to [Nicnl and InflamedSebi](https://borderlands4-deserializer.nicnl.com/)"""
 parts_footer = """\n-# Part information thanks to [this amazing resource](<https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/edit?gid=1385091622#gid=1385091622>)"""
 
+# cogs/editor_command.py
+
+class PrimaryElementSelect(discord.ui.Select):
+    def __init__(self, weapon: weapon_class.Weapon, current_primary: str):
+        
+        # Options from the Weapon class constant
+        options = [
+            discord.SelectOption(
+                label=e, 
+                value=e, 
+                default=(e == current_primary) # Set default selection
+            ) 
+            for e in weapon.ELEMENT_NAMES
+        ]
+        
+        super().__init__(
+            placeholder="Select Primary Element (Required)...",
+            min_values=1,
+            max_values=1,
+            options=options,
+            row=0
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        # Store the selection in the parent view
+        self.view.primary_selection = self.values[0]
+        await interaction.response.defer()
+
+class SecondaryElementSelect(discord.ui.Select):
+    def __init__(self, weapon: weapon_class.Weapon, current_secondary: str | None):
+        
+        # Options start with 'None' (to remove)
+        options = [
+            discord.SelectOption(label="None", value="None", description="Remove secondary element."),
+        ]
+        
+        # Add all other elements except Kinetic (Kinetic is never a secondary)
+        options.extend([
+            discord.SelectOption(
+                label=e, 
+                value=e,
+                default=(e == current_secondary)
+            ) 
+            for e in weapon.ELEMENT_NAMES if e != "Kinetic"
+        ])
+        
+        super().__init__(
+            placeholder="Select Secondary Element (Optional)...",
+            min_values=0,
+            max_values=1,
+            options=options,
+            row=1
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        # Store the selection in the parent view. If self.values is empty, it means "None"
+        self.view.secondary_selection = self.values[0] if self.values else "None"
+        await interaction.response.defer()
+
+class ElementSelectionView(discord.ui.View):
+    """
+    The ephemeral view for selecting Primary and Secondary elements.
+    """
+    def __init__(self, weapon: weapon_class.Weapon, cog: commands.Cog, user_id: int, main_message: discord.Message):
+        super().__init__(timeout=180)
+        self.cog = cog
+        self.user_id = user_id
+        self.message = None 
+        self.main_message = main_message
+        self.weapon = weapon
+        
+        # Get current elements for setting defaults
+        # This is safe to call sync as the data is already loaded in self.weapon
+        current_primary, current_secondary = self.weapon.get_current_element_names_sync() # Assume a new sync method
+        
+        # State tracking, initialized to current values
+        self.primary_selection = current_primary
+        self.secondary_selection = current_secondary
+        
+        # Add Select Menus
+        self.add_item(PrimaryElementSelect(weapon, current_primary))
+        self.add_item(SecondaryElementSelect(weapon, current_secondary))
+        
+        self.embed = discord.Embed(
+            title=f"Editing Elements for {weapon.item_name}",
+            description=f"Current: {current_primary} / {current_secondary or 'None'}\nSelect new element configuration below."
+        )
+
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.grey, row=4)
+    async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # ... (cancel logic is unchanged) ...
+        self.cog.active_editor_sessions.pop(interaction.user.id, None)
+        await interaction.response.defer()
+        await interaction.delete_original_response()
+
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, row=4)
+    async def confirm_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # 1. Validate selection (Primary is required)
+        if not self.primary_selection:
+            await interaction.response.send_message("Please select a Primary Element.", ephemeral=True)
+            return
+
+        # 2. Release session lock
+        self.cog.active_editor_sessions.pop(self.user_id, None)
+        await interaction.response.defer()
+
+        # 3. Process new element names
+        new_secondary = self.secondary_selection
+        if new_secondary == "None":
+            new_secondary = None
+            
+        try:
+            # 4. Update the weapon object
+            await self.weapon.update_element(self.primary_selection, new_secondary)
+            
+            # 5. Refresh the main message display
+            new_serial = await self.weapon.get_serial()
+            new_embed_desc = await self.weapon.get_parts_for_embed()
+            
+            original_embed = self.main_message.embeds[0]
+            original_embed.description = new_embed_desc
+            
+            await self.main_message.edit(
+                content=f"```{new_serial}```\n_ _\n",
+                embed=original_embed
+            )
+        
+        except ValueError as e:
+            # Catch ValueError from Weapon.update_element (e.g., element ID not found)
+            print(f"Element ID error: {e}")
+            await interaction.followup.send(
+                f"Error: Could not combine those elements. Check if the element combination is valid for this weapon type. ({e})", 
+                ephemeral=True
+            )
+        except Exception as e:
+            # Catch all other errors
+            print(f"Error during element update: {e}")
+            await interaction.followup.send(
+                f"An unexpected error occurred: `{e}`", 
+                ephemeral=True
+            )
+
+        # 6. Delete this ephemeral message
+        await interaction.delete_original_response()
+
+class PartSelectionView(discord.ui.View):
+    """
+    An ephemeral view that now holds a reference to the main public message
+    to edit it upon confirmation.
+    """
+    def __init__(self, weapon: weapon_class.Weapon, part_type: str, cog: commands.Cog, user_id: int, possible_parts: list, main_message: discord.Message):
+        super().__init__(timeout=180)
+        self.cog = cog
+        self.user_id = user_id
+        self.message = None
+        self.selected_values = []
+        
+        self.weapon = weapon
+        self.part_type = part_type
+        self.main_message = main_message 
+        self.add_item(PartOptionSelect(weapon, part_type, possible_parts))
+        
+        self.embed = discord.Embed(
+            title=f"Editing: {self.part_type}",
+            description=f"Select the new part(s) from the menu, then press 'Confirm'."
+        )
+    
+    @classmethod
+    async def create(cls, weapon: weapon_class.Weapon, part_type: str, cog: commands.Cog, user_id: int, main_message: discord.Message):
+        """
+        Asynchronously fetches and filters possible parts from the DB,
+        then creates and returns an instance of the view.
+        """
+        possible_parts = await item_parser.get_compatible_parts(
+            cog.bot.db_pool,
+            weapon.manufacturer,
+            weapon.type,
+            part_type
+        )
+        
+        # (Filtering logic for variants _01, _02)
+        base_variant = weapon.get_base_part_variant_for_accessory(part_type)
+        if base_variant:
+            filtered_list = []
+            for part in possible_parts:
+                part_string = part['part_string']
+                variant_match = re.search(r"_(\d{2})", part_string)
+                part_variant = variant_match.group(1) if variant_match else None
+                if part_variant == base_variant or part_variant is None:
+                    filtered_list.append(part)
+            possible_parts = filtered_list
+        
+        # Pass the main_message to the constructor
+        return cls(weapon, part_type, cog, user_id, possible_parts, main_message)
+
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.grey, row=4)
+    async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # 1. Release the user's session lock
+        self.cog.active_editor_sessions.pop(interaction.user.id, None)
+        
+        # 2. Delete the ephemeral message
+        await interaction.response.defer()
+        await interaction.delete_original_response()
+        
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, row=4)
+    async def confirm_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        
+        # 1. Release the session lock
+        self.cog.active_editor_sessions.pop(self.user_id, None)
+        
+        # 2. Acknowledge (ephemerally)
+        await interaction.response.defer()
+        
+        try:
+            # 3. Call the new update method on the weapon object
+            await self.weapon.update_parts(self.part_type, self.selected_values)
+            
+            # 4. Get the new, updated data
+            new_serial = await self.weapon.get_serial()
+            new_embed_desc = await self.weapon.get_parts_for_embed()
+            
+            # 5. Get the original embed and update it
+            original_embed = self.main_message.embeds[0]
+            original_embed.description = new_embed_desc
+            
+            # 6. Edit the *main public message* with the new serial and embed
+            await self.main_message.edit(
+                content=f"```{new_serial}```\n_ _\n",
+                embed=original_embed
+            )
+        
+        except Exception as e:
+            # Send a new ephemeral message on error
+            print(f"Error during part update: {e}")
+            await interaction.followup.send(
+                f"An error occurred while updating the part: `{e}`", 
+                ephemeral=True
+            )
+
+        # 7. Delete this ephemeral message
+        await interaction.delete_original_response()
+
+    async def on_timeout(self):
+        # ... (unchanged) ...
+        pass
+
+    async def on_timeout(self):
+        # When this view times out, we only want to remove it from the
+        # session dict *if* it is still the active one.
+        
+        # Get the currently stored message for this user
+        current_message = self.cog.active_editor_sessions.get(self.user_id)
+        
+        # If we have a message and it's the same as the one in the dict,
+        # then this timeout is for the active session, and we clear it.
+        if self.message and current_message and self.message.id == current_message.id:
+            self.cog.active_editor_sessions.pop(self.user_id, None)
+
+class PartOptionSelect(discord.ui.Select):
+    def __init__(self, weapon: weapon_class.Weapon, part_type: str, possible_parts: list):
+            
+        min_val, max_val = weapon.get_part_limits(part_type)
+
+        options = []
+        for part_record in possible_parts:
+            # part_record is an asyncpg.Record
+            part_id = str(part_record['id'])
+            part_str = part_record['part_string']
+            
+            # Use the generic formatter from item_parser
+            pretty_name = item_parser.format_part_name(part_str)
+            
+            # Use stats for the description, with a fallback
+            stats_desc = part_record.get('stats') or "No stat changes"
+            # Truncate description to Discord's 100-char limit
+            if len(stats_desc) > 100:
+                stats_desc = stats_desc[:97] + "..."
+
+            options.append(discord.SelectOption(
+                label=pretty_name,
+                value=part_id,
+                description=stats_desc
+            ))
+        
+        # 3. Handle cases where no parts are found
+        is_disabled = False
+        if not options:
+            options.append(discord.SelectOption(
+                label="No alternative parts found",
+                value="DISABLED_NO_PARTS",
+                description="This part type cannot be changed."
+            ))
+            # Set min=0, max=1, and disable the menu
+            min_val = 0
+            max_val = 1 
+            is_disabled = True
+        else:
+            # This is the original capping logic, which is still needed
+            max_val = min(max_val, len(options))
+            min_val = min(min_val, max_val)
+             
+        super().__init__(
+            placeholder=f"Select {part_type} (Choose {min_val} to {max_val})...",
+            min_values=min_val,
+            max_values=max_val,
+            options=options,
+            disabled=is_disabled
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        # This is a final action, so we release the session lock
+        # We access the cog and user_id from the parent view
+        self.view.selected_values = self.values
+        
+        await interaction.response.defer()
+        # selected_values = ", ".join(self.values)
+        # print(f"User {interaction.user.id} selected: {selected_values}")
+
+        # # 4. Delete this ephemeral message (the select menu)
+        # # The user's feedback is the main embed updating (which we'll do next)
+        # await interaction.delete_original_response()
+
+class LevelModal(discord.ui.Modal, title="Set Weapon Level"):
+    level_input = discord.ui.TextInput(
+        label="Weapon Level (1-50)",
+        placeholder="Enter a number between 1 and 50",
+        default="50",
+        style=discord.TextStyle.short,
+        max_length=2,
+        required=True
+    )
+
+    def __init__(self, weapon: weapon_class.Weapon, main_view: 'MainEditorView'):
+        super().__init__()
+        self.weapon = weapon
+        self.main_view = main_view # Reference to the public message view
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer() # Acknowledge the modal submission
+        
+        raw_level = self.level_input.value
+        try:
+            # Try to convert to int, otherwise default to 50
+            new_level = int(raw_level)
+        except ValueError:
+            new_level = 50 
+
+        # Clamp the value between 1 and 50
+        new_level = max(1, min(50, new_level))
+        
+        try:
+            # 1. Update the weapon object
+            await self.weapon.update_level(new_level)
+
+            # 2. Get the new, updated data
+            new_serial = await self.weapon.get_serial()
+            new_embed_desc = await self.weapon.get_parts_for_embed()
+            
+            # 3. Edit the *main public message*
+            original_embed = self.main_view.message.embeds[0]
+            original_embed.description = new_embed_desc
+            
+            await self.main_view.message.edit(
+                content=f"```{new_serial}```\n_ _\n",
+                embed=original_embed
+            )
+            
+            # 4. Send ephemeral confirmation
+            await interaction.followup.send(f"✅ Level set to **{new_level}**.", ephemeral=True)
+
+        except Exception as e:
+            await interaction.followup.send(f"Error updating level: `{e}`", ephemeral=True)
+
+class RaritySelect(discord.ui.Select):
+    def __init__(self, weapon: weapon_class.Weapon, current_rarity: str):
+        
+        # Build options from the weapon class constant
+        options = [
+            discord.SelectOption(
+                label=name, 
+                value=name, 
+                default=(name == current_rarity)
+            ) 
+            for name in weapon_class.Weapon.EDITABLE_RARITY_MAP.keys()
+        ]
+        
+        super().__init__(
+            placeholder="Select new Rarity...",
+            min_values=1,
+            max_values=1,
+            options=options,
+            row=0
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        self.view.selection = self.values[0]
+        await interaction.response.defer()
+
+class RaritySelectionView(discord.ui.View):
+    """Ephemeral view for setting Common/Uncommon/Rare/Epic rarity."""
+    def __init__(self, weapon: weapon_class.Weapon, cog: commands.Cog, user_id: int, main_message: discord.Message):
+        super().__init__(timeout=180)
+        self.cog = cog
+        self.user_id = user_id
+        self.message = None
+        self.main_message = main_message
+        self.weapon = weapon
+        
+        # Get current rarity name for setting defaults
+        current_rarity_token = self.weapon.parts.get("Rarity", ["{95}"])[0]
+        current_rarity_name = self.weapon._get_rarity_string(current_rarity_token)
+        
+        self.selection = current_rarity_name # Initialize with current value
+        
+        self.add_item(RaritySelect(weapon, current_rarity_name))
+        
+        self.embed = discord.Embed(
+            title=f"Editing Rarity for {weapon.item_name}",
+            description=f"Current: **{current_rarity_name}**.\nSelect a new Rarity below."
+        )
+
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.grey, row=4)
+    async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.cog.active_editor_sessions.pop(interaction.user.id, None)
+        await interaction.response.defer()
+        await interaction.delete_original_response()
+
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, row=4)
+    async def confirm_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # 1. Release session lock
+        self.cog.active_editor_sessions.pop(self.user_id, None)
+        await interaction.response.defer()
+
+        try:
+            # 2. Update the weapon object
+            await self.weapon.update_rarity(self.selection)
+            
+            # 3. Refresh the main message display
+            new_serial = await self.weapon.get_serial()
+            new_embed_desc = await self.weapon.get_parts_for_embed()
+            new_color = self.weapon.get_rarity_color() # Update color!
+            
+            original_embed = self.main_message.embeds[0]
+            original_embed.description = new_embed_desc
+            original_embed.color = new_color # Set new color
+            
+            await self.main_message.edit(
+                content=f"```{new_serial}```\n_ _\n",
+                embed=original_embed
+            )
+            
+        except Exception as e:
+            await interaction.followup.send(f"Error updating rarity: `{e}`", ephemeral=True)
+
+        # 4. Delete this ephemeral message
+        await interaction.delete_original_response()
+        
+class MainEditorView(discord.ui.View):
+    """
+    The main view with buttons for each part type.
+    Attached to the public /edit command response.
+    """
+    def __init__(self, cog: commands.Cog, weapon: weapon_class.Weapon, user_id: int):
+        super().__init__(timeout=300) # 5-minute timeout
+        self.weapon = weapon
+        self.cog = cog
+        self.user_id = user_id
+        self.message = None
+        
+        level_button = discord.ui.Button(
+            label=f"Set Level ({weapon.level})", # Display current level
+            style=discord.ButtonStyle.blurple,
+            custom_id="action_level",
+            row=0
+        )
+        level_button.callback = self.main_button_callback
+        self.add_item(level_button)
+        
+        # --- 2. Add Rarity Button (Conditional) ---
+        current_rarity_token = weapon.parts.get("Rarity", ["{95}"])[0]
+        current_rarity_name = weapon._get_rarity_string(current_rarity_token)
+        
+        # Only show button if the current rarity is one of the editable four
+        if current_rarity_name in weapon_class.Weapon.EDITABLE_RARITY_MAP:
+            rarity_button = discord.ui.Button(
+                label=f"Rarity ({current_rarity_name})",
+                style=discord.ButtonStyle.blurple,
+                custom_id="action_rarity",
+                row=0
+            )
+            rarity_button.callback = self.main_button_callback
+            self.add_item(rarity_button)
+        
+        
+        element_button = discord.ui.Button(
+            label="Elements",
+            style=discord.ButtonStyle.primary, # Distinct color for the element flow
+            custom_id="edit_elements" 
+        )
+        element_button.callback = self.main_button_callback
+        self.add_item(element_button)
+        
+        # --- Add buttons for each part type ---
+        # We can dynamically create them based on the weapon's part list
+        # to only show buttons for parts that actually exist.
+        # We use the PART_ORDER from the weapon class to keep the button order consistent
+        for part_type in self.weapon.PART_ORDER:
+            # Only add a button if the weapon *has* that part type
+            if part_type in self.weapon.parts and self.weapon.parts[part_type]:
+                # Skip Body, Rarity and Elements, as those are handled differently
+                if part_type in ["Rarity", "Primary Element", "Secondary Element", "Body"]:
+                    continue
+                
+                # Create a button for this part type
+                button = discord.ui.Button(
+                    label=part_type,
+                    style=discord.ButtonStyle.secondary,
+                    custom_id=f"edit_part:{part_type}"
+                )
+                # Assign the single callback to this new button
+                button.callback = self.main_button_callback
+                self.add_item(button)
+        
+    async def main_button_callback(self, interaction: discord.Interaction):
+        custom_id = interaction.data['custom_id']
+        
+        # 1. Level Modal (Bypasses Session Lock)
+        if custom_id == "action_level":
+            modal = LevelModal(self.weapon, self)
+            await interaction.response.send_modal(modal)
+            return
+        
+        # 1. Concurrency Check/Override (same as before)
+        if interaction.user.id in self.cog.active_editor_sessions:
+            old_message = self.cog.active_editor_sessions.pop(interaction.user.id, None)
+            if old_message:
+                try: await old_message.delete()
+                except (discord.NotFound, discord.Forbidden): pass 
+        
+        await interaction.response.defer(ephemeral=True)
+        
+        ephemeral_view = None
+        
+        if custom_id == "action_rarity":
+            ephemeral_view = RaritySelectionView(
+                self.weapon, self.cog, interaction.user.id, self.message
+            )
+        
+        # 2. Route the click based on custom_id
+        if custom_id.startswith("edit_part:"):
+            # Existing Part Logic (uses async factory)
+            part_type = custom_id.split(':')[-1]
+            ephemeral_view = await PartSelectionView.create(
+                self.weapon, part_type, self.cog, interaction.user.id, self.message
+            )
+        
+        elif custom_id == "edit_elements":
+            # NEW Element Logic (uses synchronous constructor)
+            ephemeral_view = ElementSelectionView(
+                self.weapon, self.cog, interaction.user.id, self.message
+            )
+        
+        # 3. Send the ephemeral message
+        if ephemeral_view:
+            new_message = await interaction.followup.send(
+                embed=ephemeral_view.embed,
+                view=ephemeral_view,
+                ephemeral=True
+            )
+            ephemeral_view.message = new_message
+            self.cog.active_editor_sessions[interaction.user.id] = new_message
+            
+    # async def part_button_callback(self, interaction: discord.Interaction):
+    #     """A single callback to handle all part type buttons."""
+        
+    #     # --- Concurrency Check ---
+    #     if interaction.user.id in self.cog.active_editor_sessions:
+    #         # 1. Pop the old message from the dictionary
+    #         old_message = self.cog.active_editor_sessions.pop(interaction.user.id, None)
+            
+    #         # 2. Try to delete the old message
+    #         if old_message:
+    #             try:
+    #                 await old_message.delete()
+    #             except (discord.NotFound, discord.Forbidden):
+    #                 pass # It's already gone, which is fine
+        
+    #     # 3. Get the part type
+    #     part_type = interaction.data['custom_id'].split(':')[-1]
+    #     await interaction.response.defer(ephemeral=True)
+        
+    #     # Call the async 'create' method instead of the constructor
+    #     ephemeral_view = await PartSelectionView.create(
+    #         self.weapon, part_type, self.cog, interaction.user.id, self.message
+    #     )
+        
+    #     new_message = await interaction.followup.send(
+    #         embed=ephemeral_view.embed,
+    #         view=ephemeral_view,
+    #         ephemeral=True
+    #     )
+        
+    #     ephemeral_view.message = new_message
+    #     self.cog.active_editor_sessions[interaction.user.id] = new_message
+    
+    async def on_timeout(self):
+        """Called when the view's 5-minute timer expires."""
+        
+        # 1. Remove buttons from the main public message
+        if self.message: # self.message is the public message this view is attached to
+            try:
+                await self.message.edit(view=None)
+            except (discord.NotFound, discord.Forbidden):
+                pass # Message was deleted or permissions lost
+
+        # 2. Find and delete any active ephemeral edit message for this user
+        if self.user_id and self.cog:
+            # Pop the ephemeral message from the session dict
+            ephemeral_message = self.cog.active_editor_sessions.pop(self.user_id, None)
+            
+            if ephemeral_message:
+                try:
+                    await ephemeral_message.delete()
+                except (discord.NotFound, discord.Forbidden):
+                    pass # Ephemeral message was already closed or deleted    
+              
 # --- Define the Cog Class ---
 class EditorCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.active_editor_sessions = {}
     
     async def cog_load(self):
         """
@@ -65,7 +694,7 @@ class EditorCommands(commands.Cog):
         response = await item_parser.deserialize(self.bot.session, serial.strip())
         
         print(response)
-        message = '**Item:** '+response.get('additional_data') + '\n**Deserialized String:** '+response.get('deserialized')
+        message = '**Item:** '+response.get('additional_data') + '\n**Deserialized String:** ```'+response.get('deserialized')+"```"
                
         message = message+parts_footer
         await interaction.response.send_message(content=message)
@@ -76,7 +705,7 @@ class EditorCommands(commands.Cog):
     async def serialize(self, interaction: discord.Interaction, serial: str):
         response = await item_parser.reserialize(self.bot.session, serial.strip())
         
-        message = '**Item:** '+response.get('additional_data') + '\n**Serialized String:** '+response.get('serial_b85')
+        message = '**Item:** '+response.get('additional_data') + '\n**Serialized String:** ```'+response.get('serial_b85')+"```"
         
         message = message+serial_footer
         await interaction.response.send_message(content=message)
@@ -92,6 +721,137 @@ class EditorCommands(commands.Cog):
         )
         message = message+serial_footer+parts_footer
         await interaction.response.send_message(content=message)
+
+    @app_commands.command(name="edit", description="Edit the parts on your gun!")
+    @app_commands.describe(weapon_serial="weapon serial")
+    async def edit(self, interaction: discord.Interaction, weapon_serial: str):
+        try:
+            await interaction.response.defer()
+            
+            # 1. Instantiate the Weapon class using the async factory
+            weapon = await weapon_class.Weapon.create(
+                self.bot.db_pool, 
+                self.bot.session, 
+                weapon_serial
+            )
+            
+            # 2. Get the item name (now stored on the weapon object)
+            item_name = weapon.item_name
+            part_list_string = await weapon.get_parts_for_embed()
+            weapon_color = weapon.get_rarity_color()
+            
+            # Create a clean embed for the response
+            embed = discord.Embed(
+                title=f"{item_name}",
+                description=part_list_string,
+                color=weapon_color
+            )
+            
+            editor_view = MainEditorView(self, weapon, interaction.user.id)
+            
+            # Combine footers into the embed footer
+            # embed.set_footer(text=f"Serial: {weapon.original_serial}\n{serial_footer}\n{parts_footer}")
+            message_content = f"```{await weapon.get_serial()}```\n_ _\n"
+            # 5. Send the followup message
+            sent_message = await interaction.followup.send(
+                content=message_content, 
+                embed=embed, 
+                view=editor_view
+            )
+            
+            # 4. --- FIX: Assign the sent message to the view instance ---
+            # This is what ensures self.message is not None in the on_timeout/callback methods
+            editor_view.message = sent_message
+
+        except Exception as e:
+            # Added robust error handling
+            error_traceback = traceback.format_exc()
+            print("--- EDIT COMMAND CRASHED ---")
+            print(error_traceback)
+            print("----------------------------")
+            
+            await interaction.followup.send(
+                embed=discord.Embed(
+                    title="💥 Command Crashed",
+                    color=discord.Color.red(),
+                    description=f"An error occurred:\n```\n{error_traceback[:1900]}\n```"
+                )
+            )
+        
+    # --- The Unit Test Slash Command ---
+    @app_commands.command(name="test", description="Run a round-trip serialization test on a serial")
+    @app_commands.describe(serial="The item serial to test")
+    async def test(self, interaction: discord.Interaction, serial: str):
+        
+        original_serial = serial.strip()
+        
+        try:
+            await interaction.response.defer() # Acknowledge
+            # 1. Instantiate the Weapon class using the async factory
+            weapon = await weapon_class.Weapon.create(self.bot.db_pool, self.bot.session, original_serial)
+            
+            # 2. Get the reconstructed component list (synchronous)
+            component_list = weapon.get_component_list()
+            
+            # 3. Get the re-serialized string (async)
+            new_serial = await weapon.get_serial()
+            
+            # 4. Compare and build the result message
+            if new_serial == original_serial:
+                result_emoji = "✅"
+                result_text = "**PASS**"
+                color = discord.Color.green()
+            else:
+                result_emoji = "❌"
+                result_text = "**FAIL**"
+                color = discord.Color.red()
+            # ... (rest of your embed logic is correct)
+            # ...
+            
+            embed = discord.Embed(
+                title=f"{result_emoji} Serialization Round-Trip Test",
+                color=color,
+                description=f"**Test Status:** {result_text}"
+            )
+            embed.add_field(
+                name="Original Serial",
+                value=f"```{original_serial}```",
+                inline=False
+            )
+            embed.add_field(
+                name="Reconstructed Component List",
+                value=f"```{component_list}```",
+                inline=False
+            )
+            embed.add_field(
+                name="Re-serialized Serial",
+                value=f"```{new_serial}```",
+                inline=False
+            )
+            
+            await interaction.followup.send(embed=embed)
+
+        except Exception as e:
+            # 1. Get the full stack trace as a string
+            error_traceback = traceback.format_exc()
+            
+            # 2. Print it to your console for immediate debugging
+            print("--- TEST CRASHED ---")
+            print(error_traceback)
+            print("--------------------")
+
+            # 3. Format it for the Discord embed (truncate if it's too long)
+            # Discord embed descriptions have a 4096 character limit
+            # We'll use 1900 to be safe within a code block
+            description_text = f"An error occurred during the test:\n```\n{error_traceback[:1900]}\n```"
+
+            await interaction.followup.send(
+                embed=discord.Embed(
+                    title="💥 TEST CRASHED",
+                    color=discord.Color.red(),
+                    description=f"An error occurred during the test:\n```\n{e}\n```"
+                )
+            )  
 
     # --- The Slash Command ---
     @app_commands.command(name="parts", description="Filter possible parts")
@@ -113,7 +873,7 @@ class EditorCommands(commands.Cog):
         message = message+parts_footer
         await interaction.response.send_message(content=message)
 
-        # --- The Slash Command ---
+    # --- The Slash Command ---
     @app_commands.command(name="element_id", description="Fetch the part id for elements on a gun")
     @app_commands.describe(primary_element="The Primary or only element on your gun")
     @app_commands.describe(secondary_element="The element you can switch to if the gun has the option, otherwise 'None'")

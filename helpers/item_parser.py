@@ -313,9 +313,11 @@ async def possible_parts_driver(db_pool, manufacturer: str, weapon_type: str, pa
 
     # This function is now async
     part_list_str = await query_possible_parts(db_pool, manufacturer, weapon_type, part_type)
-    formatted_response = f'ID: {str("Part String").ljust(30)}: Requirements : Stats : Effects\n\n'
+    formatted_response = f'ID: {str("Part String").ljust(30)}: Stats : Effects\n\n'
+    # formatted_response = f'ID: {str("Part String").ljust(30)}: Requirements : Stats : Effects\n\n'
     for part in part_list_str:
-        line = f"{part[0]:<2}: {part[1]:<30}: {str(part[3]):<13}: {str(part[2]):<6}: {part[4]}\n"
+        line = f"{part[0]:<2}: {part[1]:<30}: {str(part[2]):<6}: {part[4]}\n"
+        # line = f"{part[0]:<2}: {part[1]:<30}: {str(part[3]):<13}: {str(part[2]):<6}: {part[4]}\n"
         formatted_response = formatted_response + '\n' + line
     
     return f"# {manufacturer} {part_type} for {weapon_type}s\n```{formatted_response}```"
