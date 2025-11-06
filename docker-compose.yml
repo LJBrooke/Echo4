@@ -38,9 +38,6 @@ services:
     # Add this service to our custom network
     networks:
       - echo-network
-      
-    volumes:
-      pg_data:
 
   # --- Your Discord Bot Service ---
   bot:
