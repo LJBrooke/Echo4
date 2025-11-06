@@ -582,39 +582,6 @@ class MainEditorView(discord.ui.View):
             )
             ephemeral_view.message = new_message
             self.cog.active_editor_sessions[interaction.user.id] = new_message
-            
-    # async def part_button_callback(self, interaction: discord.Interaction):
-    #     """A single callback to handle all part type buttons."""
-        
-    #     # --- Concurrency Check ---
-    #     if interaction.user.id in self.cog.active_editor_sessions:
-    #         # 1. Pop the old message from the dictionary
-    #         old_message = self.cog.active_editor_sessions.pop(interaction.user.id, None)
-            
-    #         # 2. Try to delete the old message
-    #         if old_message:
-    #             try:
-    #                 await old_message.delete()
-    #             except (discord.NotFound, discord.Forbidden):
-    #                 pass # It's already gone, which is fine
-        
-    #     # 3. Get the part type
-    #     part_type = interaction.data['custom_id'].split(':')[-1]
-    #     await interaction.response.defer(ephemeral=True)
-        
-    #     # Call the async 'create' method instead of the constructor
-    #     ephemeral_view = await PartSelectionView.create(
-    #         self.weapon, part_type, self.cog, interaction.user.id, self.message
-    #     )
-        
-    #     new_message = await interaction.followup.send(
-    #         embed=ephemeral_view.embed,
-    #         view=ephemeral_view,
-    #         ephemeral=True
-    #     )
-        
-    #     ephemeral_view.message = new_message
-    #     self.cog.active_editor_sessions[interaction.user.id] = new_message
     
     async def on_timeout(self):
         """Called when the view's 5-minute timer expires."""
