@@ -77,10 +77,9 @@ async def query_type(db_pool, id: int) -> list[str]:
     # Use 'with pool.acquire()' to get a connection
     async with db_pool.acquire() as conn:
         result = await conn.fetchrow(query, id)
-    print(result.get('manufacturer'))
     return result.get('item_type'), result.get('manufacturer') if result else None
 
-async def query_element_id(db_pool, primary: str, secondary: str, underbarrel: bool) -> str:
+async def query_element_id(db_pool, primary: str, secondary: str, Maliwan: bool) -> str:
     """
     Uses the async asyncpg pool to fetch a single element part id.
     Args:
@@ -90,7 +89,7 @@ async def query_element_id(db_pool, primary: str, secondary: str, underbarrel: b
     SELECT id 
     FROM element_list 
     WHERE lower(primary_element) = lower('{primary}')
-    and underbarrel is {underbarrel}"""
+    and underbarrel is {Maliwan}"""
 
     if secondary is None: query=query + ' and secondary_element is null'
     else: query=query + f" and lower(secondary_element) =lower('{secondary}')"    
@@ -100,6 +99,34 @@ async def query_element_id(db_pool, primary: str, secondary: str, underbarrel: b
         result = await conn.fetchrow(query)
     print(result.get('id'))
     return '{1:'+str(result.get('id'))+'}' if result else None
+
+async def query_elements_by_id(db_pool, element_token: str) -> tuple[str | None, str | None]:
+    """
+    Uses the async asyncpg pool to fetch a single element part id.
+    Args:
+        db_pool: The bot's asyncpg.Pool
+    """
+    
+    # Extract the ID from the token: '{1:12}' -> '12'
+    id_str = element_token.strip()[1:-1].split(':')[1]
+    
+    query = """
+    SELECT 
+        primary_element, 
+        secondary_element 
+    FROM element_list 
+    WHERE id = $1"""
+
+    async with db_pool.acquire() as conn:
+        # Pass the ID as an integer parameter for safety and correctness
+        result = await conn.fetchrow(query, int(id_str))
+        
+    if result:
+        # Returns the primary element and the secondary element (if one exists in that row)
+        return result.get('primary_element'), result.get('secondary_element')
+    else:
+        # Default to Kinetic if the ID lookup fails
+        return "Kinetic", None
 
 async def query_part_list(db_pool, Manufacturer: str, Weapon_Type: str, part_list: list) -> list:
     """
@@ -128,6 +155,32 @@ async def query_part_list(db_pool, Manufacturer: str, Weapon_Type: str, part_lis
 
     return results # Returns a list of Record objects
 
+async def query_part_by_string(db_pool, manufacturer: str, weapon_type: str, part_string: str) -> dict | None:
+    """
+    Fetches a single part record by its exact part_string.
+    Args:
+        db_pool: The bot's asyncpg.Pool
+    """
+    query = """
+    SELECT
+        id,
+        part_string, 
+        part_type,
+        stats,
+        effects
+    FROM part_list 
+    WHERE 
+        part_string = $1 AND 
+        lower(weapon_type) = lower($2) AND 
+        lower(manufacturer) = lower($3)
+    """
+    async with db_pool.acquire() as conn:
+        # Use fetchrow and pass parameters safely
+        result = await conn.fetchrow(query, part_string, weapon_type, manufacturer)
+    
+    # asyncpg.Record supports dict-like access
+    return dict(result) if result else None
+
 async def query_possible_parts(db_pool, Manufacturer: str, Weapon_Type: str, Part_Type: str) -> list:
     """
     Uses the async asyncpg pool to possible multiple parts.
@@ -146,22 +199,92 @@ async def query_possible_parts(db_pool, Manufacturer: str, Weapon_Type: str, Par
         effects
     FROM part_list 
     WHERE 
-        part_type = $1 AND 
-        weapon_type = $2 AND 
-        manufacturer = $3
+        lower(part_type) = lower($1) AND 
+        lower(weapon_type) = lower($2) AND 
+        lower(manufacturer) = lower($3)
     """
     async with db_pool.acquire() as conn:
         results = await conn.fetch(query, Part_Type, Weapon_Type, Manufacturer)
     
     return results # Returns a list of Record objects
 
-async def query_element(db_pool, element_list: list) -> list:
+async def get_compatible_parts(db_pool, Manufacturer: str, Weapon_Type: str, Part_Type: str) -> list:
     """
-    Uses the async asyncpg pool to fetch multiple parts.
+    Uses the async asyncpg pool to fetch all compatible parts,
+    including re-classified 'Manufacturer Part' entries.
+    
     Args:
         db_pool: The bot's asyncpg.Pool
         Manufacturer (str): Weapon Manufacturer
         Weapon_Type (str): Weapon Type
+        Part_Type (str): The *functional* part type being requested
+    """
+    
+    # We will build a dynamic WHERE clause for the part_type
+    
+    # $1 = Part_Type, $2 = Weapon_Type, $3 = Manufacturer
+    params = [Part_Type, Weapon_Type, Manufacturer]
+    
+    # Base condition: The part_type in the DB matches the one requested
+    part_type_conditions = [f"lower(part_type) = lower($1)"]
+    
+    # --- Add 'Manufacturer Part' logic based on the requested Part_Type ---
+    
+    if Part_Type == "Body Accessory":
+        part_type_conditions.append(
+            "(lower(part_type) = 'manufacturer part' AND part_string LIKE '%.part_shield_%')"
+        )
+    elif Part_Type == "Magazine":
+        part_type_conditions.append(
+            "(lower(part_type) = 'manufacturer part' AND part_string LIKE '%.part_mag_torgue_%')"
+        )
+    elif Part_Type == "Barrel Accessory":
+        part_type_conditions.append(
+            "(lower(part_type) = 'manufacturer part' AND part_string LIKE '%.part_barrel_licensed_%')"
+        )
+    elif Part_Type == "Stat Modifier":
+        # This is the complex "fallback" logic from your _get_true_part_type
+        part_type_conditions.append(
+            """(
+                lower(part_type) = 'manufacturer part' AND 
+                (
+                    part_string LIKE '%.part_secondary_ammo_%' OR
+                    (
+                        part_string NOT LIKE '%.part_shield_%' AND
+                        part_string NOT LIKE '%.part_mag_torgue_%' AND
+                        part_string NOT LIKE '%.part_barrel_licensed_%'
+                    )
+                )
+            )"""
+        )
+    
+    # Combine all part logic (e.g., "(part_type = 'Barrel')")
+    # or "(part_type = 'Barrel Accessory' OR (part_type = 'Manufacturer Part' AND ...))"
+    combined_part_logic = f"({' OR '.join(part_type_conditions)})"
+    
+    # Build the final query
+    query = f"""
+    SELECT
+        id,
+        part_string, 
+        stats,
+        requirements,
+        effects
+    FROM part_list 
+    WHERE 
+        lower(weapon_type) = lower($2) AND 
+        lower(manufacturer) = lower($3) AND
+        {combined_part_logic}
+    Order by part_string
+    """
+    
+    async with db_pool.acquire() as conn:
+        results = await conn.fetch(query, *params)
+    
+    return results
+
+async def query_element(db_pool, element_list: list) -> list:
+    """
     """
     query = f"""
     SELECT
@@ -182,6 +305,28 @@ async def query_element(db_pool, element_list: list) -> list:
 # LOGIC FUNCTIONS (Now accept part_data)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+def format_part_name(part_string: str) -> str:
+    """
+    Converts a raw part_string (e.g., 'MAN_WP.part_barrel_01')
+    into a human-readable name (e.g., 'Barrel 01').
+    """
+    if not part_string:
+        return "Unknown Part"
+    
+    # Find the 'part_' substring
+    marker = 'part_'
+    part_index = part_string.find(marker)
+    
+    if part_index == -1:
+        # Fallback if 'part_' isn't in the string
+        return part_string.replace('_', ' ').title()
+
+    # Get the substring after 'part_' (e.g., 'barrel_01_a')
+    name_part = part_string[part_index + len(marker):]
+    
+    # Replace underscores and title case (e.g., 'Barrel 01 A')
+    return name_part.replace('_', ' ').title()
+
 def split_item_str(item_str: str) -> list[str, int, list[int]]:
     base_aspect, part_aspect = item_str.split('||')
     base, unknown = base_aspect.split('|')
@@ -196,7 +341,7 @@ def split_item_str(item_str: str) -> list[str, int, list[int]]:
     part_list = re.findall(pattern, parts)
     
     return item_type, level, part_list
-
+    
 async def create_part_and_element_list(db_pool, part_list: list) -> list[list]:
     int_part_list = []
     int_ele_list = []
@@ -207,7 +352,6 @@ async def create_part_and_element_list(db_pool, part_list: list) -> list[list]:
         elif ':' in part:
             # print(part)
             ele_part = str(part[1:-1]).split(':')
-            print(ele_part)
             if int(ele_part[0]) == 1:
                 int_ele_list.append(int(ele_part[1]))
     elements = await query_element(db_pool, int_ele_list)
