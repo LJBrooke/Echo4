@@ -823,6 +823,27 @@ class EditorCommands(commands.Cog):
             )
 
     # --- The Slash Command ---
+    @app_commands.command(name="parts", description="Filter possible parts")
+    @app_commands.describe(manufacturer="The Weapon Manufacturer")
+    @app_commands.describe(weapon_type="What type of weapon do you parts for want?")
+    @app_commands.describe(part_type="Which part type do you want?")
+    @app_commands.autocomplete(
+        manufacturer=manufacturer_autocomplete,
+        weapon_type=weapon_type_autocomplete,
+        part_type=part_type_autocomplete
+    )
+    async def parts(self, interaction: discord.Interaction, manufacturer: str, weapon_type: str, part_type: str):
+        message = await item_parser.possible_parts_driver(
+            db_pool=self.bot.db_pool,
+            manufacturer=manufacturer,
+            weapon_type=weapon_type,
+            part_type=part_type
+        )
+        message = message+parts_footer
+        await interaction.response.send_message(content=message)
+        
+        
+    # --- The Slash Command ---
     @app_commands.command(name="element_id", description="Fetch the part id for elements on a gun")
     @app_commands.describe(primary_element="The Primary or only element on your gun")
     @app_commands.describe(secondary_element="The element you can switch to if the gun has the option, otherwise 'None'")

@@ -337,6 +337,39 @@ async def query_shield_perks(db_pool, part_type: str, perk_ids: list[int]) -> li
     # Return the full list of Record objects
     return results
 
+async def query_unique_shield(db_pool, manufacturer: str, perk_id: int) -> list:
+    """
+    Fetches the unique shields name and perk from the unique_shields table.
+
+    Args:
+        db_pool: The bot's asyncpg.Pool
+        manufacturer (str): The shield Manufacturer.
+        perk_id (int): The unique perks id.
+    
+    Returns:
+        A list of asyncpg.Record objects, e.g.:
+        [{'id': 7, 'name': 'Baker', 'perk_type': 'Firmware'}]
+    """
+    if not perk_id or not manufacturer:
+        return []
+
+    query = f"""
+    select 
+        unique_perk, 
+        shield_name
+    from unique_shields
+    where 
+        lower(manufacturer)=lower($1)
+        and id = $2
+    """
+
+    async with db_pool.acquire() as conn:
+        # $1 = part_type, $2 = perk_ids
+        results = await conn.fetch(query, manufacturer, perk_id)
+
+    # Return the full list of Record objects
+    return results
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # LOGIC FUNCTIONS (Now accept part_data)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -367,7 +400,8 @@ def split_item_str(item_str: str) -> list[str, int, list[int]]:
     base_aspect, part_aspect = item_str.split('||')
     base, unknown = base_aspect.split('|')
     item_type, base_0, base_1, level = base.split(', ')
-    parts, skin = part_aspect.split('|')
+    parts =part_aspect.split('|')[0]
+    skin = part_aspect.split('|')[1:]
 
     # The regex pattern:
     # r"\{"  -> Matches a literal {
