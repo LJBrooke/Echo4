@@ -693,7 +693,7 @@ class EditorCommands(commands.Cog):
             # --- STEP 1: Deserialize and Get Type (as you requested) ---
             
             # 1. Deserialize the item
-            deserialized_json = await item_parser.deserialize(self.bot.session, weapon_serial.strip())
+            deserialized_json = await item_parser.deserialize(self.bot.session, item_serial.strip())
             item_str = deserialized_json.get('deserialized')
 
             if not item_str:
