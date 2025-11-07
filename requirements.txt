@@ -4,5 +4,4 @@ BeautifulSoup4
 aiohttp
 asyncpg
 psycopg2-binary
-traceback
 re
