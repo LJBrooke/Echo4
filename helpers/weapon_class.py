@@ -506,7 +506,7 @@ class Weapon:
                 
         # 4. Reconstruct the full component string
         base_aspect = f"{self.item_type_int}, 0, 1, {self.level}|{self.skin_data}"
-        part_aspect = f"{part_string}|{"|".join(self.extra)}"
+        part_aspect = f"{part_string}|{'|'.join(self.extra)}"
         
         component_string = f"{base_aspect}|| {part_aspect}"
         
