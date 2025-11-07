@@ -5,6 +5,38 @@ create table element_list (
 	underbarrel BOOLEAN
 );
 
+CREATE TABLE unique_shields (
+    id INTEGER,
+    manufacturer TEXT,
+	unique_perk TEXT,
+    shield_name TEXT
+);
+
+CREATE TABLE part_list (
+    manufacturer TEXT,
+    weapon_type TEXT,
+    id INTEGER,
+    part_type TEXT,
+    part_string TEXT,
+    model_name TEXT,
+    stats TEXT,
+    effects TEXT,
+    requirements TEXT
+);
+
+CREATE TABLE type_and_manufacturer (
+    id INTEGER PRIMARY KEY,
+    manufacturer TEXT,
+    item_type TEXT
+);
+
+CREATE TABLE shield_parts (
+    id INTEGER,
+    name TEXT,
+    perk_type TEXT,
+    shield_type TEXT
+);
+
 insert into element_list 
 (id, primary_element, secondary_element, underbarrel)
 values 
@@ -59,25 +91,9 @@ values
 (49, 'Fire', 'Shock', TRUE),
 (50, 'Kinetic', Null, FALSE);
 
-CREATE TABLE part_list (
-    manufacturer TEXT,
-    weapon_type TEXT,
-    id INTEGER,
-    part_type TEXT,
-    part_string TEXT,
-    model_name TEXT,
-    stats TEXT,
-    effects TEXT,
-    requirements TEXT
-);
+
 
 -- part list inserts are handled by the bot at initiation and on an adhoc basis.;
-
-CREATE TABLE type_and_manufacturer (
-    id INTEGER PRIMARY KEY,
-    manufacturer TEXT,
-    item_type TEXT
-);
 
 insert into type_and_manufacturer 
 (id, manufacturer, item_type)
@@ -152,12 +168,7 @@ values
 (312, 'daedalus', 'shield'),
 (321, 'torgue', 'shield');
 
-CREATE TABLE shield_parts (
-    id INTEGER,
-    name TEXT,
-    perk_type TEXT,
-    shield_type TEXT
-);
+
 
 insert into shield_parts 
 (id, name, perk_type, shield_type)
@@ -287,3 +298,23 @@ values
 (29, 'Purple Item Card', 'Slot 1 lookup', 'Armour'),
 (30, 'Leg Item Card', 'Slot 1 lookup', 'Armour'),
 (31, 'Scavenger 10%', 'Perk', 'Armour');
+
+insert into unique_shields 
+(id, manufacturer, unique_perk, shield_name)
+values 
+(1, 'Maliwan', 'Vintage', 'Extra Medium'),
+(8, 'Maliwan', 'Phyosis', 'Pandoran Memento'),
+(6, 'Vladof', 'Refreshments', 'Hoarder'),
+(8, 'Vladof', 'Bareknuckle', 'Heavyweight'),
+(6, 'Tediore', 'Shield Boi', 'Principal'),
+(9, 'Tediore', 'Bininu', 'Timekeeper''s New Shield'),
+(1, 'Order', 'Glass', 'Cindershelly'),
+(2, 'Order', 'Direct Current', 'Protean Cell'),
+(6, 'Ripper', 'Short Circuit', 'Sparky Shield'),
+(8, 'Ripper', 'Overshield Eater', 'Watts 4 Dinner'),
+(7, 'Jakobs', 'Vintage', 'Oak-Aged Cask'),
+(8, 'Jakobs', 'Shellot Shell', 'Onion'),
+(6, 'Daedalus', 'Wings of Grace', 'Guardian Angel'),
+(8, 'Daedalus', 'Power Play', 'Super Soldier'),
+(6, 'Torgue', 'Bundled', 'Firewerks'),
+(9, 'Torgue', 'Sisyphusian', 'Compleation');

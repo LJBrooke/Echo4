@@ -7,21 +7,21 @@ class Weapon:
     """Represents the BL4 item being edited."""
     
     PART_ORDER = [
-            "Rarity",           
-            "Body", 
-            "Body Accessory", 
-            "Primary Element", 
-            "Barrel", 
-            "Barrel Accessory", 
-            "Magazine",         
-            "Scope",
-            "Scope Accessory",  
-            "Grip", 
-            "Underbarrel",
-            "Foregrip",
-            "Stat Modifier",
-            "Secondary Element"  
-        ]
+        "Rarity",           
+        "Body", 
+        "Body Accessory", 
+        "Primary Element", 
+        "Barrel", 
+        "Barrel Accessory", 
+        "Magazine",         
+        "Scope",
+        "Scope Accessory",  
+        "Grip", 
+        "Underbarrel",
+        "Foregrip",
+        "Stat Modifier",
+        "Secondary Element"  
+    ]
     
     DEFAULT_PART_LIMITS = {
         "Body": (1, 1),
@@ -89,10 +89,7 @@ class Weapon:
         weapon = cls(db_pool, session, initial_serial)
         
         # Now, perform all async operations and populate the instance
-        try:
-            # REMOVED: Deserialization is now done in the cog
-            # derialized_json = await item_parser.deserialize(weapon.session, weapon.original_serial)
-            
+        try:            
             weapon.item_str = deserialized_json.get('deserialized')
             weapon.additional_data = deserialized_json.get('additional_data', '')
             base_aspect, part_aspect = weapon.item_str.split('||')
@@ -104,7 +101,8 @@ class Weapon:
             
             # We already have item_type_int, but we still need to parse level
             _, base_0, base_1, weapon.level = base.split(', ')
-            parts_string, weapon.extra = part_aspect.split('|')
+            parts_string = part_aspect.split('|')[0]
+            weapon.extra = part_aspect.split('|')[1:]
                         
             all_part_tokens = re.findall(r"\{[\d:]+\}", parts_string)
             
@@ -466,20 +464,20 @@ class Weapon:
         # 1. Define the required order of part types (The blueprint)
         # This list defines the *slots* in the component string.
         PART_ORDER = [
-            "Rarity",           # First, for {98}
+            "Rarity",
             "Body", 
             "Body Accessory", 
-            "Primary Element",  # Third, for {1:12}
+            "Primary Element",
             "Barrel", 
             "Barrel Accessory", 
             "Magazine",         
             "Scope",
             "Scope Accessory",  
             "Grip", 
-            "Underbarrel",
             "Foregrip",
-            "Stat Modifier",    # For regular stat modifiers
-            "Secondary Element"    # Stat modifiers are likely last
+            "Underbarrel",
+            "Stat Modifier",
+            "Secondary Element"
         ]
         
         # 2. Extract and sequence the Part IDs (tokens)
@@ -498,7 +496,6 @@ class Weapon:
             else:
                 # Regular parts are dicts. We need to extract their ID
                 # and format it as a token (e.g., "{2}")
-                
                 # We use part['id'] because that is the key from the DB
                 # that matches the original token {id}
                 part_tokens = [f"{{{part['id']}}}" for part in parts_for_type]
@@ -506,12 +503,10 @@ class Weapon:
 
         # 3. Create the space-separated part string
         part_string = ' '.join(all_part_tokens)
-        
-        # print(f"Current Part IDs (Ordered): {part_string}")
-        
+                
         # 4. Reconstruct the full component string
         base_aspect = f"{self.item_type_int}, 0, 1, {self.level}|{self.skin_data}"
-        part_aspect = f"{part_string}|{self.extra}"
+        part_aspect = f"{part_string}|{"|".join(self.extra)}"
         
         component_string = f"{base_aspect}|| {part_aspect}"
         
@@ -588,7 +583,6 @@ class Weapon:
         except (ValueError, IndexError):
             return "Unknown" # Fallback for malformed tokens
 
-        # Use the rules you provided
         match rarity_id:
             case 95:
                 return "Common"
@@ -599,7 +593,6 @@ class Weapon:
             case 98:
                 return "Epic"
             case _:
-                # Anything else is Legendary
                 return "Legendary"
     
     def _process_part_record(self, part_data: dict) -> dict:
@@ -631,4 +624,3 @@ class Weapon:
             processed_part['variant'] = part_variant
             
         return processed_part
-            
