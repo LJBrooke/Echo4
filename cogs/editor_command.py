@@ -685,8 +685,8 @@ class EditorCommands(commands.Cog):
         await interaction.response.send_message(content=message)
 
     @app_commands.command(name="edit", description="Edit the parts on your gun or shield!")
-    @app_commands.describe(weapon_serial="Item serial")
-    async def edit(self, interaction: discord.Interaction, weapon_serial: str):
+    @app_commands.describe(item_serial="Item serial")
+    async def edit(self, interaction: discord.Interaction, item_serial: str):
         try:
             await interaction.response.defer()
             
@@ -730,7 +730,7 @@ class EditorCommands(commands.Cog):
                 item_object = await shield_class.Shield.create(
                     self.bot.db_pool, 
                     self.bot.session, 
-                    weapon_serial.strip(), 
+                    item_serial.strip(), 
                     deserialized_json,
                     item_type_int,
                     manufacturer,
@@ -746,7 +746,7 @@ class EditorCommands(commands.Cog):
                 item_object = await weapon_class.Weapon.create(
                     self.bot.db_pool, 
                     self.bot.session, 
-                    weapon_serial.strip(), 
+                    item_serial.strip(), 
                     deserialized_json,
                     item_type_int,
                     manufacturer,
@@ -778,7 +778,6 @@ class EditorCommands(commands.Cog):
             
             # Send the message. If editor_view is None (e.g., for shields),
             # it will send a non-interactive message.
-            # --- STEP 3: Send the response ---
             
             item_name = item_object.item_name
             part_list_string = await item_object.get_parts_for_embed()
@@ -809,12 +808,7 @@ class EditorCommands(commands.Cog):
             if editor_view:
                 editor_view.message = sent_message
             
-            # If we created a view, assign the message to it
-            if editor_view:
-                editor_view.message = sent_message
-
         except Exception as e:
-            # (Your existing robust error handling)
             error_traceback = traceback.format_exc()
             print("--- EDIT COMMAND CRASHED ---")
             print(error_traceback)
