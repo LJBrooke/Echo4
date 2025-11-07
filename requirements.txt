@@ -4,3 +4,6 @@ BeautifulSoup4
 aiohttp
 asyncpg
 psycopg2-binary
+typing
+traceback
+re
