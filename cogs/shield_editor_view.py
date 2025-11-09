@@ -1,6 +1,6 @@
 # cogs/shield_editor_view.py
 import discord
-import traceback
+import logging
 from discord.ext import commands
 from helpers import shield_class
 
@@ -12,6 +12,8 @@ from .editor_views_shared import (
     FirmwareSelectionView,
     ShieldPerkSelect
 )
+
+log = logging.getLogger(__name__)
 
 # =============================================================================
 # --- SHIELD-SPECIFIC VIEWS ---
@@ -285,8 +287,7 @@ class ShieldPerkEditorView(BaseEditorView):
                 embed=original_embed
             )
         except Exception as e:
-            print(f"Error during SHIELD perk update: {e}")
-            traceback.print_exc()
+            log.error("Error during SHIELD perk update: %s", e, exc_info=True)
             await interaction.followup.send(f"Error updating perks: `{e}`", ephemeral=True)
 
         # Use the cleaner delete_original_response after deferring the button
@@ -350,9 +351,7 @@ class MainShieldEditorView(BaseEditorView):
             ephemeral_view.message = new_message
             session_host.active_editor_sessions[interaction.user.id] = new_message
         except Exception as e:
-            error_traceback = traceback.format_exc()
-            print(f"!!! FATAL LOG: SHIELD VIEW LAUNCH CRASH !!! Error: {e}")
-            print(error_traceback)
+            log.error("!!! FATAL LOG: SHIELD VIEW LAUNCH CRASH !!! Error: %s", e, exc_info=True)
             session_host.active_editor_sessions.pop(interaction.user.id, None)
             await interaction.followup.send(f"An internal error occurred: `{e}`", ephemeral=True)
 

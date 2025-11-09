@@ -1,8 +1,9 @@
 # cogs/editor_command.py
 import discord
+import logging
 from discord import app_commands
 from discord.ext import commands
-import traceback
+
 
 # Helpers
 from helpers import item_parser
@@ -12,6 +13,8 @@ from helpers import shield_class
 # Views
 from .weapon_editor_view import MainWeaponEditorView
 from .shield_editor_view import MainShieldEditorView
+
+log = logging.getLogger(__name__)
 
 # Footers are standard for all messages dependent on data presented. Hence declared globally.
 serial_footer = """\n-# Serialization thanks to [Nicnl and InflamedSebi](https://borderlands4-deserializer.nicnl.com/)"""
@@ -41,7 +44,7 @@ class EditorCommands(commands.Cog):
         self.weapon_type_options = ["Assault Rifle", "Pistol", "SMG", "Shotgun", "Sniper"]
         self.part_type_options = ["Barrel", "Barrel Accessory", "Body", "Body Accessory", "Foregrip", "Grip", "Magazine", "Manufacturer Part", "Scope", "Scope Accessory", "Stat Modifier", "Underbarrel", "Underbarrel Accessory"]    
         await self.load_shield_perk_cache()
-        print("✅ Shield Perk Cache loaded.")
+        log.info("✅ Shield Perk Cache loaded.")
 
     async def load_shield_perk_cache(self):
         """
@@ -110,8 +113,8 @@ class EditorCommands(commands.Cog):
                     self.bot.shield_perk_lists[key] = [[]]
                 
         except Exception as e:
-            print(f"❌ FAILED TO LOAD SHIELD PERK CACHE ")
-            print(f"Error: {e}. The shield editor will not work.")
+            log.info(f"❌ FAILED TO LOAD SHIELD PERK CACHE ")
+            log.error("Shield Cache Error: %s", e, exc_info=True)
             self.bot.shield_perk_cache = {}
             self.bot.shield_perk_lookup = {}
                    
@@ -154,7 +157,7 @@ class EditorCommands(commands.Cog):
     async def deserialize(self, interaction: discord.Interaction, serial: str):
         response = await item_parser.deserialize(self.bot.session, serial.strip())
         
-        print(response)
+        log.debug(response)
         message = '**Item:** '+response.get('additional_data') + '\n**Deserialized String:** ```'+response.get('deserialized')+"```"
                
         message = message+parts_footer
@@ -279,16 +282,13 @@ class EditorCommands(commands.Cog):
                 editor_view.message = sent_message
             
         except Exception as e:
-            error_traceback = traceback.format_exc()
-            print("--- EDIT COMMAND CRASHED ---")
-            print(error_traceback)
-            print("----------------------------")
+            log.error("--- EDIT COMMAND CRASHED ---\n%s", e, exc_info=True)
             
             await interaction.followup.send(
                 embed=discord.Embed(
                     title="💥 Command Crashed",
                     color=discord.Color.red(),
-                    description=f"An error occurred:\n```\n{error_traceback[:1900]}\n```"
+                    # description=f"An error occurred:\n```\n{error_traceback[:1900]}\n```"
                 )
             )
 

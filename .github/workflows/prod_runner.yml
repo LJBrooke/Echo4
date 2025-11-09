@@ -27,6 +27,7 @@ jobs:
         run: |
           echo DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}" > .env
           echo ADMIN_SERVER_ID="${{ secrets.ADMIN_SERVER_ID }}" >> .env
+          echo GQ_SERVER_ID="${{ secrets.GQ_SERVER_ID }}" >> .env
           echo OWNER_ID="${{ secrets.OWNER_ID }}" >> .env
           echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> .env
           echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> .env
