@@ -329,8 +329,12 @@ class FirmwareSelectionView(BaseEditorView):
         self.shield = shield
         
         self.selections = self._get_current_selections()
-        self.new_firmware_id = self.selections["Firmware"]
-        print(f"Firmware Set: {self.new_firmware_id}")
+        
+        # FIX: Remove the redundant state variable
+        # self.new_firmware_id = self.selections["Firmware"] # <-- DELETE THIS
+        
+        # FIX: Just print the value from the new canonical source
+        print(f"Firmware Set: {self.selections['Firmware']}")
         
         self.embed = discord.Embed(
             title=f"Editing Firmware for {shield.item_name}",
@@ -341,12 +345,16 @@ class FirmwareSelectionView(BaseEditorView):
         
     def _initialize_decorated_components(self):
         """Sets the initial options for the decorated select menu."""
-        initial_options = self._get_options_for_page(self.new_firmware_id, "Firmware", 0)
+        
+        # FIX: Pass the placeholder string "Firmware", not the ID
+        initial_options = self._get_options_for_page("Firmware", "Firmware", 0)
+        
         # Access the decorated method instance and set its options property
         self.firmware_select.options = initial_options
 
     def _get_current_selections(self) -> dict:
         """Finds all 4 currently equipped perks and maps them."""
+        # ... (This method is fine, no changes needed) ...
         bot_ref = self._get_bot_ref()
         selections = {
             "Weaker Part (Slot 1)": "NONE",
@@ -361,6 +369,9 @@ class FirmwareSelectionView(BaseEditorView):
                     current_id_map.get("Armour", [])
         
         checked_ids = set()
+        
+        current_shield_type = self.shield.type # e.g., "Energy"
+        
         for pid in all_ids:
             if pid in checked_ids:
                 continue
@@ -372,6 +383,12 @@ class FirmwareSelectionView(BaseEditorView):
                 continue
                 
             for perk_data in perk_data_list:
+                # Check the shield_type of the perk data itself
+                perk_shield_type = perk_data.get('shield_type')
+                if (perk_shield_type != current_shield_type and perk_shield_type != 'General'):
+                    # This perk data isn't for our shield type (e.g., it's 'Armour'
+                    # data for an 'Energy' shield). Skip it.
+                    continue
                 slot, perk_type = perk_data.get('slot'), perk_data.get('perk_type')
                 unique_value = perk_data['unique_value']
                 
@@ -389,7 +406,10 @@ class FirmwareSelectionView(BaseEditorView):
         """Builds the SelectOption list using 'unique_value'."""
         bot_ref = self._get_bot_ref()
         
-        current_unique_value = self.new_firmware_id
+        # FIX: Get the current value from the self.selections dict
+        #      using the placeholder key, just like in ShieldPerkEditorView
+        current_unique_value = self.selections.get(placeholder, "NONE")
+        
         options = [
             discord.SelectOption(
                 label="None", 
@@ -429,23 +449,20 @@ class FirmwareSelectionView(BaseEditorView):
         
         selected_id = select.values[0]
         
-        # 1. Update the state with the ID (business logic value)
-        self.new_firmware_id = selected_id
+        # 1. FIX: Update the canonical state in self.selections
+        self.selections["Firmware"] = selected_id
         
         # 2. Look up the user-facing name for display in the embed
         selected_name = "None"
         if selected_id != "NONE":
             bot_ref = self._get_bot_ref()
-            # Assuming shield_perk_lookup has a unique_value string as the key and a dict value containing 'name'
             perk_data = bot_ref.shield_perk_lookup.get(selected_id)
             if perk_data:
                 selected_name = perk_data.get('name', selected_id)
             else:
-                selected_name = selected_id # Fallback to the ID if name lookup fails
+                selected_name = selected_id # Fallback
 
         select.placeholder = f"{selected_name}"
-        # 3. Update the embed description to show the user-facing name
-        # self.embed.description = f"Select a new Firmware perk. Current: **{selected_name}**"
         
         # 4. Re-initialize to update the options list (which sets default=True based on the ID)
         self._initialize_decorated_components()
@@ -467,13 +484,13 @@ class FirmwareSelectionView(BaseEditorView):
         await interaction.response.defer()
 
         try:
+            # 5. FIX: Read all values from self.selections
             weaker_id = self.selections["Weaker Part (Slot 1)"]
             stronger_id = self.selections["Stronger Part (Slot 2)"]
             elemental_id = self.selections["Elemental Resistance"]
-            firmware_id = self.new_firmware_id 
+            firmware_id = self.selections["Firmware"] # <-- Read from dict
             
             id_list = [weaker_id, stronger_id, elemental_id, firmware_id]
-            # This relies on the cog having the helper method
             perk_map = self._build_perk_map(id_list)
             
             await self.shield.update_all_perks(perk_map)

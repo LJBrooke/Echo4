@@ -61,6 +61,8 @@ class ShieldPerkEditorView(BaseEditorView):
             "Firmware": "NONE"
         }
         
+        current_shield_type = self.shield.type
+        
         current_id_map = self.shield.get_current_perk_ids_by_type()
         all_ids = current_id_map.get("General", []) + \
                     current_id_map.get("Energy", []) + \
@@ -78,6 +80,13 @@ class ShieldPerkEditorView(BaseEditorView):
                 continue
 
             for perk_data in perk_data_list:
+                
+                # Check the shield_type of the perk data itself
+                perk_shield_type = perk_data.get('shield_type')
+                if (perk_shield_type != current_shield_type and perk_shield_type != 'General'):
+                    # This perk data isn't for our shield type (e.g., it's 'Armour'
+                    # data for an 'Energy' shield). Skip it.
+                    continue
                 slot = perk_data.get('slot')
                 perk_type = perk_data.get('perk_type')
                 unique_value = perk_data['unique_value']
