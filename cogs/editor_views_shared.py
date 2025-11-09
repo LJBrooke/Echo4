@@ -1,8 +1,11 @@
 # cogs/editor_views_shared.py
+import logging
 import discord
 from discord.ext import commands
 from helpers import weapon_class, shield_class
 from typing import Union
+
+log = logging.getLogger(__name__)
 
 # =============================================================================
 # --- SHARED VIEWS ---
@@ -14,7 +17,6 @@ class BaseEditorView(discord.ui.View):
     A base view that handles user validation, session management,
     and message references for all ephemeral editors.
     """
-    # def __init__(self, cog: commands.Cog, user_id: int, main_message: discord.Message, timeout: int = 180):
     def __init__(self, cog: commands.Cog, user_id: int, main_message: discord.Message | None, timeout: int = 180):
         super().__init__(timeout=timeout)
         
@@ -64,10 +66,9 @@ class BaseEditorView(discord.ui.View):
 
     async def cancel_and_delete(self, interaction: discord.Interaction):
         
-        # 1. FIX: Respond immediately to the interaction
+        # 1. ALWAYS: Respond immediately to the interaction
         await interaction.response.defer() 
         
-        # 2. Perform cleanup AFTER deferral
         try:
             if hasattr(self.cog, 'bot'):
                 session_host = self.cog.bot
@@ -76,8 +77,7 @@ class BaseEditorView(discord.ui.View):
             if hasattr(session_host, 'active_editor_sessions'):
                 session_host.active_editor_sessions.pop(self.user_id, None)
         except Exception:
-            print("Cancel and Delete exception triggered.")
-            # Non-fatal: Cleanup failed, but user experience is saved.
+            log.debug("Cancel and Delete exception triggered.")
             pass
         await interaction.delete_original_response()
     
@@ -98,7 +98,7 @@ class BaseEditorView(discord.ui.View):
             perk_data = bot_ref.shield_perk_lookup.get(unique_val_str)
             
             if not perk_data:
-                print(f"Warning: Perk unique_value {unique_val_str} not found in lookup cache.")
+                log.debug(f"Warning: Perk unique_value {unique_val_str} not found in lookup cache.")
                 continue
             
             shield_type = perk_data.get('shield_type') 
@@ -107,7 +107,7 @@ class BaseEditorView(discord.ui.View):
             if shield_type in perk_map:
                 perk_map[shield_type].append(perk_id)
             else:
-                print(f"Warning: Perk {unique_val_str} has unknown shield_type '{shield_type}'")
+                log.debug(f"Warning: Perk {unique_val_str} has unknown shield_type '{shield_type}'")
                     
         return perk_map
 
@@ -154,21 +154,13 @@ class LevelModal(discord.ui.Modal, title="Set Item Level"):
 
         except Exception as e:
             await interaction.followup.send(f"Error updating level: `{e}`", ephemeral=True)
+            log.error(f"Failed to submit level update: \n%s", e, exc_info=True)
 
 class RaritySelect(discord.ui.Select):
     def __init__(self, item_object: Union[weapon_class.Weapon, shield_class.Shield], current_rarity: str):
-        
-        # LOG A: Check Entry Point and State
-        print(f"!!! LOG A: RaritySelect init. Current Rarity: {current_rarity}")
-
         options = []
-        # LOG B: Check list comprehension start
-        print("!!! LOG B: Starting Rarity loop.")
-        
-        # This list comprehension is the most dangerous part:
+
         for name in item_object.EDITABLE_RARITY_MAP.keys():
-            # LOG C: Check access to the item object
-            print(f"!!! LOG C: Processing rarity name: {name}")
             options.append(
                 discord.SelectOption(
                     label=name, 
@@ -177,8 +169,7 @@ class RaritySelect(discord.ui.Select):
                 ) 
             )
         
-        # LOG D: Check list comprehension completion
-        print(f"!!! LOG D: Rarity loop finished. {len(options)} options created.")
+        log.info(f"!!! LOG D: Rarity loop finished. {len(options)} options created.")
 
         super().__init__(
             placeholder="Select new Rarity...",
@@ -188,9 +179,6 @@ class RaritySelect(discord.ui.Select):
             row=0,
             custom_id="rarity_select"
         )
-        
-        # LOG E: Check successful super() call
-        print("!!! LOG E: RaritySelect init complete.")
 
 class RaritySelectionView(BaseEditorView):
     """Ephemeral view for setting Common/Uncommon/Rare/Epic rarity."""
@@ -204,7 +192,7 @@ class RaritySelectionView(BaseEditorView):
         
         self.embed = discord.Embed(
             title=f"Editing Rarity for {self.item_object.item_name}",
-            description=f"Current: **{self.selection}**.\nSelect a new Rarity below."
+            # description=f"Current: **{self.selection}**.\nSelect a new Rarity below."
         )
         self._setup_components()
         self.rebuild_ui()
@@ -239,7 +227,8 @@ class RaritySelectionView(BaseEditorView):
         select.placeholder = f"Selected: {self.selection}"
         
         # 3. Update the description for the user
-        self.embed.description = f"Current: **{self.selection}**.\nSelect a new Rarity below."
+        # self.embed.description = f"Current: **{self.selection}**.\nSelect a new Rarity below."
+        self.embed.description = f"Select a new Rarity below."
         
         # 4. Rebuild the components to update the default/placeholder state
         self.rebuild_ui() 
@@ -254,14 +243,12 @@ class RaritySelectionView(BaseEditorView):
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.grey, row=4)
     async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        print("Cancel button logic entered, Rarity Selection View.")
         await self.cancel_and_delete(interaction)
 
     # cogs/editor_views_shared.py (inside RaritySelectionView)
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, row=4)
     async def confirm_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        print("Confirm button logic entered, Rarity Selection View.")
         await interaction.response.defer()
 
         try:
@@ -271,7 +258,6 @@ class RaritySelectionView(BaseEditorView):
                 session_host = self.cog
             if hasattr(session_host, 'active_editor_sessions'):
                 session_host.active_editor_sessions.pop(self.user_id, None)
-            print("First Try block executed, no exceptions")
         except Exception:
             pass
             
@@ -291,7 +277,7 @@ class RaritySelectionView(BaseEditorView):
                 embed=original_embed
             )
             
-            print("Delete original message now.")
+            log.debug("Delete original message now.")
             # 3. Delete the ephemeral response
             await interaction.delete_original_response()
         
@@ -302,6 +288,7 @@ class RaritySelectionView(BaseEditorView):
                 await interaction.delete_original_response() 
             except:
                 pass
+            log.error("Error confirming rarity update.\n%s", e, exc_info=True)
 
 class ShieldPerkSelect(discord.ui.Select):
     """
@@ -329,12 +316,8 @@ class FirmwareSelectionView(BaseEditorView):
         self.shield = shield
         
         self.selections = self._get_current_selections()
-        
-        # FIX: Remove the redundant state variable
-        # self.new_firmware_id = self.selections["Firmware"] # <-- DELETE THIS
-        
-        # FIX: Just print the value from the new canonical source
-        print(f"Firmware Set: {self.selections['Firmware']}")
+                
+        log.debug(f"Firmware Set: {self.selections['Firmware']}")
         
         self.embed = discord.Embed(
             title=f"Editing Firmware for {shield.item_name}",
@@ -488,7 +471,7 @@ class FirmwareSelectionView(BaseEditorView):
             weaker_id = self.selections["Weaker Part (Slot 1)"]
             stronger_id = self.selections["Stronger Part (Slot 2)"]
             elemental_id = self.selections["Elemental Resistance"]
-            firmware_id = self.selections["Firmware"] # <-- Read from dict
+            firmware_id = self.selections["Firmware"]
             
             id_list = [weaker_id, stronger_id, elemental_id, firmware_id]
             perk_map = self._build_perk_map(id_list)
@@ -505,7 +488,7 @@ class FirmwareSelectionView(BaseEditorView):
                 embed=original_embed
             )
         except Exception as e:
-            print(f"Error during SHIELD firmware update: {e}")
+            log.error("Error during SHIELD firmware update:\n%s", e, exc_info=True)
             await interaction.followup.send(f"Error updating firmware: `{e}`", ephemeral=True)
 
         await interaction.delete_original_response()

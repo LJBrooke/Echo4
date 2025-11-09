@@ -1,17 +1,48 @@
 import os
+import sys
 import time
+import logging
 import discord
 import aiohttp
 import asyncpg
+from dotenv import load_dotenv
 from discord.ext import commands
 from discord import app_commands, Interaction
-from dotenv import load_dotenv
 
-from helpers import sync_parts
+# --- LOGGING SETUP ---
+# Set the default level to DEBUG for development, or INFO for production
+log_level = logging.INFO 
+
+# 1. Get the root logger
+logger = logging.getLogger()
+logger.setLevel(log_level)
+
+# 2. Create a formatter to make logs pretty
+#    [Timestamp] [Level] [Module] [Message]
+log_format = logging.Formatter(
+    '%(asctime)s [%(levelname)-8s] %(name)-15s: \n  %(message)s'
+)
+
+# 3. Create a handler to send logs to stdout (the console)
+#    This is the "Docker way"
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setFormatter(log_format)
+logger.addHandler(stdout_handler)
+
+# --- END OF LOGGING SETUP ---
+
+# Keep a single, easy-to-access logger for this file
+log = logging.getLogger(__name__)
+
+# Example of using the logger
+log.info("Logging is configured! Bot is starting...")
 
 # --- Load Environment ---
+load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 OWNER_ID = int(os.getenv("OWNER_ID"))
+GQ_SERVER_ID = int(os.getenv("GQ_SERVER_ID"))
+ADMIN_SERVER_ID = int(os.getenv("ADMIN_SERVER_ID"))
 command_start_times = {}
 
 # --- Bot Definition ---
@@ -21,8 +52,7 @@ class MyBot(commands.Bot):
         # Set up intents and the command prefix
         super().__init__(
             command_prefix="!",
-            intents=discord.Intents.default(),
-            owner_id=OWNER_ID
+            intents=discord.Intents.default()
         )
         
     @commands.Cog.listener()
@@ -43,19 +73,26 @@ class MyBot(commands.Bot):
         # 2. Get the user/guild info
         if interaction.user.id != OWNER_ID:
             user="User"
-        guild_id = interaction.guild.id if interaction.guild else "DMs"
+        if interaction.guild:
+            if interaction.guild==GQ_SERVER_ID:
+                guild_id='GQ Server'
+            elif interaction.guild==ADMIN_SERVER_ID:
+                guild_id='Admin Server'
+            else: guild_id=interaction.guild
+        else: guild_id="DMs"
+        
         
         start_time = command_start_times.pop(interaction.id, None)
     
         if start_time:
             response_time = (end_time - start_time) * 1000 # Convert to milliseconds
         
-        print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] COMMAND USED: /{command_name}, Response took: {response_time:.2f}ms \nUser:{user} in {guild_id}")
+        log.info(f"COMMAND USED: /{command_name}:\n  - User:{user} in {guild_id}\n  - Response took: {response_time:.2f}ms")
         
 
     async def setup_hook(self):
         """This function is called when the bot is preparing to connect."""
-        print("Loading cogs...")
+        log.info(f"Loading cogs...")
         
         # Define the path to your CSV file
         cogs_csv_path = 'cogs/cogs.csv'
@@ -72,15 +109,8 @@ class MyBot(commands.Bot):
                 password=os.getenv("DATABASE_PWD")
             )
         except Exception as e:
-            print(f"Failed to connect to database: {e}")
+            log.info(f"Failed to connect to database: {e}")
             return # Don't load cogs if DB fails
-        
-        print("BOT: Running initial Google Sheet sync...")
-        try:
-            sync_status = await sync_parts.sync_part_sheet(self.session, self.db_pool)
-            print(f"BOT: Initial sync complete. {sync_status}")
-        except Exception as e:
-            print(f"CRITICAL: Initial sync failed: {e}")
         
         try:
             # Open and read the CSV file
@@ -99,29 +129,29 @@ class MyBot(commands.Bot):
                         print(f"✅ Loaded cog: {cog_path}")
                     except Exception as e:
                         print(f"❌ Failed to load cog {cog_path}: {e}")
+                        log.error("❌ Failed to load cog "+cog_path+": %s", e, exc_info=True)
         
         except FileNotFoundError:
-            print(f"⚠️ {cogs_csv_path} not found. No cogs were loaded dynamically.")
+            log.info(f"⚠️ {cogs_csv_path} not found. No cogs were loaded dynamically.")
 
         print("--- Finished loading cogs ---")
         
         # Sync the command tree to register the slash commands.
         try:
             synced = await self.tree.sync()
-            print(f"Synced {len(synced)} command(s)")
+            log.info(f"Synced {len(synced)} command(s)")
         except Exception as e:
-            print(f"Failed to sync commands: {e}")
+            log.info(f"Failed to sync commands: {e}")
 
     async def on_ready(self):
         """This event is called when the bot is fully connected."""
-        print(f'✅ Logged in as {self.user} (ID: {self.user.id})')
-        print('------')
+        log.info(f'✅ Logged in as {self.user} (ID: {self.user.id})\n------')
 
 
 # --- Run the Bot ---
 if __name__ == "__main__":
     if not TOKEN:
-        print("ERROR: DISCORD_TOKEN not found in .env file.")
+        log.info("ERROR: DISCORD_TOKEN not found in .env file.")
     else:
         bot = MyBot()
         bot.run(TOKEN)

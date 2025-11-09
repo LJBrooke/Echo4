@@ -59,14 +59,22 @@ services:
       DATABASE_PORT: 5432
       DATABASE_NAME: ${POSTGRES_DB}       # Must match POSTGRES_DB
       DATABASE_USER: ${POSTGRES_USER}     # Must match POSTGRES_USER
-      DATABASE_PWD: ${POSTGRES_PASSWORD} 
+      DATABASE_PWD: ${POSTGRES_PASSWORD}
+      # Discord Details  
       DISCORD_TOKEN: ${DISCORD_TOKEN}
       OWNER_ID: ${OWNER_ID}
       ADMIN_SERVER_ID: ${ADMIN_SERVER_ID}
+      GQ_SERVER_ID: ${GQ_SERVER_ID}
 
     # Add this service to our custom network
     networks:
       - echo-network
+
+    logging:
+      driver: "json-file"   # Keeping Json default.
+      options:
+        max-size: "15m"     # Max size of a single log file (e.g., 10 MB)
+        max-file: "5"       # Files to keep.
 
 # --- Top-Level Definitions ---
 

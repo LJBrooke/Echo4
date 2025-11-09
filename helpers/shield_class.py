@@ -257,6 +257,7 @@ class Shield:
             if perk_list:
                 # perk_list is now a list of dicts
                 for perk_data in perk_list:
+                    additional=''
                     # Get the name and perk_type
                     perk_name = perk_data.get('name', 'Unknown Perk')
                     perk_type = perk_data.get('perk_type', 'Perk') # Fallback to 'Perk'
@@ -265,7 +266,6 @@ class Shield:
                     else: 
                         if perk_type!='Perk': additional = perk_type
                         display_lines.append(f"-> {perk_name} {additional}")
-                        additional=''
         
         if firmware is not None: 
             display_lines.append(f"\n**Firmware:** _{firmware}_")
