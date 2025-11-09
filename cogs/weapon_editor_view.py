@@ -1,7 +1,7 @@
 # cogs/weapon_editor_views.py
-import discord
 import re
-import traceback
+import discord
+import logging
 from discord.ext import commands
 from helpers import item_parser, weapon_class
 from .editor_views_shared import (
@@ -10,7 +10,7 @@ from .editor_views_shared import (
     RaritySelectionView
 )
 
-# ... (ElementSelectionView is unchanged) ...
+log = logging.getLogger(__name__)
 
 class ElementSelectionView(BaseEditorView):
     """
@@ -126,13 +126,13 @@ class ElementSelectionView(BaseEditorView):
             )
         
         except ValueError as e:
-            print(f"Element ID error: {e}")
+            log.error("Element ID error: %s", e, exc_info=True)
             await interaction.followup.send(
                 f"Error: Could not combine those elements. Check if the element combination is valid for this weapon type. ({e})", 
                 ephemeral=True
             )
         except Exception as e:
-            print(f"Error during element update: {e}")
+            log.error("Error during element update: %s", e, exc_info=True)
             await interaction.followup.send(
                 f"An unexpected error occurred: `{e}`", 
                 ephemeral=True
@@ -160,9 +160,6 @@ class PartSelectionView(BaseEditorView):
         # Initialize the decorated select menu
         self._initialize_components(possible_parts)
     
-    #
-    # --- THIS IS THE FIXED METHOD ---
-    #
     @classmethod
     async def create(cls, weapon: weapon_class.Weapon, part_type: str, cog: commands.Cog, user_id: int, main_message: discord.Message):
         """Factory method to asynchronously fetch parts before initializing."""
@@ -271,7 +268,7 @@ class PartSelectionView(BaseEditorView):
             )
         
         except Exception as e:
-            print(f"Error during part update: {e}")
+            log.error("Error during part update: %s", e, exc_info=True)
             await interaction.followup.send(
                 f"An error occurred while updating the part: `{e}`", 
                 ephemeral=True
@@ -329,7 +326,7 @@ class MainWeaponEditorView(BaseEditorView):
         
         # --- 4. Manually create and add Dynamic Part Buttons ---
         for part_type in self.weapon.PART_ORDER:
-            if part_type in self.weapon.parts and self.weapon.parts[part_type]:
+            if part_type in self.weapon.parts and (self.weapon.parts[part_type] or part_type=="Underbarrel"):
                 if part_type in ["Rarity", "Primary Element", "Secondary Element", "Body"]:
                     continue
                 
@@ -406,8 +403,7 @@ class MainWeaponEditorView(BaseEditorView):
         except Exception as e:
             # Catch errors during view creation
             session_host.active_editor_sessions.pop(interaction.user.id, None)
-            print(f"Error creating ephemeral view: {e}")
-            traceback.print_exc()
+            log.error("Error creating ephemeral view: %s", e, exc_info=True)
             await interaction.followup.send(f"An error occurred: `{e}`", ephemeral=True)
  
     async def on_timeout(self):

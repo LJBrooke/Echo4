@@ -1,10 +1,11 @@
 import os
 import sys
 import time
-import logging
 import discord
 import aiohttp
 import asyncpg
+import logging
+import colorlog
 from dotenv import load_dotenv
 from discord.ext import commands
 from discord import app_commands, Interaction
@@ -13,20 +14,64 @@ from discord import app_commands, Interaction
 # Set the default level to DEBUG for development, or INFO for production
 log_level = logging.INFO 
 
-# 1. Get the root logger
+# 1. Create the ColoredFormatter
+#    NOTICE: We are using standard %(name)s and %(message)s.
+#    NO custom color tokens. NO extra %(reset)s for them.
+log_format = (
+    '%(asctime)s '
+    '%(log_color)s[%(levelname)-8s] '
+    '%(name)-15s: '  # <-- STANDARD TOKEN
+    '%(reset)s\n%(message)s'     # <-- STANDARD TOKEN
+)
+
+# This maps log levels to specific colors (for %(log_color)s)
+log_colors_config = {
+    'DEBUG': 'cyan',
+    'INFO': 'blue',
+    'WARNING': 'yellow',
+    'ERROR': 'red',
+    'CRITICAL': 'bold_red',
+}
+
+# This maps logger names to colors (for 'name')
+name_colors_config = {
+    'helpers': 'purple',
+    'helpers.shield_class': 'purple', # This is fine, but 'helpers' already covers it
+    'cogs': 'blue',
+    '': 'yellow', # Root/main logger
+}
+
+# This maps the message itself to colors (for 'message')
+message_colors_config = {
+    'WARNING': 'yellow',
+    'ERROR': 'red',
+    'CRITICAL': 'bold_red',
+}
+
+formatter = colorlog.ColoredFormatter(
+    log_format,
+    datefmt='%Y-%m-%d %H:%M:%S',
+    log_colors=log_colors_config,
+    secondary_log_colors={
+        'name': name_colors_config,
+        
+        # The key is the *attribute name* ('message')
+        # NOT the custom token ('message_log_color')
+        'message': message_colors_config
+    },
+    style='%'
+)
+
+# 2. Get the root logger
 logger = logging.getLogger()
 logger.setLevel(log_level)
 
-# 2. Create a formatter to make logs pretty
-#    [Timestamp] [Level] [Module] [Message]
-log_format = logging.Formatter(
-    '%(asctime)s [%(levelname)-8s] %(name)-15s: \n  %(message)s'
-)
-
-# 3. Create a handler to send logs to stdout (the console)
-#    This is the "Docker way"
+# 3. Create the handler and set the formatter
 stdout_handler = logging.StreamHandler(sys.stdout)
-stdout_handler.setFormatter(log_format)
+stdout_handler.setFormatter(formatter)
+
+# 4. Remove any old handlers and add the new one
+logger.handlers = [] 
 logger.addHandler(stdout_handler)
 
 # --- END OF LOGGING SETUP ---
