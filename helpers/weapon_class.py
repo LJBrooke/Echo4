@@ -25,10 +25,10 @@ class Weapon:
     
     DEFAULT_PART_LIMITS = {
         "Body": (1, 1),
-        "Body Accessory": (1, 3),
+        "Body Accessory": (1, 4),
         "Primary Element": (1, 1),
         "Barrel": (1, 1),
-        "Barrel Accessory": (1, 4),
+        "Barrel Accessory": (1, 3),
         "Magazine": (1, 2),
         "Scope": (0, 1),
         "Scope Accessory": (1, 2),
