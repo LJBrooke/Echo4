@@ -82,7 +82,7 @@ class ShieldPerkEditorView(BaseEditorView):
             for perk_data in perk_data_list:
                 
                 # Check the shield_type of the perk data itself
-                perk_shield_type = perk_data.get('shield_type')
+                perk_shield_type = self.shield.type
                 if (perk_shield_type != current_shield_type and perk_shield_type != 'General'):
                     # This perk data isn't for our shield type (e.g., it's 'Armour'
                     # data for an 'Energy' shield). Skip it.
