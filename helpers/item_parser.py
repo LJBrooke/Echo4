@@ -459,7 +459,7 @@ async def compile_part_list(db_pool, item_code: str) -> str:
         str_part_list = await query_part_list(
             db_pool, 
             manufacturer, 
-            type, 
+            type.replace('_',' '), 
             int_part_list
         )
         
