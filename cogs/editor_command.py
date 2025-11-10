@@ -3,6 +3,7 @@ import discord
 import logging
 from discord import app_commands
 from discord.ext import commands
+from typing import Union, Tuple, Optional
 
 
 # Helpers
@@ -150,7 +151,116 @@ class EditorCommands(commands.Cog):
             for pt in self.part_type_options if current.lower() in pt.lower()
         ]
         return choices[:25]
-          
+        # --- EDIT COMMAND HELPER METHODS ---
+
+    async def _deserialize_and_get_item_data(self, interaction: discord.Interaction, item_serial: str) -> Optional[Tuple[dict, int, str, str]]:
+        """
+        Helper 1: Deserializes the serial and queries the item's base data.
+        Sends an error and returns None on failure.
+        """
+        deserialized_json = await item_parser.deserialize(self.bot.session, item_serial)
+        item_str = deserialized_json.get('deserialized')
+
+        if not item_str:
+            await interaction.followup.send(
+                "Error: Could not deserialize this serial. It might be invalid.",
+                ephemeral=True
+            )
+            return None
+
+        try:
+            base_aspect, _ = item_str.split('||')
+            base = base_aspect.split('|')[0]
+            item_type_int_str = base.split(', ')[0]
+            item_type_int = int(item_type_int_str)
+        except (ValueError, IndexError) as e:
+            log.warning("Failed to parse base_aspect from item_str: %s", item_str, exc_info=True)
+            await interaction.followup.send(
+                "Error: Could not parse the deserialized item string. The serial may be malformed.",
+                ephemeral=True
+            )
+            return None
+
+        item_type, manufacturer = await item_parser.query_type(self.bot.db_pool, item_type_int)
+
+        if not item_type:
+            await interaction.followup.send(
+                f"Error: Unknown item type ID: `{item_type_int}`. Cannot edit.",
+                ephemeral=True
+            )
+            return None
+            
+        return (deserialized_json, item_type_int, item_type, manufacturer)
+
+    async def _create_item_and_view(self, interaction: discord.Interaction, item_serial: str, deserialized_json: dict, item_type_int: int, item_type: str, manufacturer: str) -> Optional[Tuple[Union[weapon_class.Weapon, shield_class.Shield], discord.ui.View]]:
+        """
+        Helper 2: Creates the appropriate item object (Weapon/Shield) and its
+        corresponding editor view. Returns None if the item type is unsupported.
+        """
+        item_object = None
+        editor_view = None
+
+        if item_type.lower() == 'shield':
+            item_object = await shield_class.Shield.create(
+                self.bot.db_pool, 
+                self.bot.session, 
+                item_serial, 
+                deserialized_json,
+                item_type_int,
+                manufacturer,
+                item_type
+            )
+            editor_view = MainShieldEditorView(self.bot, item_object, interaction.user.id)
+
+        elif item_type_int < 100: # Assuming < 100 are weapons
+            item_object = await weapon_class.Weapon.create(
+                self.bot.db_pool, 
+                self.bot.session, 
+                item_serial, 
+                deserialized_json,
+                item_type_int,
+                manufacturer,
+                item_type
+            )
+            editor_view = MainWeaponEditorView(self.bot, item_object, interaction.user.id)
+        
+        else:
+            await interaction.followup.send(
+                f"Sorry, item type '{item_type}' is not supported for editing.",
+                ephemeral=True
+            )
+            return None
+            
+        return (item_object, editor_view)
+
+    async def _build_and_send_editor_response(self, interaction: discord.Interaction, item_object: Union[weapon_class.Weapon, shield_class.Shield], editor_view: discord.ui.View):
+        """
+        Helper 3: Builds the embed and sends the final response
+        message with the editor view.
+        """
+        item_name = item_object.item_name
+        part_list_string = await item_object.get_parts_for_embed()
+        item_color = item_object.get_rarity_color()
+        
+        embed = discord.Embed(
+            title=f"{item_name}",
+            description=part_list_string,
+            color=item_color
+        )
+        
+        message_content = f"```{await item_object.get_serial()}```\n_ _\n"
+        
+        send_kwargs = {
+            "content": message_content,
+            "embed": embed,
+            "view": editor_view
+        }
+
+        sent_message = await interaction.followup.send(**send_kwargs)
+        
+        if editor_view:
+            editor_view.message = sent_message
+     
     # --- The Slash Command ---
     @app_commands.command(name="deserialize", description="Convert a Bl4 item code to its components")
     @app_commands.describe(serial="Item serial to decode.")
@@ -191,106 +301,47 @@ class EditorCommands(commands.Cog):
     async def edit(self, interaction: discord.Interaction, item_serial: str):
         try:
             await interaction.response.defer()
-                        
-            deserialized_json = await item_parser.deserialize(self.bot.session, item_serial.strip())
-            item_str = deserialized_json.get('deserialized')
-
-            if not item_str:
-                await interaction.followup.send(
-                    "Error: Could not deserialize this serial. It might be invalid.",
-                    ephemeral=True
-                )
-                return
-
-            base_aspect, _ = item_str.split('||')
-            base = base_aspect.split('|')[0]
-            item_type_int_str = base.split(', ')[0]
-            level = base.split(', ')[3]
-            item_type_int = int(item_type_int_str)
-
-            item_type, manufacturer = await item_parser.query_type(self.bot.db_pool, item_type_int)
-
-            if not item_type:
-                await interaction.followup.send(
-                    f"Error: Unknown item type ID: `{item_type_int}`. Cannot edit.",
-                    ephemeral=True
-                )
-                return
-
-            item_object = None
-            editor_view = None
-
-            if item_type.lower() == 'shield':
-                
-                item_object = await shield_class.Shield.create(
-                    self.bot.db_pool, 
-                    self.bot.session, 
-                    item_serial.strip(), 
-                    deserialized_json,
-                    item_type_int,
-                    manufacturer,
-                    item_type
-                )
-                
-                # editor_view = MainShieldEditorView(self, item_object, interaction.user.id)
-                editor_view = MainShieldEditorView(self.bot, item_object, interaction.user.id)
-
-            elif item_type_int < 100: 
-                
-                item_object = await weapon_class.Weapon.create(
-                    self.bot.db_pool, 
-                    self.bot.session, 
-                    item_serial.strip(), 
-                    deserialized_json,
-                    item_type_int,
-                    manufacturer,
-                    item_type
-                )
-                # editor_view = MainWeaponEditorView(self, item_object, interaction.user.id)
-                editor_view = MainWeaponEditorView(self.bot, item_object, interaction.user.id)
             
-            else:
-                await interaction.followup.send(
-                    f"Sorry, item type '{item_type}' is not supported for editing.",
-                    ephemeral=True
-                )
-                return
+            item_serial = item_serial.strip()
             
-            item_name = item_object.item_name
-            part_list_string = await item_object.get_parts_for_embed()
-            item_color = item_object.get_rarity_color()
+            # --- Block 1: Deserialize and Validate ---
+            item_data = await self._deserialize_and_get_item_data(interaction, item_serial)
+            if not item_data:
+                return # Error message was sent by the helper
             
-            embed = discord.Embed(
-                title=f"{item_name}",
-                description=part_list_string,
-                color=item_color
+            deserialized_json, item_type_int, item_type, manufacturer = item_data
+            
+            # --- Block 2: Create Item Object and View ---
+            object_data = await self._create_item_and_view(
+                interaction, item_serial, deserialized_json, 
+                item_type_int, item_type, manufacturer
             )
+            if not object_data:
+                return # Error message was sent by the helper
+                
+            item_object, editor_view = object_data
             
-            message_content = f"```{await item_object.get_serial()}```\n_ _\n"
-            
-            send_kwargs = {
-                "content": message_content,
-                "embed": embed
-            }
-            
-            if editor_view:
-                send_kwargs["view"] = editor_view
-
-            sent_message = await interaction.followup.send(**send_kwargs)
-            
-            if editor_view:
-                editor_view.message = sent_message
+            # --- Block 3: Build and Send Response ---
+            await self._build_and_send_editor_response(interaction, item_object, editor_view)
             
         except Exception as e:
             log.error("--- EDIT COMMAND CRASHED ---\n%s", e, exc_info=True)
-            
-            await interaction.followup.send(
-                embed=discord.Embed(
-                    title="💥 Command Crashed",
-                    color=discord.Color.red(),
-                    # description=f"An error occurred:\n```\n{error_traceback[:1900]}\n```"
+            if interaction.response.is_done():
+                await interaction.followup.send(
+                    embed=discord.Embed(
+                        title="💥 Command Crashed",
+                        color=discord.Color.red(),
+                        description="An internal error occurred."
+                    )
                 )
-            )
+            else:
+                await interaction.response.send_message(
+                    embed=discord.Embed(
+                        title="💥 Command Crashed",
+                        color=discord.Color.red(),
+                        description="An internal error occurred."
+                    )
+                )
 
     # --- The Slash Command ---
     @app_commands.command(name="parts", description="Filter possible parts")
