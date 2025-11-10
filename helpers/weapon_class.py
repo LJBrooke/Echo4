@@ -114,7 +114,7 @@ class Weapon:
             
             # --- ASSIGN PRE-FETCHED DATA ---
             weapon.item_type_int = item_type_int
-            weapon.type = item_type
+            weapon.type = item_type.replace('_',' ')
             weapon.manufacturer = manufacturer
             part_list_results = await item_parser.query_part_list(
                 weapon.db_pool, weapon.manufacturer, weapon.type, regular_part_tokens
