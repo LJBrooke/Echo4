@@ -10,10 +10,12 @@ from typing import Union, Tuple, Optional
 from helpers import item_parser
 from helpers import weapon_class
 from helpers import shield_class
+from helpers import repkit_class
 
 # Views
 from .weapon_editor_view import MainWeaponEditorView
 from .shield_editor_view import MainShieldEditorView
+from .repkit_editor_view import MainRepkitEditorView
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +37,9 @@ class EditorCommands(commands.Cog):
         self.bot.shield_perk_lists = {}
         self.bot.shield_perk_lookup = {}
         self.bot.shield_perk_int_lookup = {}
+        
+        self.bot.repkit_perk_lists = {}
+        self.bot.repkit_perk_lookup = {}
     
     async def cog_load(self):
         """
@@ -44,8 +49,60 @@ class EditorCommands(commands.Cog):
         self.manufacturer_options = ["Daedalus", "Jakobs", "Maliwan", "Order", "Ripper", "Tediore", "Torgue", "Vladof"]
         self.weapon_type_options = ["Assault Rifle", "Pistol", "SMG", "Shotgun", "Sniper"]
         self.part_type_options = ["Barrel", "Barrel Accessory", "Body", "Body Accessory", "Foregrip", "Grip", "Magazine", "Manufacturer Part", "Scope", "Scope Accessory", "Stat Modifier", "Underbarrel", "Underbarrel Accessory"]    
+        
         await self.load_shield_perk_cache()
         log.info("✅ Shield Perk Cache loaded.")
+        
+        await self.load_repkit_perk_cache()
+        log.info("✅ Repkit Perk Cache loaded.")
+        
+    # Add this function after load_shield_perk_cache
+
+    async def load_repkit_perk_cache(self):
+        """
+        Queries all repkit perks and builds cache structures.
+        1. repkit_perk_lists: Paginated lists for UI dropdowns.
+        2. repkit_perk_lookup: A dict mapping perk_id (str) -> {perk_data}
+        """
+        PAGE_SIZE = 24
+
+        self.bot.repkit_perk_lists.clear()
+        self.bot.repkit_perk_lookup.clear()
+
+        self.bot.repkit_perk_lists = {"Perks": []}
+
+        query = "SELECT id, name, perk_type, description FROM repkit_parts"
+
+        try:
+            all_perk_records = await self.bot.db_pool.fetch(query)
+
+            all_perks = []
+
+            for record in all_perk_records:
+                record_dict = dict(record)
+                perk_id = record_dict['id']
+
+                # Unlike shields, unique_value can just be the string of the ID
+                unique_value = str(perk_id)
+                record_dict['unique_value'] = unique_value 
+
+                self.bot.repkit_perk_lookup[unique_value] = record_dict
+                all_perks.append(record_dict)
+
+            all_perks.sort(key=lambda p: p['name'])
+
+            # Paginate the single "Perks" list
+            for i in range(0, len(all_perks), PAGE_SIZE):
+                self.bot.repkit_perk_lists["Perks"].append(all_perks[i:i + PAGE_SIZE])
+
+            if not self.bot.repkit_perk_lists["Perks"]:
+                self.bot.repkit_perk_lists["Perks"] = [[]]
+
+        except Exception as e:
+            log.info(f"❌ FAILED TO LOAD REPKIT PERK CACHE ")
+            log.error("Repkit Cache Error: %s", e, exc_info=True)
+            self.bot.repkit_perk_lists = {}
+            self.bot.repkit_perk_lookup = {}
 
     async def load_shield_perk_cache(self):
         """
@@ -211,6 +268,19 @@ class EditorCommands(commands.Cog):
                 item_type
             )
             editor_view = MainShieldEditorView(self.bot, item_object, interaction.user.id)
+            
+        if item_type.lower() == 'repair_kit':
+            item_type='repkit' # For terminology consistenty and to avoid confusion.
+            item_object = await repkit_class.Repkit.create(
+                self.bot.db_pool, 
+                self.bot.session, 
+                item_serial, 
+                deserialized_json,
+                item_type_int,
+                manufacturer,
+                item_type
+            )
+            editor_view = MainRepkitEditorView(self.bot, item_object, interaction.user.id)
 
         elif item_type_int < 100: # Assuming < 100 are weapons
             item_object = await weapon_class.Weapon.create(
@@ -233,7 +303,7 @@ class EditorCommands(commands.Cog):
             
         return (item_object, editor_view)
 
-    async def _build_and_send_editor_response(self, interaction: discord.Interaction, item_object: Union[weapon_class.Weapon, shield_class.Shield], editor_view: discord.ui.View):
+    async def _build_and_send_editor_response(self, interaction: discord.Interaction, item_object: Union[weapon_class.Weapon, shield_class.Shield, repkit_class.Repkit], editor_view: discord.ui.View):
         """
         Helper 3: Builds the embed and sends the final response
         message with the editor view.

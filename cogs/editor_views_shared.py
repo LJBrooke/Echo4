@@ -2,7 +2,7 @@
 import logging
 import discord
 from discord.ext import commands
-from helpers import weapon_class, shield_class
+from helpers import weapon_class, shield_class, repkit_class
 from typing import Union
 
 log = logging.getLogger(__name__)
@@ -121,7 +121,7 @@ class LevelModal(discord.ui.Modal, title="Set Item Level"):
         required=True
     )
 
-    def __init__(self, item_object: Union[weapon_class.Weapon, shield_class.Shield], main_view: discord.ui.View):
+    def __init__(self, item_object: Union[weapon_class.Weapon, shield_class.Shield, repkit_class.Repkit], main_view: discord.ui.View):
         super().__init__()
         self.item_object = item_object
         self.main_view = main_view
@@ -157,7 +157,7 @@ class LevelModal(discord.ui.Modal, title="Set Item Level"):
             log.error(f"Failed to submit level update: \n%s", e, exc_info=True)
 
 class RaritySelect(discord.ui.Select):
-    def __init__(self, item_object: Union[weapon_class.Weapon, shield_class.Shield], current_rarity: str):
+    def __init__(self, item_object: Union[weapon_class.Weapon, shield_class.Shield, repkit_class.Repkit], current_rarity: str):
         options = []
 
         for name in item_object.EDITABLE_RARITY_MAP.keys():
@@ -182,7 +182,7 @@ class RaritySelect(discord.ui.Select):
 
 class RaritySelectionView(BaseEditorView):
     """Ephemeral view for setting Common/Uncommon/Rare/Epic rarity."""
-    def __init__(self, item_object: Union[weapon_class.Weapon, shield_class.Shield], cog: commands.Cog, user_id: int, main_message: discord.Message):
+    def __init__(self, item_object: Union[weapon_class.Weapon, shield_class.Shield, repkit_class.Repkit], cog: commands.Cog, user_id: int, main_message: discord.Message):
         super().__init__(cog, user_id, main_message) 
         
         self.item_object = item_object 
