@@ -393,25 +393,45 @@ class EditorCommands(commands.Cog):
     @app_commands.command(name="edit", description="Edit the parts on your gun or shield!")
     @app_commands.describe(item_serial="Item serial")
     async def edit(self, interaction: discord.Interaction, item_serial: str):
-        # --- Clanker Check ---
-        clanker_check_passed = False
+        # --- Clanker Check (Last 5 Messages) ---
+        trigger_clanker_response = False
         try:
-            last_message_list = []
-            async for message in interaction.channel.history(limit=1):
-                last_message_list.append(message)
-            if last_message_list:
-                previous_message = last_message_list[0]
-                # Check if the author is the same and the word is present
-                if previous_message.author == interaction.user and "clanker" in previous_message.content.lower():
-                    clanker_check_passed = True
+            user_clank_message = None
+            bot_clank_response = None
+
+            # Scan the last 5 messages (newest to oldest)
+            async for message in interaction.channel.history(limit=5):
+                # Find the user's most recent "clanker" message
+                if not user_clank_message and message.author.id == interaction.user.id and "clanker" in message.content.lower():
+                    user_clank_message = message
+                
+                # Find the bot's most recent "clanker" response
+                # Heuristic: It's from the bot, part of an 'edit' interaction, and mentions the user.
+                if not bot_clank_response and message.author.id == self.bot.user.id and message.interaction and message.interaction.name == 'edit' and interaction.user.mention in message.content:
+                    bot_clank_response = message
+                
+                # Optimization: if we've found both, we can stop scanning
+                if user_clank_message and bot_clank_response:
+                    break
+            
+            # Now, decide whether to trigger the response
+            if user_clank_message: # The user has clanked
+                if not bot_clank_response: # Bot has not responded at all
+                    trigger_clanker_response = True
+                else:
+                    # Bot has responded. Only trigger if the user's clank is *newer* than the bot's last response.
+                    if user_clank_message.created_at > bot_clank_response.created_at:
+                        trigger_clanker_response = True
+                    # If the user's clank is older, it's been handled. trigger_clanker_response remains False.
+
         except (discord.Forbidden, discord.HTTPException) as e:
             log.warning(f"Could not check for 'clanker' in message history: {e}")
-            pass
+            pass # Proceed normally
         except Exception as e:
             log.error(f"Unexpected error during 'clanker' check: {e}", exc_info=True)
             pass # Proceed normally
 
-        if clanker_check_passed:
+        if trigger_clanker_response:
             # --- Clanker Flow ---
             try:
                 # We need item_parser for this new function
