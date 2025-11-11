@@ -17,69 +17,62 @@ log = logging.getLogger(__name__)
 # --- REPKIT-SPECIFIC VIEWS ---
 # =============================================================================
 
-class RepkitPerkEditorView(BaseEditorView):
+class RepkitFirmwareEditorView(BaseEditorView):
     """
-    Ephemeral view for editing the 3 repkit perks.
-    Uses 3 dropdowns and a shared pager.
+    Ephemeral view for editing the repkit Firmware.
     """
     def __init__(self, repkit: repkit_class.Repkit, cog: commands.Cog, user_id: int, main_message: discord.Message):
         super().__init__(cog, user_id, main_message)
         self.repkit = repkit
         self.bot_ref = self._get_bot_ref()
-
-        self.page = 0
-        
-        # --- [Cache Placeholder] ---
-        # This relies on a 'self.bot_ref.repkit_perk_lists' to be created
-        # in editor_command.py, similar to shield_perk_lists
-        try:
-            self.total_pages = len(self.bot_ref.repkit_perk_lists.get("Perks", [[]]))
-        except AttributeError:
-            log.warning("Repkit Perk Cache not loaded. Defaulting to 1 page.")
-            self.total_pages = 1
         
         # This will store the 'unique_value' (string ID) for each slot
-        # e.g., ["105", "100", "86"] or ["105", "NONE", "NONE"]
+        # e.g., {"Firmware": "5", "Type": "105", "Perk": "86", "Nothing": "102"}
         self.selections = self._get_current_selections()
         
         self.embed = discord.Embed(
-            title=f"Editing Perks for {repkit.item_name}",
-            description=f"A repkit can have up to 3 perks. Select perks using the dropdowns."
+            title=f"Editing Firmware for {repkit.item_name}",
+            description=f"Select a new Firmware perk.\n(Type and other Perks will be preserved.)"
         )
         self._initialize_decorated_components()
-        
-    def _initialize_decorated_components(self):
-        # 1. Get options for the current page
-        current_options = self._get_options_for_page(self.page)
-        
-        # 2. Set options for all three select menus
-        self.perk1_select.options = self._update_options_default(current_options, self.selections[0])
-        self.perk2_select.options = self._update_options_default(current_options, self.selections[1])
-        self.perk3_select.options = self._update_options_default(current_options, self.selections[2])
-        
-        # 3. Set initial button labels
-        self._update_button_labels()
 
-    def _get_current_selections(self) -> list[str]:
+    def _initialize_decorated_components(self):
+        # Get options for the Firmware dropdown (static, page 0)
+        firmware_options = self._get_options_for_page("Firmware", 0)
+        self.firmware_select.options = self._update_options_default(firmware_options, self.selections["Firmware"])
+
+    def _get_current_selections(self) -> dict[str, str]:
         """
-        Gets the string IDs of the first 3 perks.
+        Gets the string IDs of the current Firmware, Type, Perk, and Nothing.
         """
-        # Get flat list of all perk IDs, e.g., [105, 100, 86]
-        current_ids = self.repkit._get_current_perk_ids()
+        selections = {"Firmware": "NONE", "Type": "NONE", "Perk": "NONE", "Nothing": "NONE"}
+        current_ids = self.repkit._get_current_perk_ids() # List[int]
         
-        # Convert to list of strings
-        selections = [str(pid) for pid in current_ids]
-        
-        # We only support editing 3 perks in this UI
-        selections = selections[:3]
-        
-        # Pad the list with "NONE" up to 3
-        if len(selections) < 3:
-            selections.extend(["NONE"] * (3 - len(selections)))
+        TYPE_PERK_IDS = {103, 104, 105, 106}
+
+        for pid in current_ids:
+            pid_str = str(pid)
+            
+            perk_data = self.bot_ref.repkit_perk_lookup.get(pid_str)
+            if not perk_data:
+                log.warning(f"Repkit perk ID {pid_str} not found in cache. Skipping.")
+                continue
+
+            perk_name = perk_data.get('name')
+
+            if 1 <= pid <= 20:
+                selections["Firmware"] = pid_str
+            elif pid in TYPE_PERK_IDS:
+                selections["Type"] = pid_str
+            elif perk_name == 'Nothing':
+                selections["Nothing"] = pid_str # Store the "Nothing" perk ID
+            else:
+                # Assume any other part is the selectable "Perk"
+                selections["Perk"] = pid_str 
             
         return selections
-        
-    def _get_options_for_page(self, page_index: int) -> list[discord.SelectOption]:
+
+    def _get_options_for_page(self, list_key: str, page_index: int) -> list[discord.SelectOption]:
         """
         Builds a "clean" SelectOption list for a given page,
         without any defaults set.
@@ -90,15 +83,11 @@ class RepkitPerkEditorView(BaseEditorView):
         added_values = {"NONE"}
 
         try:
-            # --- [Cache Placeholder] ---
-            # Relies on 'repkit_perk_lists'
-            perk_list_page = self.bot_ref.repkit_perk_lists["Perks"][page_index]
+            perk_list_page = self.bot_ref.repkit_perk_lists[list_key][page_index]
         except (AttributeError, IndexError, KeyError):
             perk_list_page = [] 
             
         for perk in perk_list_page:
-            # --- [Cache Placeholder] ---
-            # Assuming 'unique_value' is set to the string ID during cache load
             unique_val_str = perk.get('unique_value', str(perk.get('id', '')))
             
             if not unique_val_str or unique_val_str in added_values:
@@ -108,7 +97,7 @@ class RepkitPerkEditorView(BaseEditorView):
                 discord.SelectOption(
                     label=perk.get('name', 'Unknown Perk'),
                     value=unique_val_str,
-                    description=perk.get('perk_type', None)
+                    description=perk.get('description', perk.get('perk_type', None))
                 )
             )
             added_values.add(unique_val_str)
@@ -122,6 +111,7 @@ class RepkitPerkEditorView(BaseEditorView):
         """
         new_options = []
         found_default = False
+        
         for option in options:
             is_default = (option.value == current_selection)
             if is_default:
@@ -135,13 +125,250 @@ class RepkitPerkEditorView(BaseEditorView):
                 )
             )
         
-        # If the selected perk wasn't on this page, set "None" as default
         if not found_default and current_selection != "NONE":
-            # Find the "None" option and set it to default
-            for i, option in enumerate(new_options):
+            for option in new_options:
                 if option.value == "NONE":
-                    new_options[i].default = True
+                    option.default = False
                     break
+            
+            selected_perk_data = self.bot_ref.repkit_perk_lookup.get(current_selection)
+            
+            if selected_perk_data:
+                label = selected_perk_data.get('name', 'Unknown Perk')
+                desc = selected_perk_data.get('description', selected_perk_data.get('perk_type', None))
+                
+                new_options.insert(0, discord.SelectOption(
+                    label=label,
+                    value=current_selection,
+                    description=desc,
+                    default=True
+                ))
+            else:
+                new_options.insert(0, discord.SelectOption(
+                    label=current_selection,
+                    value=current_selection,
+                    default=True
+                ))
+            
+            new_options = new_options[:25]
+                    
+        return new_options
+
+    # --- DECORATED CALLBACKS ---
+    
+    @discord.ui.select(placeholder="Select Firmware...", row=0, custom_id="repkit_firmware_select")
+    async def firmware_select(self, interaction: discord.Interaction, select: discord.ui.Select):
+        self.selections["Firmware"] = select.values[0]
+        # This list is static, just need to update the default
+        current_options = self._get_options_for_page("Firmware", 0)
+        self.firmware_select.options = self._update_options_default(current_options, self.selections["Firmware"])
+        await interaction.response.edit_message(view=self)
+
+    # Row 3 Cancel/Confirm
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="cancel", row=3)
+    async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cancel_and_delete(interaction)
+
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, custom_id="confirm", row=3)
+    async def confirm_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self._confirm_selection(interaction)
+
+    async def _confirm_selection(self, interaction: discord.Interaction):
+        self.bot_ref.active_editor_sessions.pop(self.user_id, None)
+        await interaction.response.defer()
+
+        try:
+            # Read Firmware, Type, Perk, and Nothing
+            id_list_str = [
+                self.selections["Firmware"],
+                self.selections["Type"],
+                self.selections["Perk"],
+                self.selections["Nothing"]
+            ]
+            id_list_str_filtered = [pid for pid in id_list_str if pid != "NONE"]
+            
+            # Convert to integers
+            id_list_int = [int(pid) for pid in id_list_str_filtered]
+            
+            # Use the repkit class method to update
+            await self.repkit.update_all_perks(id_list_int)
+            
+            # Regenerate serial and embed
+            new_serial = await self.repkit.get_serial()
+            new_embed_desc = await self.repkit.get_parts_for_embed()
+            original_embed = self.main_message.embeds[0]
+            original_embed.description = new_embed_desc
+            
+            await self.main_message.edit(
+                content=f"```{new_serial}```\n_ _\n",
+                embed=original_embed
+            )
+        except Exception as e:
+            log.error("Error during REPKIT firmware update: %s", e, exc_info=True)
+            await interaction.followup.send(f"Error updating firmware: `{e}`", ephemeral=True)
+
+        await interaction.delete_original_response()
+
+class RepkitPerkEditorView(BaseEditorView):
+    """
+    Ephemeral view for editing the repkit Type and Perk.
+    Uses 2 dropdowns and a pager for the main perk list.
+    """
+    def __init__(self, repkit: repkit_class.Repkit, cog: commands.Cog, user_id: int, main_message: discord.Message):
+        super().__init__(cog, user_id, main_message)
+        self.repkit = repkit
+        self.bot_ref = self._get_bot_ref()
+        self.page = 0
+        
+        # Perk list is paginated, Type list is not
+        try:
+            self.total_pages = len(self.bot_ref.repkit_perk_lists.get("Perks", [[]]))
+        except AttributeError:
+            log.warning("Repkit Perk Cache not loaded. Defaulting to 1 page.")
+            self.total_pages = 1
+        
+        # This will store the 'unique_value' (string ID) for each slot
+        # e.g., {"Firmware": "5", "Type": "105", "Perk": "86", "Nothing": "102"}
+        self.selections = self._get_current_selections()
+        
+        self.embed = discord.Embed(
+            title=f"Editing Perks for {repkit.item_name}",
+            description=f"Select a Repkit Type and one additional Perk.\n(Firmware and placeholder perks are not editable here and will be preserved.)"
+        )
+        self._initialize_decorated_components()
+        
+    def _initialize_decorated_components(self):
+        # 1. Get options for the Type dropdown (static, page 0)
+        type_options = self._get_options_for_page("Type", 0)
+        self.type_select.options = self._update_options_default(type_options, self.selections["Type"])
+
+        # 2. Get options for the Perk dropdown (paginated)
+        perk_options = self._get_options_for_page("Perks", self.page)
+        self.perk_select.options = self._update_options_default(perk_options, self.selections["Perk"])
+        
+        # 3. Set initial button labels
+        self._update_button_labels()
+
+    def _get_current_selections(self) -> dict[str, str]:
+        """
+        Gets the string IDs of the current Firmware, Type, Perk, and Nothing.
+        """
+        selections = {"Firmware": "NONE", "Type": "NONE", "Perk": "NONE", "Nothing": "NONE"}
+        current_ids = self.repkit._get_current_perk_ids() # List[int]
+        
+        TYPE_PERK_IDS = {103, 104, 105, 106}
+
+        for pid in current_ids:
+            pid_str = str(pid)
+            
+            perk_data = self.bot_ref.repkit_perk_lookup.get(pid_str)
+            if not perk_data:
+                log.warning(f"Repkit perk ID {pid_str} not found in cache. Skipping.")
+                continue
+
+            perk_name = perk_data.get('name')
+
+            if 1 <= pid <= 20:
+                selections["Firmware"] = pid_str
+            elif pid in TYPE_PERK_IDS:
+                selections["Type"] = pid_str
+            elif perk_name == 'Nothing':
+                selections["Nothing"] = pid_str # Store the "Nothing" perk ID
+            else:
+                # Assume any other part is the selectable "Perk"
+                selections["Perk"] = pid_str 
+            
+        return selections
+        
+    def _get_options_for_page(self, list_key: str, page_index: int) -> list[discord.SelectOption]:
+        """
+        Builds a "clean" SelectOption list for a given page,
+        without any defaults set.
+        """
+        options = [
+            discord.SelectOption(label="None", value="NONE")
+        ]
+        added_values = {"NONE"}
+
+        try:
+            perk_list_page = self.bot_ref.repkit_perk_lists[list_key][page_index]
+        except (AttributeError, IndexError, KeyError):
+            perk_list_page = [] 
+            
+        for perk in perk_list_page:
+            unique_val_str = perk.get('unique_value', str(perk.get('id', '')))
+            
+            if not unique_val_str or unique_val_str in added_values:
+                continue
+                
+            options.append(
+                discord.SelectOption(
+                    label=perk.get('name', 'Unknown Perk'),
+                    value=unique_val_str,
+                    description=perk.get('description', perk.get('perk_type', None))
+                )
+            )
+            added_values.add(unique_val_str)
+            
+        return options
+
+    def _update_options_default(self, options: list[discord.SelectOption], current_selection: str) -> list[discord.SelectOption]:
+        """
+        Takes a "clean" list of options and creates a new list
+        with the correct 'default' value set.
+        
+        FIX: If the selection is not on this page, it is added
+        to the top of the list as the default.
+        """
+        new_options = []
+        found_default = False
+        
+        for option in options:
+            is_default = (option.value == current_selection)
+            if is_default:
+                found_default = True
+            new_options.append(
+                discord.SelectOption(
+                    label=option.label,
+                    value=option.value,
+                    description=option.description,
+                    default=is_default
+                )
+            )
+        
+        # --- BUG FIX ---
+        # If the selected perk wasn't on this page, add it
+        if not found_default and current_selection != "NONE":
+            # 1. Un-set the "None" default
+            for option in new_options:
+                if option.value == "NONE":
+                    option.default = False
+                    break
+            
+            # 2. Get the data for the selected perk
+            selected_perk_data = self.bot_ref.repkit_perk_lookup.get(current_selection)
+            
+            if selected_perk_data:
+                label = selected_perk_data.get('name', 'Unknown Perk')
+                desc = selected_perk_data.get('description', selected_perk_data.get('perk_type', None))
+                
+                new_options.insert(0, discord.SelectOption(
+                    label=label,
+                    value=current_selection,
+                    description=desc,
+                    default=True
+                ))
+            else:
+                # Fallback if perk not in cache (shouldn't happen)
+                new_options.insert(0, discord.SelectOption(
+                    label=current_selection,
+                    value=current_selection,
+                    default=True
+                ))
+            
+            # 3. --- FIX for 26 options ---
+            # Trim the list to 25 if it's now too long
+            new_options = new_options[:25]
                     
         return new_options
 
@@ -154,70 +381,61 @@ class RepkitPerkEditorView(BaseEditorView):
         
     # --- DECORATED CALLBACKS ---
     
-    # Perk Slot 1
-    @discord.ui.select(placeholder="Select Perk 1...", row=0, custom_id="perk_select:0")
-    async def perk1_select(self, interaction: discord.Interaction, select: discord.ui.Select):
-        self.selections[0] = select.values[0]
-        # Re-initialize this specific select to update its default
-        current_options = self._get_options_for_page(self.page)
-        self.perk1_select.options = self._update_options_default(current_options, self.selections[0])
+    # Repkit Type
+    @discord.ui.select(placeholder="Select Repkit Type...", row=0, custom_id="repkit_type_select")
+    async def type_select(self, interaction: discord.Interaction, select: discord.ui.Select):
+        self.selections["Type"] = select.values[0]
+        # This list is static, just need to update the default
+        current_options = self._get_options_for_page("Type", 0)
+        self.type_select.options = self._update_options_default(current_options, self.selections["Type"])
         await interaction.response.edit_message(view=self)
         
-    # Perk Slot 2
-    @discord.ui.select(placeholder="Select Perk 2...", row=1, custom_id="perk_select:1")
-    async def perk2_select(self, interaction: discord.Interaction, select: discord.ui.Select):
-        self.selections[1] = select.values[0]
-        current_options = self._get_options_for_page(self.page)
-        self.perk2_select.options = self._update_options_default(current_options, self.selections[1])
-        await interaction.response.edit_message(view=self)
-        
-    # Perk Slot 3
-    @discord.ui.select(placeholder="Select Perk 3...", row=2, custom_id="perk_select:2")
-    async def perk3_select(self, interaction: discord.Interaction, select: discord.ui.Select):
-        self.selections[2] = select.values[0]
-        current_options = self._get_options_for_page(self.page)
-        self.perk3_select.options = self._update_options_default(current_options, self.selections[2])
+    # Repkit Perk
+    @discord.ui.select(placeholder="Select Perk...", row=1, custom_id="repkit_perk_select")
+    async def perk_select(self, interaction: discord.Interaction, select: discord.ui.Select):
+        self.selections["Perk"] = select.values[0]
+        # This list is paginated, need to update defaults for current page
+        current_options = self._get_options_for_page("Perks", self.page)
+        self.perk_select.options = self._update_options_default(current_options, self.selections["Perk"])
         await interaction.response.edit_message(view=self)
   
-    # Row 3 Pagers
-    @discord.ui.button(style=discord.ButtonStyle.grey, custom_id="page_prev", row=3)
+    # Row 2 Pagers
+    @discord.ui.button(style=discord.ButtonStyle.grey, custom_id="page_prev", row=2)
     async def prev_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         
         self.page = (self.page - 1) % self.total_pages
         
-        # Get new base options
-        new_options = self._get_options_for_page(self.page)
+        # Get new base options for the perk dropdown
+        new_options = self._get_options_for_page("Perks", self.page)
         
-        # Update all 3 selects
-        self.perk1_select.options = self._update_options_default(new_options, self.selections[0])
-        self.perk2_select.options = self._update_options_default(new_options, self.selections[1])
-        self.perk3_select.options = self._update_options_default(new_options, self.selections[2])
+        # Update only the perk select
+        self.perk_select.options = self._update_options_default(new_options, self.selections["Perk"])
         self._update_button_labels()
         
         await interaction.edit_original_response(embed=self.embed, view=self)
 
-    @discord.ui.button(style=discord.ButtonStyle.grey, custom_id="page_next", row=3)
+    @discord.ui.button(style=discord.ButtonStyle.grey, custom_id="page_next", row=2)
     async def next_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         
         self.page = (self.page + 1) % self.total_pages
 
-        new_options = self._get_options_for_page(self.page)
+        # Get new base options for the perk dropdown
+        new_options = self._get_options_for_page("Perks", self.page)
         
-        self.perk1_select.options = self._update_options_default(new_options, self.selections[0])
-        self.perk2_select.options = self._update_options_default(new_options, self.selections[1])
-        self.perk3_select.options = self._update_options_default(new_options, self.selections[2])
+        # Update only the perk select
+        self.perk_select.options = self._update_options_default(new_options, self.selections["Perk"])
         self._update_button_labels()
         
         await interaction.edit_original_response(embed=self.embed, view=self)
 
-    # Row 4 Cancel/Confirm
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="cancel", row=4)
+    # Row 3 Cancel/Confirm
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="cancel", row=3)
     async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.cancel_and_delete(interaction)
 
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, custom_id="confirm", row=4)
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, custom_id="confirm", row=3)
     async def confirm_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self._confirm_selection(interaction)
 
@@ -226,11 +444,17 @@ class RepkitPerkEditorView(BaseEditorView):
         await interaction.response.defer()
 
         try:
-            # Get all selected IDs, filter out "NONE"
-            id_list_str = [pid for pid in self.selections if pid != "NONE"]
+            # Read Firmware, Type, Perk, and Nothing
+            id_list_str = [
+                self.selections["Firmware"],
+                self.selections["Type"],
+                self.selections["Perk"],
+                self.selections["Nothing"]
+            ]
+            id_list_str_filtered = [pid for pid in id_list_str if pid != "NONE"]
             
             # Convert to integers
-            id_list_int = [int(pid) for pid in id_list_str]
+            id_list_int = [int(pid) for pid in id_list_str_filtered]
             
             # Use the repkit class method to update
             await self.repkit.update_all_perks(id_list_int)
@@ -268,7 +492,6 @@ class MainRepkitEditorView(BaseEditorView):
         # Disable the rarity button if not editable (i.e., Legendary)
         self.rarity_button.disabled = not is_editable
         
-        # TODO ENABLE WHEN PART SELECTION IS POSSIBLE.
         self.parts_button.disabled = False
         
 
@@ -292,7 +515,7 @@ class MainRepkitEditorView(BaseEditorView):
         await interaction.response.defer(ephemeral=True)
 
         if not self.message:
-            await interaction.followup.send("Error: Main message reference not found.", ephemeral=True)
+            await interaction.followup.send("Error: Main message reference not. found.", ephemeral=True)
             return
 
         # 3. Launch the view
@@ -325,6 +548,11 @@ class MainRepkitEditorView(BaseEditorView):
     @discord.ui.button(label="Change Perks", style=discord.ButtonStyle.green, custom_id="edit_perks", row=1)
     async def parts_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         view = RepkitPerkEditorView(self.repkit, self.cog, interaction.user.id, self.message)
+        await self._handle_ephemeral_launch(interaction, view)
+        
+    @discord.ui.button(label="Firmware", style=discord.ButtonStyle.secondary, custom_id="edit_firmware", row=1)
+    async def firmware_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        view = RepkitFirmwareEditorView(self.repkit, self.cog, interaction.user.id, self.message)
         await self._handle_ephemeral_launch(interaction, view)
 
     async def on_timeout(self):

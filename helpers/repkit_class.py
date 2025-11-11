@@ -251,15 +251,21 @@ class Repkit:
         if not perk_data_list:
             display_lines.append("-> None")
         else:
-            for perk_data in perk_data_list:
+            firmware = 'None'
+            for perk_data in reversed(perk_data_list):
                 perk_name = perk_data.get('name', 'Unknown Perk')
                 perk_type = perk_data.get('perk_type', 'Perk')
+                perk_desc = perk_data.get('description', 'Perk')
                 
-                line = f"-> {perk_name}"
-                if perk_type != 'Perk':
-                    line += f" ({perk_type})"
-                display_lines.append(line)
+                if perk_name != 'Nothing' and perk_type!= 'Firmware':
+                    line = f"-> {perk_name} ({perk_desc})"
+                    # if perk_type != 'Perk':
+                    #     line += f" ({perk_type})"
+                    display_lines.append(line)
+                elif perk_type == 'Firmware':
+                    firmware = str(perk_name)
         
+        display_lines.append(f"\n**Firmware:** {firmware}")
         return "\n".join(display_lines)
 
     async def update_all_perks(self, new_perk_ids: List[int]):

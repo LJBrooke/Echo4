@@ -61,42 +61,66 @@ class EditorCommands(commands.Cog):
     async def load_repkit_perk_cache(self):
         """
         Queries all repkit perks and builds cache structures.
-        1. repkit_perk_lists: Paginated lists for UI dropdowns.
+        1. repkit_perk_lists:
+            - ["Firmware"]: Static list of firmware perks (1-20)
+            - ["Type"]: Static list of type perks (103-106)
+            - ["Perks"]: Paginated list of other perks (21-97, no "Nothing")
         2. repkit_perk_lookup: A dict mapping perk_id (str) -> {perk_data}
         """
         PAGE_SIZE = 24
+        TYPE_PERK_IDS = {103, 104, 105, 106}
 
         self.bot.repkit_perk_lists.clear()
         self.bot.repkit_perk_lookup.clear()
 
-        self.bot.repkit_perk_lists = {"Perks": []}
+        self.bot.repkit_perk_lists = {"Firmware": [], "Type": [], "Perks": []}
 
         query = "SELECT id, name, perk_type, description FROM repkit_parts"
 
         try:
             all_perk_records = await self.bot.db_pool.fetch(query)
 
-            all_perks = []
+            firmware_perks = []
+            type_perks = []
+            other_perks = []
 
             for record in all_perk_records:
                 record_dict = dict(record)
                 perk_id = record_dict['id']
+                perk_name = record_dict.get('name', '')
 
                 # Unlike shields, unique_value can just be the string of the ID
                 unique_value = str(perk_id)
                 record_dict['unique_value'] = unique_value 
 
+                # Add to universal lookup
                 self.bot.repkit_perk_lookup[unique_value] = record_dict
-                all_perks.append(record_dict)
+                
+                # --- Categorize Perks ---
+                if 1 <= perk_id <= 20:
+                    firmware_perks.append(record_dict)
+                elif perk_id in TYPE_PERK_IDS:
+                    type_perks.append(record_dict)
+                elif 21 <= perk_id <= 97 and perk_name != 'Nothing':
+                    other_perks.append(record_dict)
 
-            all_perks.sort(key=lambda p: p['name'])
+            # Sort Firmware perks by name
+            firmware_perks.sort(key=lambda p: p['name'])
+            self.bot.repkit_perk_lists["Firmware"] = [firmware_perks] # Single page
 
-            # Paginate the single "Perks" list
-            for i in range(0, len(all_perks), PAGE_SIZE):
-                self.bot.repkit_perk_lists["Perks"].append(all_perks[i:i + PAGE_SIZE])
+            # Sort Type perks by ID
+            type_perks.sort(key=lambda p: p['id'])
+            self.bot.repkit_perk_lists["Type"] = [type_perks] # Single page
+
+            # Sort other perks by name
+            other_perks.sort(key=lambda p: p['name'])
+
+            # Paginate the "Perks" list
+            for i in range(0, len(other_perks), PAGE_SIZE):
+                self.bot.repkit_perk_lists["Perks"].append(other_perks[i:i + PAGE_SIZE])
 
             if not self.bot.repkit_perk_lists["Perks"]:
-                self.bot.repkit_perk_lists["Perks"] = [[]]
+                self.bot.repkit_perk_lists["Perks"] = [[]] # Ensure at least one empty page
 
         except Exception as e:
             log.info(f"❌ FAILED TO LOAD REPKIT PERK CACHE ")
