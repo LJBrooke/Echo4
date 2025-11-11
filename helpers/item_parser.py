@@ -1,5 +1,7 @@
 # File: helpers/item_parser.py
 import re
+import logging
+log = logging.getLogger(__name__)
 
 # Serialization URL, Nicnl and InflamedSebi are amazing.
 NICNL_URL = 'https://borderlands4-deserializer.nicnl.com/api/v1/'
@@ -413,6 +415,19 @@ async def query_unique_repkit(db_pool, manufacturer: str, perk_id: int) -> list:
     async with db_pool.acquire() as conn:
         results = await conn.fetch(query, manufacturer, perk_id)
     return results
+
+async def query_clanker_response(db_pool) -> str:
+    """Fetches a random response from the clanker_responses table."""
+    query = "SELECT response FROM clanker_responses ORDER BY RANDOM() LIMIT 1"
+    try:
+        # Use fetchval to get the first column of the first row directly
+        response = await db_pool.fetchval(query)
+        if response:
+            return response
+        return "Clanker!" # Fallback if table is empty
+    except Exception as e:
+        log.error(f"Failed to query clanker response: {e}")
+        return "Clanker... (error)" # Fallback on DB error
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # LOGIC FUNCTIONS (Now accept part_data)

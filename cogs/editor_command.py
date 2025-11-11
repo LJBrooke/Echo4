@@ -393,6 +393,39 @@ class EditorCommands(commands.Cog):
     @app_commands.command(name="edit", description="Edit the parts on your gun or shield!")
     @app_commands.describe(item_serial="Item serial")
     async def edit(self, interaction: discord.Interaction, item_serial: str):
+        # --- Clanker Check ---
+        clanker_check_passed = False
+        try:
+            last_message_list = []
+            async for message in interaction.channel.history(limit=1):
+                last_message_list.append(message)
+            if last_message_list:
+                previous_message = last_message_list[0]
+                # Check if the author is the same and the word is present
+                if previous_message.author == interaction.user and "clanker" in previous_message.content.lower():
+                    clanker_check_passed = True
+        except (discord.Forbidden, discord.HTTPException) as e:
+            log.warning(f"Could not check for 'clanker' in message history: {e}")
+            pass
+        except Exception as e:
+            log.error(f"Unexpected error during 'clanker' check: {e}", exc_info=True)
+            pass # Proceed normally
+
+        if clanker_check_passed:
+            # --- Clanker Flow ---
+            try:
+                # We need item_parser for this new function
+                response_text = await item_parser.query_clanker_response(self.bot.db_pool)
+                await interaction.response.send_message(f"{interaction.user.mention} {response_text}")
+            except Exception as e:
+                log.error(f"Failed to send 'clanker' response: {e}", exc_info=True)
+                # Try to send a fallback response
+                try:
+                    await interaction.response.send_message(f"{interaction.user.mention} You said the word!", ephemeral=True)
+                except discord.InteractionResponded:
+                    await interaction.followup.send(f"{interaction.user.mention} You said the word!", ephemeral=True)
+            return # Stop the edit command
+                
         try:
             await interaction.response.defer()
             
