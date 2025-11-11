@@ -606,7 +606,7 @@ class MainRepkitEditorView(BaseEditorView):
         view = RepkitPerkEditorView(self.repkit, self.cog, interaction.user.id, self.message)
         await self._handle_ephemeral_launch(interaction, view)
         
-    @discord.ui.button(label="Firmware", style=discord.ButtonStyle.secondary, custom_id="edit_firmware", row=0)
+    @discord.ui.button(label="Firmware", style=discord.ButtonStyle.secondary, custom_id="edit_firmware", row=1)
     async def firmware_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         view = RepkitFirmwareEditorView(self.repkit, self.cog, interaction.user.id, self.message)
         await self._handle_ephemeral_launch(interaction, view)
