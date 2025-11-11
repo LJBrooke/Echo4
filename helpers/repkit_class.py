@@ -308,6 +308,7 @@ class Repkit:
         
         # Repkits only have one rarity token
         self.parts["Rarity"] = [f"{{{rarity_id}}}"]
+        self.rarity_name = new_rarity_name
         print(f"Rarity updated to: {new_rarity_name}")
 
     async def update_level(self, new_level: int):

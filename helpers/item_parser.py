@@ -370,6 +370,50 @@ async def query_unique_shield(db_pool, manufacturer: str, perk_id: int) -> list:
     # Return the full list of Record objects
     return results
 
+async def query_repkit_perks(db_pool, perk_ids: list[int]) -> list:
+    """
+    Fetches the full perk details from the repkit_parts table.
+    """
+    if not perk_ids:
+        return []
+
+    query = f"""
+    SELECT
+        id,
+        name,
+        perk_type,
+        description
+    FROM repkit_parts 
+    WHERE 
+        id = ANY($1)
+    ORDER BY
+        name
+    """
+    async with db_pool.acquire() as conn:
+        results = await conn.fetch(query, perk_ids)
+    return results
+
+async def query_unique_repkit(db_pool, manufacturer: str, perk_id: int) -> list:
+    """
+    Fetches the unique repkit name and effect from the unique_repkits table.
+    """
+    if not perk_id or not manufacturer:
+        return []
+
+    query = f"""
+    SELECT 
+        unique_perk, 
+        repkit_name,
+        repkit_effect
+    FROM unique_repkits
+    WHERE 
+        lower(manufacturer)=lower($1)
+        AND id = $2
+    """
+    async with db_pool.acquire() as conn:
+        results = await conn.fetch(query, manufacturer, perk_id)
+    return results
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # LOGIC FUNCTIONS (Now accept part_data)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -459,7 +503,7 @@ async def compile_part_list(db_pool, item_code: str) -> str:
         str_part_list = await query_part_list(
             db_pool, 
             manufacturer, 
-            type.replace('_',' '), 
+            type, 
             int_part_list
         )
         
