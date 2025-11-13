@@ -75,7 +75,7 @@ services:
         max-size: "15m"     # Max size of a single log file (e.g., 10 MB)
         max-file: "5"       # Files to keep.
 
-  # --- NEW: Grafana Dashboard Service ---
+  # --- Grafana Dashboard Service ---
   grafana:
     image: grafana/grafana-oss:latest
     container_name: bot-dashboard
@@ -96,8 +96,9 @@ services:
 
 # Defines the persistent volume we named above
 volumes:
-  pg_data:
-    # 'driver: local' just means it's stored on this machine
+  pg_data: # Echo 4 Data
+    driver: local
+  grafana_data: # Grafana
     driver: local
 
 # Defines the custom network
