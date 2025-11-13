@@ -166,7 +166,6 @@ class SkillBuild:
         trees = SKILL_DATA.get(vh, {}).get('trees', [])
 
         # Look for the selected action skill, augment, and capstone to determine their character representations in lootlemon.
-
         action_char = 'x'
         action_skill_index = 0
         if self.action_skill:
