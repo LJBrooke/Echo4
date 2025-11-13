@@ -1,18 +1,19 @@
 import os
 import sys
 import time
+import json
 import discord
 import aiohttp
 import asyncpg
 import logging
 import colorlog
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands, Interaction
 
 # --- LOGGING SETUP ---
 # Set the default level to DEBUG for development, or INFO for production
-log_level = logging.INFO 
+log_level = logging.DEBUG 
 
 # 1. Create the ColoredFormatter
 #    NOTICE: We are using standard %(name)s and %(message)s.
@@ -90,8 +91,6 @@ GQ_SERVER_ID = int(os.getenv("GQ_SERVER_ID"))
 ADMIN_SERVER_ID = int(os.getenv("ADMIN_SERVER_ID"))
 command_start_times = {}
 
-# --- Bot Definition ---
-# It's good practice to subclass the Bot for more complex setups.
 class MyBot(commands.Bot):
     def __init__(self):
         # Set up intents and the command prefix
@@ -99,7 +98,68 @@ class MyBot(commands.Bot):
             command_prefix="!",
             intents=discord.Intents.default()
         )
-        
+    
+    async def log_command_metric(self, command_name: str, response_time_ms: float, user_type: str, guild_context: str, command_options: str):
+        """
+        Writes command usage metrics to the 'command_metrics' table in the database.
+        Now includes command_options as a JSON string.
+        """
+        if not hasattr(self, 'db_pool'):
+            log.warning("Database pool not available. Skipping metric logging.")
+            return
+
+        try:
+            # Get a connection from the pool
+            async with self.db_pool.acquire() as conn:
+                # Execute the INSERT statement
+                await conn.execute("""
+                    INSERT INTO command_metrics (command_name, response_time_ms, user_type, guild_context, command_options)
+                    VALUES ($1, $2, $3, $4, $5)
+                """, command_name, response_time_ms, user_type, guild_context, command_options)
+                
+        except Exception as e:
+            log.error(f"Failed to log command metric to database: {e}", exc_info=True)
+            
+    async def log_command_error(self, command_name: str, error: app_commands.AppCommandError, user_type: str, guild_context: str):
+        """
+        Writes command error details to the 'command_errors' table in the database.
+        """
+        if not hasattr(self, 'db_pool'):
+            log.warning("Database pool not available. Skipping error logging.")
+            return
+
+        error_type = type(error).__name__
+        error_message = str(error)
+
+        try:
+            async with self.db_pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO command_errors (command_name, error_type, error_message, user_type, guild_context)
+                    VALUES ($1, $2, $3, $4, $5)
+                """, command_name, error_type, error_message, user_type, guild_context)
+        except Exception as e:
+            log.error(f"Failed to log command ERROR to database: {e}", exc_info=True)
+
+    async def log_bot_health(self):
+        """
+        Writes bot health stats (latency, guild count) to the 'bot_health_stats' table.
+        """
+        if not hasattr(self, 'db_pool'):
+            log.warning("Database pool not available. Skipping health logging.")
+            return
+
+        latency_ms = round(self.latency * 1000, 2)
+        guild_count = len(self.guilds)
+
+        try:
+            async with self.db_pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO bot_health_stats (gateway_latency_ms, guild_count)
+                    VALUES ($1, $2)
+                """, latency_ms, guild_count)
+        except Exception as e:
+            log.error(f"Failed to log bot health to database: {e}", exc_info=True)
+                
     @commands.Cog.listener()
     async def on_interaction(self, interaction: Interaction):
         # Log the start time as soon as the bot receives the interaction
@@ -119,9 +179,9 @@ class MyBot(commands.Bot):
         if interaction.user.id != OWNER_ID:
             user="User"
         if interaction.guild:
-            if interaction.guild==GQ_SERVER_ID:
+            if interaction.guild.id==GQ_SERVER_ID:
                 guild_id='GQ Server'
-            elif interaction.guild==ADMIN_SERVER_ID:
+            elif interaction.guild.id==ADMIN_SERVER_ID:
                 guild_id='Admin Server'
             else: guild_id=interaction.guild
         else: guild_id="DMs"
@@ -134,6 +194,78 @@ class MyBot(commands.Bot):
         
         log.info(f"COMMAND USED: /{command_name}:\n  - User:{user} in {guild_id}\n  - Response took: {response_time:.2f}ms")
         
+        # Extract command options to see usage patterns
+        command_options = []
+        if interaction.data.get('options'):
+            # Store options as a list of dicts: [{'name': 'option_name', 'value': 'option_value', 'type': ...}]
+            command_options = interaction.data.get('options', [])
+        
+        # Serialize options to a JSON string for database storage
+        options_json = json.dumps(command_options)
+
+        # Call the modified helper method to log this to the database
+        await self.log_command_metric(
+            command_name=command_name,
+            response_time_ms=response_time,
+            user_type=user,
+            guild_context=guild_id,
+            command_options=options_json  # Pass the new data
+        )
+        
+    @commands.Cog.listener()
+    async def on_app_command_error(self, interaction: Interaction, error: app_commands.AppCommandError):
+        """
+        Global error handler for all slash commands.
+        """
+        command_name = "Unknown"
+        if interaction.command:
+            command_name = interaction.command.name
+
+        # Get anonymized user/guild info, same as in on_app_command_completion
+        user = 'Prismatic'
+        if interaction.user.id != OWNER_ID:
+            user="User"
+        
+        guild_id = "DMs"
+        if interaction.guild:
+            if interaction.guild.id == GQ_SERVER_ID:
+                guild_id='GQ Server'
+            elif interaction.guild.id == ADMIN_SERVER_ID:
+                guild_id='Admin Server'
+            else: guild_id=str(interaction.guild.id)
+
+        # Log the error to console
+        log.error(f"COMMAND ERROR: /{command_name}:\n  - User:{user} in {guild_id}\n  - Error: {error}", exc_info=True)
+        
+        # Log the error to the database
+        await self.log_command_error(command_name, error, user, guild_id)
+
+        # Optionally send a generic error message to the user
+        try:
+            await interaction.response.send_message("Sorry, an error occurred while running this command. The developer has been notified.", ephemeral=True)
+        except discord.InteractionResponded:
+            # If we've already responded (e.g., in a complex command), send a followup
+            try:
+                await interaction.followup.send("Sorry, an error occurred while running this command. The developer has been notified.", ephemeral=True)
+            except Exception as e:
+                log.error(f"Failed to send error followup: {e}")
+        except Exception as e:
+            log.error(f"Failed to send error response: {e}")
+            
+    @tasks.loop(minutes=5.0)
+    async def monitor_bot_health(self):
+        """
+        A background task that logs bot health stats every 5 minutes.
+        """
+        await self.log_bot_health()
+
+    @monitor_bot_health.before_loop
+    async def before_health_monitor(self):
+        """
+        Wait until the bot is fully ready before starting the loop.
+        """
+        await self.wait_until_ready()
+        log.info("Starting background health monitor task...")
 
     async def setup_hook(self):
         """This function is called when the bot is preparing to connect."""

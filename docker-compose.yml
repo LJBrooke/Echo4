@@ -75,6 +75,23 @@ services:
         max-size: "15m"     # Max size of a single log file (e.g., 10 MB)
         max-file: "5"       # Files to keep.
 
+  # --- NEW: Grafana Dashboard Service ---
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: bot-dashboard
+    restart: always
+    ports:
+      - "3000:3000" # Access Grafana UI at http://<your-host-ip>:3000
+    
+    volumes:
+      - grafana_data:/var/lib/grafana # Persist dashboards and settings
+      
+    depends_on:
+      db:
+        condition: service_healthy # Wait for the DB to be ready
+        
+    networks:
+      - echo-network
 # --- Top-Level Definitions ---
 
 # Defines the persistent volume we named above

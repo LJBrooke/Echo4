@@ -46,11 +46,45 @@ CREATE TABLE shield_parts (
     slot INTEGER
 );
 
+CREATE TABLE gadget_parts (
+    id INTEGER,
+    name TEXT,
+    perk_type TEXT,
+    description TEXT
+);
+
 CREATE TABLE repkit_parts (
     id INTEGER,
     name TEXT,
     perk_type TEXT,
     description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS command_metrics (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    command_name VARCHAR(255) NOT NULL,
+    response_time_ms FLOAT,
+    user_type VARCHAR(50),
+    guild_context VARCHAR(100),
+    command_options TEXT
+);
+
+CREATE TABLE IF NOT EXISTS command_errors (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    command_name VARCHAR(255) NOT NULL,
+    error_type VARCHAR(255),
+    error_message TEXT,
+    user_type VARCHAR(50),
+    guild_context VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS bot_health_stats (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    gateway_latency_ms FLOAT,
+    guild_count INT
 );
 
 insert into element_list 

@@ -141,7 +141,6 @@ class FormulaCommand(commands.Cog):
         formula_dict = FORMULA_DATA.get('Formula').get(formula_type)
         response = response + '\n- **Applies to: **' + formula_dict.get('Vault Hunter')
         response = response + '\n- **Notes: **' + formula_dict.get('Notes')
-        # response = response + '\n\nBlue Buttons indicate on shot modifiers, Green indicates on hit modifiers:'
         
         view = detailView(self, response, formula_dict.get('Affected by'), formula_dict.get('Vault Hunter'))
         
@@ -149,9 +148,8 @@ class FormulaCommand(commands.Cog):
         await interaction.response.send_message(content=response+ '\n\nBlue Buttons indicate on shot modifiers, Green indicates on hit modifiers:', view=view)
         
         # Handle time out update to message.
-        # message = await interaction.original_response()
-        view.set_message(response)
-        # await interaction.response.send_message(response)
+        message = await interaction.original_response()
+        view.set_message(message)
 
 
 # --- Setup Function ---
