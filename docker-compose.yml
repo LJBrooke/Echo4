@@ -15,6 +15,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}     # The username for your database
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
+    # Attempted fix for latency connecting PC to DB.
+    command: postgres -c log_hostname=off
     # This section mounts a persistent volume
     # If the container is deleted, your data in 'pg_data' survives.
     # volumes:
