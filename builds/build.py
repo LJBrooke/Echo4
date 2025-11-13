@@ -197,36 +197,9 @@ class SkillBuild:
 class Build:
     def __init__(self, skills: SkillBuild = SkillBuild(), specializations=None, gear=None):
         # use internal attributes so properties can manage access
-        self._skills = skills
-        self._specializations = specializations
-        self._gear = gear
-
-    @property
-    def skills(self):
-        """Skills for the build."""
-        return self._skills
-
-    @skills.setter
-    def skills(self, skills):
-        self._skills = skills
-
-    @property
-    def specializations(self):
-        """Specializations for the build."""
-        return self._specializations
-
-    @specializations.setter
-    def specializations(self, specializations):
-        self._specializations = specializations
-
-    @property
-    def gear(self):
-        """Gear for the build."""
-        return self._gear
-
-    @gear.setter
-    def gear(self, gear):
-        self._gear = gear
+        self.skills = skills
+        self.specializations = specializations
+        self.gear = gear
 
 if __name__ == "__main__":
     build = SkillBuild.from_lootlemon("https://www.lootlemon.com/class/rafa#bff_0100000000.00000.000000.00000_0550000410.05512.05000.50055_0000000000.000000.000000.00000")
