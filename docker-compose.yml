@@ -16,7 +16,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
     # Attempted fix for latency connecting PC to DB.
-    command: postgres -c listen_addresses='*' -c log_hostname=off
+    command: postgres -c listen_addresses='*' -c log_hostname=off -c shared_preload_libraries=timescaledb
     # This section mounts a persistent volume
     # If the container is deleted, your data in 'pg_data' survives.
     # volumes:
