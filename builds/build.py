@@ -8,12 +8,6 @@ except (FileNotFoundError, json.JSONDecodeError) as e:
     print(f"Error loading data/Skill Trees.json: {e}")
     SKILL_DATA = {}
 
-# Constants for handling offsets between lootlemon URL encoding and SKILL_DATA indices for augments and capstones
-# Probably this should be handled by traversing the SKILL_DATA structure directly instead of hardcoding these values,
-# but they are consistent and this is easier.
-AUGMENTS_PER_TREE = 5
-CAPSTONES_PER_TREE = 3
-
 # Current level cap of 50, meaning 49 skill points
 MAX_TOTAL_SKILL_POINTS = 49
 
@@ -121,9 +115,11 @@ class SkillBuild:
             action_skill_tree = SKILL_DATA[vh]["trees"][tree_index]
             build.action_skill = action_skill_tree["action_skill"]["name"]
             if augment != 'x':
-                build.augment = action_skill_tree["augments"][_letter_to_index(augment) - tree_index * AUGMENTS_PER_TREE]["name"]
+                augments = sum([SKILL_DATA[vh]["trees"][tree]["augments"] for tree in range(len(SKILL_DATA[vh]["trees"]))], [])
+                build.augment = augments[_letter_to_index(augment)]["name"]
             if capstone != 'x':
-                build.capstone = action_skill_tree["capstones"][_letter_to_index(capstone) - tree_index * CAPSTONES_PER_TREE]["name"]
+                capstones = sum([SKILL_DATA[vh]["trees"][tree]["capstones"] for tree in range(len(SKILL_DATA[vh]["trees"]))], [])
+                build.capstone = capstones[_letter_to_index(capstone)]["name"]
 
         # Parse skill levels
         for tree_index, tree_data in enumerate(trees):
@@ -154,8 +150,7 @@ class SkillBuild:
         write(f"Augment: {self.augment or 'None'}")
         write(f"Capstone: {self.capstone or 'None'}")
         write("Allocated skills:")
-        # Sort skills alphabetically for stable output
-        for name, pts in sorted(self.skills.items(), key=lambda kv: kv[0].lower()):
+        for name, pts in self.skills.items():
             write(f"  - {name}: {pts}")
 
     def to_lootlemon(self) -> str:
@@ -168,33 +163,44 @@ class SkillBuild:
             raise ValueError("vh is required to serialize to a LootLemon URL")
 
         vh = self.vh
+        trees = SKILL_DATA.get(vh, {}).get('trees', [])
+
+        # Look for the selected action skill, augment, and capstone to determine their character representations in lootlemon.
 
         action_char = 'x'
-        augment_char = 'x'
-        capstone_char = 'x'
-
-        trees = SKILL_DATA.get(vh, {}).get('trees', [])
-        # Look for the selection action skill, augment, and capstone to determine their character representations in lootlemon.
+        action_skill_index = 0
         if self.action_skill:
-            for tree_index, tree in enumerate(trees):
+            for tree in trees:
                 action_skill = tree.get('action_skill', {})
-                if action_skill and action_skill.get('name') == self.action_skill:
-                    action_char = _index_to_letter(tree_index)
-                    if self.augment:
-                        for augment_index, augment in enumerate(tree.get('augments', [])):
-                            if augment.get('name') == self.augment:
-                                augment_char = _index_to_letter(augment_index + tree_index * AUGMENTS_PER_TREE)
-                                break
-                    if self.capstone:
-                        for capstone_index, capstone in enumerate(tree.get('capstones', [])):
-                            if capstone.get('name') == self.capstone:
-                                capstone_char = _index_to_letter(capstone_index + tree_index * CAPSTONES_PER_TREE)
-                                break
+                if action_skill.get('name') == self.action_skill:
+                    action_char = _index_to_letter(action_skill_index)
                     break
+                action_skill_index += 1
+
+        augment_char = 'x'
+        augment_index = 0
+        if self.augment:
+            for tree in trees:
+                for augment in tree.get('augments', []):
+                    if augment.get('name') == self.augment:
+                        augment_char = _index_to_letter(augment_index)
+                        break
+                    augment_index += 1
+        
+        capstone_char = 'x'
+        capstone_index = 0
+        if self.capstone:
+            for tree in trees:
+                for capstone in tree.get('capstones', []):
+                    if capstone.get('name') == self.capstone:
+                        capstone_char = _index_to_letter(capstone_index)
+                        break
+                    capstone_index += 1
+
 
         # Build tree skill strings for each of the three trees in order
         tree_fragments = []
-        for tree_index, tree in enumerate(trees):
+        for tree in trees:
             skill_sub_fragments = []
             for subtree in tree.get('skills', {}).values():
                 chars = []
