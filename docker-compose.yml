@@ -2,7 +2,7 @@ services:
   # --- PostgreSQL Database Service ---
   db:
     # Use an official Postgres image. It will auto-detect your RPi's ARM architecture.
-    image: postgres:15-alpine
+    image: timescale/timescaledb:latest-pg15
     container_name: discord-bot-db
     restart: always # Always restart the container if it stops
     

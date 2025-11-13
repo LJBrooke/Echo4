@@ -87,6 +87,8 @@ CREATE TABLE IF NOT EXISTS bot_health_stats (
     guild_count INT
 );
 
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
 insert into element_list 
 (id, primary_element, secondary_element, underbarrel)
 values 
