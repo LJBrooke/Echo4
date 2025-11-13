@@ -319,6 +319,8 @@ class MyBot(commands.Bot):
             log.info(f"Synced {len(synced)} command(s)")
         except Exception as e:
             log.info(f"Failed to sync commands: {e}")
+            
+        self.monitor_bot_health.start()
 
     async def on_ready(self):
         """This event is called when the bot is fully connected."""

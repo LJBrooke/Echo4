@@ -1,5 +1,3 @@
-version: '3.8' # Specifies the compose file version
-
 services:
   # --- PostgreSQL Database Service ---
   db:
