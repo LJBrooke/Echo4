@@ -14,9 +14,13 @@ except (FileNotFoundError, json.JSONDecodeError) as e:
 AUGMENTS_PER_TREE = 5
 CAPSTONES_PER_TREE = 3
 
+# Current level cap of 50, meaning 49 skill points
+MAX_TOTAL_SKILL_POINTS = 49
+
 def _build_skills_by_name():
     """Build a dictionary mapping skill names to enriched skill data including vault hunter, tree, and subtree."""
     skills_by_name = {}
+    action_skills_by_name = {}
     augments_by_name = {}
     capstones_by_name = {}
     
@@ -35,7 +39,17 @@ def _build_skills_by_name():
                             'tree': tree_name,
                             'subtree': subtree_name
                         }
-            
+            # Process action skills
+            action_skill = tree.get('action_skill')
+            if action_skill:
+                name = action_skill.get('name')
+                if name:
+                    action_skills_by_name[name] = {
+                        **action_skill,
+                        'vault_hunter': vh_key,
+                        'tree': tree_name,
+                    }
+
             # Process augments
             for augment in tree.get('augments', []):
                 name = augment.get('name')
@@ -56,7 +70,7 @@ def _build_skills_by_name():
                         'tree': tree_name,
                     }
     
-    return {"skills": skills_by_name, "augments": augments_by_name, "capstones": capstones_by_name}
+    return {"skills": skills_by_name, "action_skills": action_skills_by_name, "augments": augments_by_name, "capstones": capstones_by_name}
 
 # Build the skills_by_name dictionary at module load time
 SKILLS_BY_NAME = _build_skills_by_name()
@@ -194,6 +208,99 @@ class SkillBuild:
         fragment = f"{action_char}{augment_char}{capstone_char}_" + "_".join(tree_fragments)
         return f"https://www.lootlemon.com/class/{vh}#{fragment}"
 
+    def validate(self) -> bool:
+        skill_counts = {}
+        total_points = 0
+        # Calculate points in each tree and check skills with prerequisites
+        for skill in self.skills:
+            skill_metadata = SKILLS_BY_NAME["skills"].get(skill)
+            if not skill_metadata:
+                print(f"Skill '{skill}' not found in skill data.")
+                return False
+            if skill_metadata['vault_hunter'] != self.vh:
+                print(f"Skill '{skill}' does not belong to vault hunter '{self.vh}'.")
+                return False
+            if self.skills[skill] < 0 or self.skills[skill] > skill_metadata['max_points']:
+                print(f"Skill '{skill}' has invalid points {self.skills[skill]}. Max is {skill_metadata['max_points']}.")
+                return False
+            prerequisite = skill_metadata.get('requires')
+            if prerequisite and self.skills.get(prerequisite, 0) == 0:
+                print(f"Skill '{skill}' requires '{prerequisite}' to have points allocated.")
+                return False
+            points = self.skills[skill]
+            tree = skill_metadata['tree']
+            subtree = skill_metadata['subtree']
+            tier = skill_metadata['tier']
+            skill_counts.setdefault(tree, {}).setdefault(subtree, {}).setdefault(tier, 0)
+            skill_counts[tree][subtree][tier] += points
+            total_points += points
+        # Check tier requirements
+        for tree, subtrees in skill_counts.items():
+            for subtree, tiers in subtrees.items():
+                for tier, points in tiers.items():
+                    if tier > 0:
+                        required_points = tier * 5
+                        lower_tier_points = sum(tiers.get(t, 0) for t in range(tier))
+                        if lower_tier_points < required_points:
+                            print(f"Not enough points in lower tiers for skill in tree '{tree}', subtree '{subtree}', tier {tier}. Required: {required_points}, found: {lower_tier_points}.")
+                            return False
+                        
+        # Check total points do not exceed maximum
+        if total_points > MAX_TOTAL_SKILL_POINTS:
+            print(f"Total allocated points {total_points} exceed maximum of {MAX_TOTAL_SKILL_POINTS}.")
+            return False
+        
+        # Check action skill validity
+        if self.action_skill:
+            action_skill_metadata = SKILLS_BY_NAME["action_skills"].get(self.action_skill)
+            if not action_skill_metadata:
+                print(f"Action skill '{self.action_skill}' not found in skill data.")
+                return False
+            if action_skill_metadata['vault_hunter'] != self.vh:
+                print(f"Action skill '{self.action_skill}' does not belong to vault hunter '{self.vh}'.")
+                return False
+            action_skill_tree = action_skill_metadata['tree']
+            if self.augment:
+                augment_metadata = SKILLS_BY_NAME["augments"].get(self.augment)
+                if not augment_metadata:
+                    print(f"Augment '{self.augment}' not found in skill data.")
+                    return False
+                if augment_metadata['vault_hunter'] != self.vh:
+                    print(f"Augment '{self.augment}' does not belong to vault hunter '{self.vh}'.")
+                    return False
+                if augment_metadata['tree'] != action_skill_tree:
+                    print(f"Augment '{self.augment}' does not belong to the same tree as action skill '{self.action_skill}'.")
+                    return False
+                required_points = 0
+                match augment_metadata.get('subtree'):
+                    case 'top':
+                        required_points = 5
+                    case _:
+                        required_points = 15
+                top_subtree = skill_counts.get(action_skill_tree, {}).get('top', {})
+                allocated_points = sum(top_subtree.values())
+                if allocated_points < required_points:
+                    print(f"Not enough points in top subtree of tree '{action_skill_tree}' for augment '{self.augment}'. Required: {required_points}, but only {allocated_points} allocated.")
+                    return False
+            if self.capstone:
+                capstone_metadata = SKILLS_BY_NAME["capstones"].get(self.capstone)
+                if not capstone_metadata:
+                    print(f"Capstone '{self.capstone}' not found in skill data.")
+                    return False
+                if capstone_metadata['vault_hunter'] != self.vh:
+                    print(f"Capstone '{self.capstone}' does not belong to vault hunter '{self.vh}'.")
+                    return False
+                if capstone_metadata['tree'] != action_skill_tree:
+                    print(f"Capstone '{self.capstone}' does not belong to the same tree as action skill '{self.action_skill}'.")
+                    return False
+                required_points = 10
+                subtree = skill_counts.get(action_skill_tree, {}).get(capstone_metadata['subtree'], {})
+                allocated_points = sum(subtree.values())
+                if allocated_points < required_points:
+                    print(f"Not enough points in subtree '{capstone_metadata['subtree']}' of tree '{action_skill_tree}' for capstone '{self.capstone}'. Required: {required_points}, but only {allocated_points} allocated.")
+                    return False
+        return True
+
 class Build:
     def __init__(self, skills: SkillBuild = SkillBuild(), specializations=None, gear=None):
         # use internal attributes so properties can manage access
@@ -202,9 +309,11 @@ class Build:
         self.gear = gear
 
 if __name__ == "__main__":
-    build = SkillBuild.from_lootlemon("https://www.lootlemon.com/class/rafa#bff_0100000000.00000.000000.00000_0550000410.05512.05000.50055_0000000000.000000.000000.00000")
+    build = SkillBuild.from_lootlemon("https://www.lootlemon.com/class/rafa#bff_010000000.00000.000000.00000_0550000410.05512.05000.50055_0000000000.000000.000000.00000")
     build.pretty_print()
+    print(build.validate())
     print(build.to_lootlemon())
     build2 = SkillBuild.from_lootlemon("https://www.lootlemon.com/class/vex#xxx_00000000000.000000.000000.000000_00000000000.000000.000000.000000_00000000000.000000.000000.000000")
     build2.pretty_print()
+    print(build2.validate())
     print(build2.to_lootlemon())
