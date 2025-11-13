@@ -1,10 +1,8 @@
-version: '3.8' # Specifies the compose file version
-
 services:
   # --- PostgreSQL Database Service ---
   db:
     # Use an official Postgres image. It will auto-detect your RPi's ARM architecture.
-    image: postgres:15-alpine
+    image: timescale/timescaledb:latest-pg15
     container_name: discord-bot-db
     restart: always # Always restart the container if it stops
     
@@ -17,6 +15,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}     # The username for your database
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
+    # Attempted fix for latency connecting PC to DB.
+    command: postgres -c listen_addresses='*' -c log_hostname=off -c shared_preload_libraries=timescaledb
     # This section mounts a persistent volume
     # If the container is deleted, your data in 'pg_data' survives.
     # volumes:
@@ -75,12 +75,30 @@ services:
         max-size: "15m"     # Max size of a single log file (e.g., 10 MB)
         max-file: "5"       # Files to keep.
 
+  # --- Grafana Dashboard Service ---
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: bot-dashboard
+    restart: always
+    ports:
+      - "3000:3000" # Access Grafana UI at http://<your-host-ip>:3000
+    
+    volumes:
+      - grafana_data:/var/lib/grafana # Persist dashboards and settings
+      
+    depends_on:
+      db:
+        condition: service_healthy # Wait for the DB to be ready
+        
+    networks:
+      - echo-network
 # --- Top-Level Definitions ---
 
 # Defines the persistent volume we named above
 volumes:
-  pg_data:
-    # 'driver: local' just means it's stored on this machine
+  pg_data: # Echo 4 Data
+    driver: local
+  grafana_data: # Grafana
     driver: local
 
 # Defines the custom network
