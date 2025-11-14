@@ -87,6 +87,20 @@ CREATE TABLE IF NOT EXISTS bot_health_stats (
     guild_count INT
 );
 
+CREATE TABLE item_edit_history (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    user_id BIGINT NOT NULL,
+    "timestamp" TIMESTAMPTZ DEFAULT (now() at time zone 'utc'),
+    edit_type VARCHAR(10) NOT NULL,
+    item_name TEXT,
+    item_type VARCHAR(100),
+    manufacturer VARCHAR(100),
+    serial TEXT,
+    component_string TEXT,
+    parts_json JSONB
+);
+
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 insert into element_list 

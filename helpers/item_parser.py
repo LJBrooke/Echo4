@@ -601,6 +601,58 @@ async def log_item_edit(
     except Exception as e:
         log.error(f"Failed to log item edit to history table for user {user_id}: {e}", exc_info=True)
         return None
+    
+async def query_edit_history(
+    db_pool,
+    edit_type: str,
+    search_term: str,
+    part_filter: str = None
+    ) -> list:
+    """
+    Searches the item_edit_history table.
+
+    Args:
+        db_pool: The asyncpg.Pool object.
+        edit_type (str): The edit_type to filter by (e.g., 'FINALIZE').
+        search_term (str): A string to search for in item_name or parts_json.
+        part_filter (str, optional): A second string to filter by *within* parts_json.
+
+    Returns:
+        A list of asyncpg.Record objects (serial, parts_json) or an empty list.
+    """
+    params = []
+    
+    # --- Build the query dynamically ---
+    query = """
+    SELECT serial, parts_json
+    FROM item_edit_history
+    WHERE
+        edit_type = $1
+    """
+    params.append(edit_type)
+    
+    # Param $2: The main search_term
+    # We add '%' for wildcard matching
+    search_term_like = f"%{search_term}%"
+    query += " AND (item_name ILIKE $2 OR parts_json::text ILIKE $2)"
+    params.append(search_term_like)
+
+    # Param $3 (Optional): The specific part_filter
+    if part_filter:
+        part_filter_like = f"%{part_filter}%"
+        # This adds an additional filter, both must be true.
+        query += " AND (parts_json::text ILIKE $3)"
+        params.append(part_filter_like)
+        
+    query += " ORDER BY timestamp DESC LIMIT 10"
+    
+    try:
+        async with db_pool.acquire() as conn:
+            results = await conn.fetch(query, *params)
+            return results
+    except Exception as e:
+        log.error(f"Failed to search edit history: {e}", exc_info=True)
+        return []
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # ASYNC DRIVER FUNCTIONS

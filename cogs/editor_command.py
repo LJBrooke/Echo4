@@ -1,4 +1,5 @@
 # cogs/editor_command.py
+import json
 import discord
 import logging
 from discord import app_commands
@@ -584,6 +585,98 @@ class EditorCommands(commands.Cog):
         )
         message = f"Primary Element: {primary_element}\nSecondary Element: {secondary_element}\nMaliwan: {str(underbarrel)}\n\n**Element ID:** {message}\n{parts_footer}"
         await interaction.response.send_message(content=message)
+    
+    @app_commands.command(name="edit_search", description="Search the edit history for items and parts.")
+    @app_commands.describe(
+        search_term="An item name or part name to search for (e.g., 'Stellium', 'MAL_SG.part_barrel_01').",
+        part_filter="[Optional] A specific part_string to *also* filter by (e.g., 'MAL_SG.part_grip_01').",
+        edit_type="[Optional] Which edit type to show. Defaults to FINALIZE."
+    )
+    @app_commands.choices(
+        edit_type=[
+            app_commands.Choice(name="Post Edit (Default)", value="FINAL"),
+            app_commands.Choice(name="Pre Edit", value="CREATE"),
+        ]
+    )
+    async def edit_search(
+        self,
+        interaction: discord.Interaction,
+        search_term: str,
+        part_filter: str = None,
+        edit_type: str = "FINAL"
+    ):
+        await interaction.response.defer()
+
+        try:
+            results = await item_parser.query_edit_history(
+                db_pool=self.bot.db_pool,
+                edit_type=edit_type,
+                search_term=search_term,
+                part_filter=part_filter
+            )
+
+            if not results:
+                await interaction.followup.send(f"No results found for `{search_term}`.", ephemeral=True)
+                return
+
+            embed = discord.Embed(
+                title=f"Edit History Results for '{search_term}'",
+                color=discord.Color.blue()
+            )
+            
+            description_lines = []
+            total_results = 0
+
+            for i, record in enumerate(results, 1):
+                serial = record.get('serial', 'N/A')
+                parts_json_str = record.get('parts_json') # This is a JSON string
+
+                # Add a header for the result
+                result_header = f"**Result {i}:** `{serial}`"
+                
+                part_lines = []
+                if not parts_json_str:
+                    part_lines.append("-> *No part data available*")
+                else:
+                    try:
+                        parts_dict = json.loads(parts_json_str) # Convert string to dict
+                        
+                        # Use the PART_ORDER from weapon_class for a logical display
+                        for part_type in weapon_class.Weapon.PART_ORDER:
+                            part_list = parts_dict.get(part_type, [])
+                            
+                            for part in part_list:
+                                if isinstance(part, dict):
+                                    part_string = part.get('part_string')
+                                    if part_string:
+                                        part_lines.append(f"-> `{part_string}`")
+                                elif isinstance(part, str):
+                                    # This is a token like '{98}' or '{1:12}'
+                                    part_lines.append(f"-> *Token: {part}*")
+                                    
+                    except json.JSONDecodeError:
+                        part_lines.append("-> *Error parsing part data*")
+                
+                # Check if this result + its parts will exceed the embed limit
+                # 4096 is the description limit. We check at 4000 to be safe.
+                current_desc = "\n".join(description_lines)
+                result_block = "\n".join([result_header] + part_lines + ["_ _"]) # _ _ is a spacer
+                
+                if len(current_desc) + len(result_block) > 4000:
+                    # We can't add more results.
+                    embed.set_footer(text=f"Showing {total_results} of {len(results)} results (Embed limit reached).")
+                    break
+                
+                # It fits, add it to the description
+                description_lines.append(result_block)
+                total_results += 1
+
+            embed.description = "\n".join(description_lines)
+            await interaction.followup.send(embed=embed)
+
+        except Exception as e:
+            log.error(f"Error during /edit_search: {e}", exc_info=True)
+            await interaction.followup.send("An error occurred while searching.", ephemeral=True)
          
 # --- Setup Function ---
 async def setup(bot: commands.Bot):
