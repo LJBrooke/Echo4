@@ -2,7 +2,7 @@
 import discord
 import logging
 from discord.ext import commands
-from helpers import itemp_parser, shield_class
+from helpers import item_parser, shield_class
 
 # Import the shared views from the new file
 from .editor_views_shared import (
