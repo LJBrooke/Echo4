@@ -1,5 +1,6 @@
 # File: helpers/item_parser.py
 import re
+import json
 import logging
 log = logging.getLogger(__name__)
 
@@ -538,6 +539,68 @@ async def compile_part_list(db_pool, item_code: str) -> str:
     except Exception as e:
         return f"Error during part list compilation: {e}"
 
+async def log_item_edit(
+    db_pool,
+    session_id: str,
+    user_id: int,
+    edit_type: str,
+    item_name: str = None,
+    item_type: str = None,
+    manufacturer: str = None,
+    serial: str = None,
+    component_string: str = None,
+    parts_json: dict = None
+    ) -> int | None:
+    """
+    Inserts a record into the item_edit_history table.
+
+    Args:
+        db_pool: The asyncpg.Pool object.
+        session_id (str): The unique ID for this editing session (e.g., interaction.id).
+        user_id (int): The discord.User.id of the user.
+        edit_type (str): The type of edit (e.g., 'PART', 'LEVEL', 'ELEMENT').
+        item_name (str, optional): The in-game name of the item.
+        item_type (str, optional): The item's base type (e.g., 'Pistol', 'Shield').
+        manufacturer (str, optional): The item's manufacturer.
+        serial (str, optional): The new serial generated after the edit.
+        component_string (str, optional): The component string for the new serial.
+        parts_json (dict, optional): A dictionary of the item's current parts.
+                                     asyncpg handles Python dict -> JSONB conversion.
+
+    Returns:
+        The integer ID of the newly inserted row, or None if insertion fails.
+    """
+    query = """
+    INSERT INTO item_edit_history (
+        session_id, user_id, edit_type,
+        item_name, item_type, manufacturer,
+        serial, component_string, parts_json
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING id;
+    """
+    parts_json_string = json.dumps(parts_json) if parts_json is not None else None
+    try:
+        async with db_pool.acquire() as conn:
+            # Pass the Python dict (or None) directly for parts_json
+            # asyncpg will serialize it to JSONB
+            new_id = await conn.fetchval(
+                query,
+                session_id,
+                user_id,
+                edit_type,
+                item_name,
+                item_type,
+                manufacturer,
+                serial,
+                component_string,
+                parts_json_string 
+            )
+            log.info(f"Successfully logged item edit for user {user_id}. New history ID: {new_id}")
+            return new_id
+    except Exception as e:
+        log.error(f"Failed to log item edit to history table for user {user_id}: {e}", exc_info=True)
+        return None
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # ASYNC DRIVER FUNCTIONS

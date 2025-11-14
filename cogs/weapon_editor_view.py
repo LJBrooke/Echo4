@@ -285,10 +285,11 @@ class MainWeaponEditorView(BaseEditorView):
     'old editor.py' to solve interaction timeouts. It does NOT use
     decorators or the on_interaction override.
     """
-    def __init__(self, cog: commands.Cog, weapon: weapon_class.Weapon, user_id: int):
+    def __init__(self, cog: commands.Cog, weapon: weapon_class.Weapon, user_id: int, session_id: str):
         # Initialize the BaseEditorView
         super().__init__(cog, user_id, None, timeout=300) 
         self.weapon = weapon
+        self.session_id = session_id
         
         # --- 1. Manually create and add Level Button ---
         level_button = discord.ui.Button(
@@ -412,6 +413,34 @@ class MainWeaponEditorView(BaseEditorView):
         1. Disable buttons on the main message.
         2. Call the base on_timeout to clear any active sessions.
         """
+        try:
+            if hasattr(self.cog, 'bot'):
+                bot_ref = self.cog.bot
+            else:
+                bot_ref = self.cog
+            
+            # Get the final state of the item
+            final_serial = await self.weapon.get_serial()
+            final_component_string = self.weapon.get_component_list()
+
+            await item_parser.log_item_edit(
+                db_pool=bot_ref.db_pool,
+                session_id=self.session_id,  # Use the stored session ID
+                user_id=self.user_id,
+                edit_type="FINAL",
+                item_name=self.weapon.item_name,
+                item_type=self.weapon.type,
+                manufacturer=self.weapon.manufacturer,
+                serial=final_serial,
+                component_string=final_component_string,
+                parts_json=self.weapon.parts  # Log the final parts state
+            )
+            log.info(f"Successfully logged 'Final Item' for session {self.session_id}, user {self.user_id}")
+            
+        except Exception as e:
+            log.error(f"Failed to log 'Final Item' event for session {self.session_id}: {e}", exc_info=True)
+            # Don't prevent the rest of the timeout logic from running
+            
         if self.message: 
             try:
                 await self.message.edit(view=None)

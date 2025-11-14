@@ -2,7 +2,7 @@
 import discord
 import logging
 from discord.ext import commands
-from helpers import repkit_class
+from helpers import item_parser, repkit_class
 
 # Import the shared views from the new file
 from .editor_views_shared import (
@@ -535,9 +535,10 @@ class MainRepkitEditorView(BaseEditorView):
     """
     The main view for repkits, using decorated methods.
     """
-    def __init__(self, cog: commands.Cog, repkit: repkit_class.Repkit, user_id: int):
+    def __init__(self, cog: commands.Cog, repkit: repkit_class.Repkit, user_id: int, session_id: str):
         super().__init__(cog, user_id, None, timeout=300) 
         self.repkit = repkit
+        self.session_id = session_id
         
         try:
             # Check if rarity is editable
@@ -612,6 +613,34 @@ class MainRepkitEditorView(BaseEditorView):
         await self._handle_ephemeral_launch(interaction, view)
         
     async def on_timeout(self):
+        
+        try:
+            if hasattr(self.cog, 'bot'):
+                bot_ref = self.cog.bot
+            else:
+                bot_ref = self.cog
+            
+            # Get the final state of the item
+            final_serial = await self.weapon.get_serial()
+            final_component_string = self.weapon.get_component_list()
+
+            await item_parser.log_item_edit(
+                db_pool=bot_ref.db_pool,
+                session_id=self.session_id,  # Use the stored session ID
+                user_id=self.user_id,
+                edit_type="FINAL",
+                item_name=self.repkit.item_name,
+                item_type=self.repkit.type,
+                manufacturer=self.repkit.manufacturer,
+                serial=final_serial,
+                component_string=final_component_string,
+                parts_json=self.repkit.parts  # Log the final parts state
+            )
+            log.info(f"Successfully logged 'Final Item' for session {self.session_id}, user {self.user_id}")
+            
+        except Exception as e:
+            log.error(f"Failed to log 'Final Item' event for session {self.session_id}: {e}", exc_info=True)
+            # Don't prevent the rest of the timeout logic from running
         if self.message:
             try: await self.message.edit(view=None)
             except (discord.NotFound, discord.Forbidden): pass

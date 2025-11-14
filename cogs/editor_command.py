@@ -55,8 +55,6 @@ class EditorCommands(commands.Cog):
         
         await self.load_repkit_perk_cache()
         log.info("✅ Repkit Perk Cache loaded.")
-        
-    # Add this function after load_shield_perk_cache
 
     async def load_repkit_perk_cache(self):
         """
@@ -280,6 +278,8 @@ class EditorCommands(commands.Cog):
         """
         item_object = None
         editor_view = None
+        # Get the interaction ID to use as a unique session ID
+        session_id = str(interaction.id)
 
         if item_type.lower() == 'shield':
             item_object = await shield_class.Shield.create(
@@ -291,7 +291,7 @@ class EditorCommands(commands.Cog):
                 manufacturer,
                 item_type
             )
-            editor_view = MainShieldEditorView(self.bot, item_object, interaction.user.id)
+            editor_view = MainShieldEditorView(self.bot, item_object, interaction.user.id, session_id)
             
         if item_type.lower() == 'repair_kit':
             item_type='repkit' # For terminology consistenty and to avoid confusion.
@@ -304,7 +304,7 @@ class EditorCommands(commands.Cog):
                 manufacturer,
                 item_type
             )
-            editor_view = MainRepkitEditorView(self.bot, item_object, interaction.user.id)
+            editor_view = MainRepkitEditorView(self.bot, item_object, interaction.user.id, session_id)
 
         elif item_type_int < 100: # Assuming < 100 are weapons
             item_object = await weapon_class.Weapon.create(
@@ -316,7 +316,7 @@ class EditorCommands(commands.Cog):
                 manufacturer,
                 item_type
             )
-            editor_view = MainWeaponEditorView(self.bot, item_object, interaction.user.id)
+            editor_view = MainWeaponEditorView(self.bot, item_object, interaction.user.id, session_id)
         
         else:
             await interaction.followup.send(
@@ -342,8 +342,28 @@ class EditorCommands(commands.Cog):
             color=item_color
         )
         
+        current_serial = await item_object.get_serial()
+        current_component_string = item_object.get_component_list()
+        
         message_content = f"```{await item_object.get_serial()}```\n_ _\n"
         
+        try:
+            await item_parser.log_item_edit(
+                db_pool=self.bot.db_pool,
+                session_id=str(interaction.id),  # This is our session ID
+                user_id=interaction.user.id,
+                edit_type="CREATE",
+                item_name=item_object.item_name,
+                item_type=item_object.type,
+                manufacturer=item_object.manufacturer,
+                serial=current_serial,
+                component_string=current_component_string,
+                parts_json=item_object.parts  # Log the initial parts state
+            )
+        except Exception as e:
+            # Don't fail the command if logging fails
+            log.warning(f"Failed to log item 'CREATE' for user {interaction.user.id}: {e}")
+            
         send_kwargs = {
             "content": message_content,
             "embed": embed,
@@ -365,7 +385,7 @@ class EditorCommands(commands.Cog):
             bot_clank_response = None
 
             # Scan the last 5 messages (newest to oldest)
-            async for message in interaction.channel.history(limit=5):
+            async for message in interaction.channel.history(limit=10):
                 # Find the user's most recent "clanker" message
                 if not user_clank_message and message.author.id == interaction.user.id and "clanker" in message.content.lower():
                     user_clank_message = message
@@ -526,8 +546,7 @@ class EditorCommands(commands.Cog):
         )
         message = message+parts_footer
         await interaction.response.send_message(content=message)
-        
-        
+          
     # --- The Slash Command ---
     @app_commands.command(name="element_id", description="Fetch the part id for elements on a gun")
     @app_commands.describe(primary_element="The Primary or only element on your gun")
