@@ -458,7 +458,7 @@ def format_part_name(part_string: str) -> str:
 
 def split_item_str(item_str: str) -> list[str, int, list[int]]:
     base_aspect, part_aspect = item_str.split('||')
-    base, unknown = base_aspect.split('|')
+    base = base_aspect.split('|')[0]
     item_type, base_0, base_1, level = base.split(', ')
     parts =part_aspect.split('|')[0]
     skin = part_aspect.split('|')[1:]
