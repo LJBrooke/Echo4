@@ -69,13 +69,6 @@ def _build_skills_by_name():
 # Build the skills_by_name dictionary at module load time
 SKILLS_BY_NAME = _build_skills_by_name()
 
-def _letter_to_index(letter: str) -> int:
-    """Convert a lowercase letter to a zero-based index (a=0, b=1, c=2, ...)."""
-    return ord(letter) - ord('a')
-def _index_to_letter(index: int) -> str:
-    """Convert a zero-based index to a lowercase letter (0=a, 1=b, 2=c, ...)."""
-    return chr(ord('a') + index)
-
 class SkillBuild:
     def __init__(self, vh: str | None = None, skills: dict[str, int] = {}, action_skill: str | None = None, augment: str | None = None, capstone: str | None = None):
         self.vh = vh
@@ -106,20 +99,20 @@ class SkillBuild:
         # These list the skill level of each skill in order reading left to right by row within each subtree.
         # Subtrees are separated by periods.
         # The JSON skill data is structured so that the indices line up with this format.
+        # For the action skill chunk, the characters are stored in json as lootlemon_char.
+        # This is because the order is not consistent across vault hunters.
         action_skills, *trees = fragment.split('_')
-        action_skill, augment, capstone = list(action_skills)
-        action_skill_tree = None
-        # x means no selection
-        if action_skill != 'x':
-            tree_index = _letter_to_index(action_skill)
-            action_skill_tree = SKILL_DATA[vh]["trees"][tree_index]
-            build.action_skill = action_skill_tree["action_skill"]["name"]
-            if augment != 'x':
-                augments = sum([SKILL_DATA[vh]["trees"][tree]["augments"] for tree in range(len(SKILL_DATA[vh]["trees"]))], [])
-                build.augment = augments[_letter_to_index(augment)]["name"]
-            if capstone != 'x':
-                capstones = sum([SKILL_DATA[vh]["trees"][tree]["capstones"] for tree in range(len(SKILL_DATA[vh]["trees"]))], [])
-                build.capstone = capstones[_letter_to_index(capstone)]["name"]
+        action_skill_char, augment_char, capstone_char = list(action_skills)
+        # x means no selection and will match no skills
+        for tree in SKILL_DATA[vh]["trees"]:
+            if tree["action_skill"]["lootlemon_char"] == action_skill_char:
+                build.action_skill = tree["action_skill"]["name"]
+            for augment in tree.get("augments", []):
+                if augment["lootlemon_char"] == augment_char:
+                    build.augment = augment["name"]
+            for capstone in tree.get("capstones", []):
+                if capstone["lootlemon_char"] == capstone_char:
+                    build.capstone = capstone["name"]
 
         # Parse skill levels
         for tree_index, tree_data in enumerate(trees):
@@ -165,37 +158,10 @@ class SkillBuild:
         vh = self.vh
         trees = SKILL_DATA.get(vh, {}).get('trees', [])
 
-        # Look for the selected action skill, augment, and capstone to determine their character representations in lootlemon.
-        action_char = 'x'
-        action_skill_index = 0
-        if self.action_skill:
-            for tree in trees:
-                action_skill = tree.get('action_skill', {})
-                if action_skill.get('name') == self.action_skill:
-                    action_char = _index_to_letter(action_skill_index)
-                    break
-                action_skill_index += 1
-
-        augment_char = 'x'
-        augment_index = 0
-        if self.augment:
-            for tree in trees:
-                for augment in tree.get('augments', []):
-                    if augment.get('name') == self.augment:
-                        augment_char = _index_to_letter(augment_index)
-                        break
-                    augment_index += 1
-        
-        capstone_char = 'x'
-        capstone_index = 0
-        if self.capstone:
-            for tree in trees:
-                for capstone in tree.get('capstones', []):
-                    if capstone.get('name') == self.capstone:
-                        capstone_char = _index_to_letter(capstone_index)
-                        break
-                    capstone_index += 1
-
+        # Look up lootlemon chars for action skill, augment, and capstone
+        action_char = SKILLS_BY_NAME["action_skills"].get(self.action_skill, {}).get('lootlemon_char', 'x')
+        augment_char = SKILLS_BY_NAME["augments"].get(self.augment, {}).get('lootlemon_char', 'x')
+        capstone_char = SKILLS_BY_NAME["capstones"].get(self.capstone, {}).get('lootlemon_char', 'x')
 
         # Build tree skill strings for each of the three trees in order
         tree_fragments = []
@@ -318,7 +284,7 @@ if __name__ == "__main__":
     build.pretty_print()
     print(build.validate())
     print(build.to_lootlemon())
-    build2 = SkillBuild.from_lootlemon("https://www.lootlemon.com/class/vex#xxx_00000000000.000000.000000.000000_00000000000.000000.000000.000000_00000000000.000000.000000.000000")
+    build2 = SkillBuild.from_lootlemon("https://www.lootlemon.com/class/harlowe#cng_00050502030.05231.050500.050300_00050000000.000000.000000.00000_00000000000.000000.000000.000000")
     build2.pretty_print()
     print(build2.validate())
     print(build2.to_lootlemon())
