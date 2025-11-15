@@ -272,8 +272,11 @@ class BuildCommands(commands.Cog):
         embed_content = embed_content + f"\n**Augment:** {build_obj.augment}"
         embed_content = embed_content + f"\n**Capstone:** {build_obj.capstone}"
         embed_content = embed_content + "\n\n**Allocated skills:**"
-        for name, pts in build_obj.skills.items():
-            embed_content = embed_content + f"\n -> {name}: **{pts}**"
+        for tree in build_obj.skill_trees:
+            for skill in build_obj.skill_trees[tree]:
+                for name, pts in build_obj.skill_trees[tree][skill].items():
+                        embed_content = embed_content + f"\n -> {name}: **{pts}**"
+            embed_content = embed_content + "\n"
         
         embed = discord.Embed(title=f"{build_obj.vh.title()}", description=embed_content)
         
