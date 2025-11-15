@@ -1,0 +1,2347 @@
+{
+  "amon": {
+    "trees": [
+      {
+        "name": "Cybernetics",
+        "skills": {
+          "top": [
+            {
+              "name": "Cast Iron",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Gathering Storm",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Executioner",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Get the Lead Out",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Destruction Engine",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Tempered Pyre",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Bolt Action",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Bellows",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Twin Tempers",
+              "max_points": 1,
+              "tier": 2,
+              "requires": "Tempered Pyre"
+            },
+            {
+              "name": "Vital Organs",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Herald's Call",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Tempered Ice",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Cacophany",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Masterwork",
+              "max_points": 5,
+              "tier": 1,
+              "requires": "Tempered Ice"
+            },
+            {
+              "name": "Endless Bombardment",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Stoked",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Ordained Hammer",
+              "max_points": 1,
+              "tier": 2,
+              "requires": "Masterwork"
+            }
+          ],
+          "middle": [
+            {
+              "name": "Blast Furnace",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Tempered Lightning",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Armor of Contempt",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Lightning Rod",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Escalation",
+              "max_points": 5,
+              "tier": 1,
+              "requires": "Tempered Lightning"
+            },
+            {
+              "name": "Honed Point",
+              "max_points": 3,
+              "tier": 2,
+              "requires": "Escalation"
+            }
+          ],
+          "right": [
+            {
+              "name": "Permafrost",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Raging Inferno",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Wildheart",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Freezer Burn",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Reactive Armor",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Reverse Explosion",
+              "max_points": 1,
+              "tier": 2
+            }
+          ]
+        },
+        "action_skill": {
+          "name": "Crucible"
+        },
+        "augments": [
+          {
+            "name": "Axe and Stone",
+            "subtree": "top"
+          },
+          {
+            "name": "Endless War",
+            "subtree": "top"
+          },
+          {
+            "name": "Hour of the Hammer",
+            "subtree": "left"
+          },
+          {
+            "name": "Blade Tempest",
+            "subtree": "middle"
+          },
+          {
+            "name": "Searing Cold",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Snowmaul",
+            "subtree": "left"
+          },
+          {
+            "name": "Storm Surge",
+            "subtree": "middle"
+          },
+          {
+            "name": "Conflangarang",
+            "subtree": "right"
+          }
+        ]
+      },
+      {
+        "name": "Vengeance",
+        "skills": {
+          "top": [
+            {
+              "name": "Wrath of Nature",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Scorched Kairos",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "The Thrill",
+              "max_points": 3,
+              "tier": 0
+            },
+            {
+              "name": "Battleborn",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Eternal",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Tail of the Comet",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Scar Tissue",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Bullet Hail",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Machinist",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Ancient Ways",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Warrior's Cup",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Wildfire",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Burning Rage",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Ballistic Bulwark",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Disco Infernus",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Worldbreaker",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Cooling Mantle",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Icy Rage",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Northern Wind",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Winter's Kiss",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Primal Surge",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Age of Ice",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Caroming Shard",
+              "max_points": 3,
+              "tier": 2
+            }
+          ],
+          "right": [
+            {
+              "name": "Blackout",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Thunderous Rage",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Tactician",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Smelter",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Strike the Anvil",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "High Voltage",
+              "max_points": 1,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Blastchill",
+            "subtree": "top"
+          },
+          {
+            "name": "Cryonic Thrum",
+            "subtree": "top"
+          },
+          {
+            "name": "Molten Rebuke",
+            "subtree": "left"
+          },
+          {
+            "name": "Eternal Winter",
+            "subtree": "middle"
+          },
+          {
+            "name": "Stormlance",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Ring of Frostfire",
+            "subtree": "left"
+          },
+          {
+            "name": "Glacial Rapture",
+            "subtree": "middle"
+          },
+          {
+            "name": "Wrathfall",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Scourge"
+        }
+      },
+      {
+        "name": "Calamity",
+        "skills": {
+          "top": [
+            {
+              "name": "Impetus",
+              "max_points": 3,
+              "tier": 0
+            },
+            {
+              "name": "What Burns Within",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Discombobulate",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Heavy Plate",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Wield the Storm",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Gut Punch",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Tritanium Knuckles",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Forged in Steel",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Bullet Storm",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Metal Urge",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "The Best Defense",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Berserk",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Bloodlust",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "There is only Red",
+              "max_points": 3,
+              "tier": 1,
+              "requires": "Bloodlust"
+            },
+            {
+              "name": "Rimebreak",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Brimming Vigor",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "My Touch is Death",
+              "max_points": 3,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Into the Fray",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Burning Ramparts",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Harbinger",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Rearm",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Maiming Strike",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Mortal Flare",
+              "max_points": 3,
+              "tier": 2
+            }
+          ],
+          "right": [
+            {
+              "name": "Catastrophe",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Dragon's Breath",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Judgment",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Fists of Stone",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Crackling Aegis",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Electrical Fire",
+              "max_points": 1,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Pyroclast",
+            "subtree": "top"
+          },
+          {
+            "name": "Thermal Diffusion",
+            "subtree": "top"
+          },
+          {
+            "name": "Fellfrost",
+            "subtree": "left"
+          },
+          {
+            "name": "Force of Nature",
+            "subtree": "middle"
+          },
+          {
+            "name": "Fulminating Fist",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Hoarcleave",
+            "subtree": "left"
+          },
+          {
+            "name": "Molten Roil",
+            "subtree": "middle"
+          },
+          {
+            "name": "Stormcutter",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Onslaughter"
+        }
+      }
+    ]
+  },
+  "harlowe": {
+    "trees": [
+      {
+        "name": "Cosmic Brilliance",
+        "skills": {
+          "top": [
+            {
+              "name": "Mains Hum",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Personal Observation",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Action at a Distance",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Momentum",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Mass Function",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Neutron Decay",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Heat Death",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Creative Overflow",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Resonance Cascade",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Confirmative Reality",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Absolute Zero",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Blue Shift",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Decoherence",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Latent Charge",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Feedback Loop",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Runaway Reaction",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Gamma Ray Burst",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Harlowe's Certainty Principle",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Jaunt",
+              "max_points": 1,
+              "tier": 1
+            },
+            {
+              "name": "Critical Funding",
+              "max_points": 5,
+              "tier": 1,
+              "requires": "Harlowe's Certainty Principle"
+            },
+            {
+              "name": "Exposed Core",
+              "max_points": 1,
+              "tier": 2,
+              "requires": "Gamma Ray Burst"
+            },
+            {
+              "name": "Meltdown",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "right": [
+            {
+              "name": "Refraction",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Excited State",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Accretion",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Distribution Function",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Pencils Down",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Annihilation",
+              "max_points": 1,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Coronal Mass Ejection",
+            "subtree": "top"
+          },
+          {
+            "name": "Blue Giant",
+            "subtree": "top"
+          },
+          {
+            "name": "Unified Theory",
+            "subtree": "left"
+          },
+          {
+            "name": "Nuclear Winter",
+            "subtree": "middle"
+          },
+          {
+            "name": "Perpetual Engine",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Potential Transference",
+            "subtree": "left"
+          },
+          {
+            "name": "Violent Horizon",
+            "subtree": "middle"
+          },
+          {
+            "name": "Group Study",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Flux Generator"
+        }
+      },
+      {
+        "name": "Seize the Day",
+        "skills": {
+          "top": [
+            {
+              "name": "Quantum Immortality",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Parallel Circuit",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Pulse Drive",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Make Extraordinary",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Bright Future",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Negative Entropy",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Periodic Table Flip",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Ripple Effect",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Precision Engineering",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Too Coolant for Schoolant",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Cryodynamics",
+              "max_points": 3,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Concurrence",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Force of Will",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Control Group",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Slingshot",
+              "max_points": 5,
+              "tier": 1,
+              "requires": "Force of Will"
+            },
+            {
+              "name": "Freeze Frame",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Stun Lock",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Unstable Ice-otope",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Keep Ice on That",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Endothermic Reaction",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Flash Freeze",
+              "max_points": 1,
+              "tier": 1
+            },
+            {
+              "name": "Heat Sink",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Triple Point",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "right": [
+            {
+              "name": "Indiscrete Math",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Experimentation",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Domino Effect",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Sustained Reaction",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Gordian Knot",
+              "max_points": 5,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Strange Attractor",
+            "subtree": "top"
+          },
+          {
+            "name": "Peer Review",
+            "subtree": "top"
+          },
+          {
+            "name": "Wildcat Destabilization",
+            "subtree": "left"
+          },
+          {
+            "name": "Cold Storage",
+            "subtree": "middle"
+          },
+          {
+            "name": "Inertia",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Falling Bodies",
+            "subtree": "left"
+          },
+          {
+            "name": "Cold Plunge",
+            "subtree": "middle"
+          },
+          {
+            "name": "Ground State",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Zero-Point"
+        }
+      },
+      {
+        "name": "Creative Bursts",
+        "skills": {
+          "top": [
+            {
+              "name": "Cyclotron",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "PPE",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Fuzzy Math",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Field-Ready Prototype",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Bleeding Edge",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Elementary",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Test Subjects",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Get Up and Go",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Elephant's Foot",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Great Red DoT",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Enriched",
+              "max_points": 3,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Practical Applications",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Carry the One",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Core Sample",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Break the Ice",
+              "max_points": 1,
+              "tier": 1
+            },
+            {
+              "name": "Opposing Force",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Cold Welding",
+              "max_points": 3,
+              "tier": 2,
+              "requires": "Carry the One"
+            }
+          ],
+          "middle": [
+            {
+              "name": "Poisoned Sun",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Glow Up",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Fissile Launcher",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Chain Reactor",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Wasted",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Dirty Bomb",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "right": [
+            {
+              "name": "Highly Efficient",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Mechanical Brilliance",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Eureka!",
+              "max_points": 1,
+              "tier": 1
+            },
+            {
+              "name": "Rounding Up",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Alternative Fuel Source",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "QED",
+              "max_points": 1,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Voidstar",
+            "subtree": "top"
+          },
+          {
+            "name": "Neutron Capture",
+            "subtree": "top"
+          },
+          {
+            "name": "Field Research",
+            "subtree": "left"
+          },
+          {
+            "name": "Special Purpose Magnets",
+            "subtree": "middle"
+          },
+          {
+            "name": "Containment Breach",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Q-Ball",
+            "subtree": "left"
+          },
+          {
+            "name": "Demon Core",
+            "subtree": "middle"
+          },
+          {
+            "name": "The Shattering Light",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "CHROMA Accelerator"
+        }
+      }
+    ]
+  },
+  "rafa": {
+    "trees": [
+      {
+        "name": "This Year's Gimmick",
+        "skills": {
+          "top": [
+            {
+              "name": "Handshake Deal",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Midnight Oil",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Expedite",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Dial In",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "El Corazón",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Diamond Hands",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Saldar",
+              "max_points": 5,
+              "tier": 2,
+              "requires": "Dial In"
+            },
+            {
+              "name": "In the Zone",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "To the Last",
+              "max_points": 5,
+              "tier": 2,
+              "requires": "El Corazón"
+            },
+            {
+              "name": "Hard Sell",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Blowout",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "El Paraguas",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Protecto-Pulse",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Shock Market",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Liquidation",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Artillería",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Collaborative Ignition",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Booming Business",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Sinergia",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Hemolitions",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "El Diablito",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "right": [
+            {
+              "name": "El Borracho",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Empuje",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Sustainable Energy",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Motivar",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Cruel Accrual",
+              "max_points": 5,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Altered Cabrón",
+            "subtree": "top"
+          },
+          {
+            "name": "Dead Man Walking",
+            "subtree": "top"
+          },
+          {
+            "name": "Thundercutter",
+            "subtree": "left"
+          },
+          {
+            "name": "Parting Gift",
+            "subtree": "middle"
+          },
+          {
+            "name": "Acid Drop",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Huracán Especial",
+            "subtree": "left"
+          },
+          {
+            "name": "Inferno Protocol",
+            "subtree": "middle"
+          },
+          {
+            "name": "Galvanic Panic",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Arc-Knives"
+        }
+      },
+      {
+        "name": "People Person",
+        "skills": {
+          "top": [
+            {
+              "name": "Rinse",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Las Jaras",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "The Thrill",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Preparado",
+              "max_points": 5,
+              "tier": 1,
+              "requires": "Rinse"
+            },
+            {
+              "name": "Pa' Dentro",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Arriba",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "First Impression",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Al Centro",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Metal Management",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Abajo",
+              "max_points": 5,
+              "tier": 2,
+              "requires": "Arriba"
+            }
+          ],
+          "left": [
+            {
+              "name": "Brain Dump",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Conductivo",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "El Catrín",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Awe",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Fiesta",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Drone Defense",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "El Soldado",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "The Right Tools",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Debtonation",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Drone Assault",
+              "max_points": 1,
+              "tier": 2,
+              "requires": "Drone Defense"
+            }
+          ],
+          "right": [
+            {
+              "name": "Jaque",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "La Garza",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Mate",
+              "max_points": 5,
+              "tier": 1,
+              "requires": "Jaque"
+            },
+            {
+              "name": "Deadline",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Per my Last",
+              "max_points": 5,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Sangre por Sangre",
+            "subtree": "top"
+          },
+          {
+            "name": "Battery Subscription Service",
+            "subtree": "top"
+          },
+          {
+            "name": "Ojo Rojo",
+            "subtree": "left"
+          },
+          {
+            "name": "Gibistruct Module",
+            "subtree": "middle"
+          },
+          {
+            "name": "Engorged Bore",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "PROJECT: Raiju",
+            "subtree": "left"
+          },
+          {
+            "name": "PROJECT: Basilisk",
+            "subtree": "middle"
+          },
+          {
+            "name": "PROJECT: Gorgon",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "APOPHIS Lance"
+        }
+      },
+      {
+        "name": "Remote Agent",
+        "skills": {
+          "top": [
+            {
+              "name": "Sitiar",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Deft Hands",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Shield Barriest",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Juerga",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Field Repairs",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "CYA",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Resiliencia",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Maestro",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Venganza",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "El Valiente",
+              "max_points": 3,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Asymmetric Warfare",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Errant Spark",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Hostile Acquisition",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Rolling Stone",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Proprietary Incendiary",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Lateral Plinking",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Confeti",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Vitriol",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Pain Reaction",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Concentrated Build Up",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "El Alacrán",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Inspirado",
+              "max_points": 3,
+              "tier": 2,
+              "requires": "Concentrated Build Up"
+            }
+          ],
+          "right": [
+            {
+              "name": "Barrage",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Everdrive",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Devil-May-Care",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Temerario",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Soltado",
+              "max_points": 1,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Instinto",
+            "subtree": "top"
+          },
+          {
+            "name": "Bullet-Buddy Deluxe",
+            "subtree": "top"
+          },
+          {
+            "name": "Hell in a Shell",
+            "subtree": "left"
+          },
+          {
+            "name": "Insta-Fort Battle System",
+            "subtree": "middle"
+          },
+          {
+            "name": "Unmissable Missiles",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Double-Ought Autoshot",
+            "subtree": "left"
+          },
+          {
+            "name": "Beam Team",
+            "subtree": "middle"
+          },
+          {
+            "name": "Volatile Hollowpoints",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Peacebreaker Cannons"
+        }
+      }
+    ]
+  },
+  "vex": {
+    "trees": [
+      {
+        "name": "Vexcalation",
+        "skills": {
+          "top": [
+            {
+              "name": "Guns and Needles",
+              "max_points": 3,
+              "tier": 0
+            },
+            {
+              "name": "Volatile Essence",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Leeching Attunement",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Grave Sights",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Fiendish Invigoration",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Bloodletter",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Grave Implements",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Channeling",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Material Components",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Grave Power",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Target Prescience",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Radiant Attunement",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Conjunction",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Dreadlight",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Restorative Tonic",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Full Moon",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Havoc",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Drink Full",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Keen Mind",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Phase Pocket",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Mortal Terror",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Grave Elements",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Strike Me Down",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "right": [
+            {
+              "name": "Grave Vitality",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Ars Arcana",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "A Deeper Grave",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Blood Shot",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Essence Leech",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Blood Is Power",
+              "max_points": 3,
+              "tier": 2,
+              "requires": "Essence Leech"
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Geistwave",
+            "subtree": "top"
+          },
+          {
+            "name": "Energy Vampire",
+            "subtree": "top"
+          },
+          {
+            "name": "Iron Maiden",
+            "subtree": "left"
+          },
+          {
+            "name": "Witchy Trigger Finger",
+            "subtree": "middle"
+          },
+          {
+            "name": "Grave Harvest",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Desecration",
+            "subtree": "left"
+          },
+          {
+            "name": "Vibe Check",
+            "subtree": "middle"
+          },
+          {
+            "name": "Heartpiercer",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Incarnate"
+        }
+      },
+      {
+        "name": "The Fourth Seal",
+        "skills": {
+          "top": [
+            {
+              "name": "Sanguine Fiends",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Idle Hands",
+              "max_points": 3,
+              "tier": 0
+            },
+            {
+              "name": "Cold Iron",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Fell Inscriptions",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Grave Assault",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Portents of Suffering",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Cursed Blade",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Blood Sacrifice",
+              "max_points": 1,
+              "tier": 2
+            },
+            {
+              "name": "Grave Fiends",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Grave Quickening",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Extra Cursed",
+              "max_points": 1,
+              "tier": 2,
+              "requires": "Cursed Blade"
+            }
+          ],
+          "left": [
+            {
+              "name": "Blight Attunement",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Prismatic Ichor",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Keen Suffering",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Ghasterbait",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Shot to Go!",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Necrosis",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Burning Attunement",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Recurrence",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Reverburnations",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Haruspex",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Burnt Offering",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Pincushion",
+              "max_points": 1,
+              "tier": 2,
+              "requires": "Haruspex"
+            }
+          ],
+          "right": [
+            {
+              "name": "Prismatic Weaponry",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Obedient Fiends",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Spirit Bomb",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Ancient Rites",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Death Follows Closer",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Diener",
+              "max_points": 1,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Ghast Blaster",
+            "subtree": "top"
+          },
+          {
+            "name": "Coven",
+            "subtree": "top"
+          },
+          {
+            "name": "Wither",
+            "subtree": "left"
+          },
+          {
+            "name": "Hellish Harvest",
+            "subtree": "middle"
+          },
+          {
+            "name": "Banshee's Wail",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Heirloom",
+            "subtree": "left"
+          },
+          {
+            "name": "Grim Reaper",
+            "subtree": "middle"
+          },
+          {
+            "name": "Dark Pact",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Dead Ringer"
+        }
+      },
+      {
+        "name": "Here Comes Trouble",
+        "skills": {
+          "top": [
+            {
+              "name": "Grave Sustenance",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Enchantment",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Blood is Magic",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Hasty Fiends",
+              "max_points": 3,
+              "tier": 0
+            },
+            {
+              "name": "Grave Command",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Overprotective",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Yowl and Bay",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Mourning",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Claw and Bang",
+              "max_points": 5,
+              "tier": 2
+            },
+            {
+              "name": "Overheal",
+              "max_points": 3,
+              "tier": 2
+            },
+            {
+              "name": "Vorpal Fiends",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "left": [
+            {
+              "name": "Icy Attunement",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Blast Rites",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Overspirited",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Blasted Fiends",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Corporeal",
+              "max_points": 3,
+              "tier": 1
+            },
+            {
+              "name": "Shiver",
+              "max_points": 5,
+              "tier": 2
+            }
+          ],
+          "middle": [
+            {
+              "name": "Elemental Essence",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Keen Fiends",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Infernal Sum",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Sacrificial Essence",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Reawakening",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Tail Whip",
+              "max_points": 1,
+              "tier": 2
+            }
+          ],
+          "right": [
+            {
+              "name": "Shocking Attunement",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Grave Current",
+              "max_points": 5,
+              "tier": 0
+            },
+            {
+              "name": "Deadwire",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Grave Thirst",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Infusion",
+              "max_points": 5,
+              "tier": 1
+            },
+            {
+              "name": "Stormblessed",
+              "max_points": 5,
+              "tier": 2
+            }
+          ]
+        },
+        "augments": [
+          {
+            "name": "Violent Outburst",
+            "subtree": "top"
+          },
+          {
+            "name": "Blink Strike",
+            "subtree": "top"
+          },
+          {
+            "name": "Hexus Nexus",
+            "subtree": "left"
+          },
+          {
+            "name": "Vorpal Fang",
+            "subtree": "middle"
+          },
+          {
+            "name": "Beast Mode",
+            "subtree": "right"
+          }
+        ],
+        "capstones": [
+          {
+            "name": "Trouble Bubble",
+            "subtree": "left"
+          },
+          {
+            "name": "Double Trouble",
+            "subtree": "middle"
+          },
+          {
+            "name": "Unsealed",
+            "subtree": "right"
+          }
+        ],
+        "action_skill": {
+          "name": "Phase Phamiliar"
+        }
+      }
+    ]
+  }
+}
