@@ -164,42 +164,51 @@
           ]
         },
         "action_skill": {
-          "name": "Crucible"
+          "name": "Crucible",
+          "lootlemon_char": "c"
         },
         "augments": [
           {
             "name": "Axe and Stone",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "k"
           },
           {
             "name": "Endless War",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "l"
           },
           {
             "name": "Hour of the Hammer",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "m"
           },
           {
             "name": "Blade Tempest",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "n"
           },
           {
             "name": "Searing Cold",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "o"
           }
         ],
         "capstones": [
           {
             "name": "Snowmaul",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "g"
           },
           {
             "name": "Storm Surge",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "h"
           },
           {
             "name": "Conflangarang",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "i"
           }
         ]
       },
@@ -363,41 +372,50 @@
         "augments": [
           {
             "name": "Blastchill",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "f"
           },
           {
             "name": "Cryonic Thrum",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "g"
           },
           {
             "name": "Molten Rebuke",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "h"
           },
           {
             "name": "Eternal Winter",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "i"
           },
           {
             "name": "Stormlance",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "j"
           }
         ],
         "capstones": [
           {
             "name": "Ring of Frostfire",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "d"
           },
           {
             "name": "Glacial Rapture",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "e"
           },
           {
             "name": "Wrathfall",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "f"
           }
         ],
         "action_skill": {
-          "name": "Scourge"
+          "name": "Scourge",
+          "lootlemon_char": "b"
         }
       },
       {
@@ -561,41 +579,50 @@
         "augments": [
           {
             "name": "Pyroclast",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "a"
           },
           {
             "name": "Thermal Diffusion",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "b"
           },
           {
             "name": "Fellfrost",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "c"
           },
           {
             "name": "Force of Nature",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "d"
           },
           {
             "name": "Fulminating Fist",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "e"
           }
         ],
         "capstones": [
           {
             "name": "Hoarcleave",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "a"
           },
           {
             "name": "Molten Roil",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "b"
           },
           {
             "name": "Stormcutter",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "c"
           }
         ],
         "action_skill": {
-          "name": "Onslaughter"
+          "name": "Onslaughter",
+          "lootlemon_char": "a"
         }
       }
     ]
@@ -759,41 +786,50 @@
         "augments": [
           {
             "name": "Coronal Mass Ejection",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "k"
           },
           {
             "name": "Blue Giant",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "l"
           },
           {
             "name": "Unified Theory",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "m"
           },
           {
             "name": "Nuclear Winter",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "n"
           },
           {
             "name": "Perpetual Engine",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "o"
           }
         ],
         "capstones": [
           {
             "name": "Potential Transference",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "g"
           },
           {
             "name": "Violent Horizon",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "h"
           },
           {
             "name": "Group Study",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "i"
           }
         ],
         "action_skill": {
-          "name": "Flux Generator"
+          "name": "Flux Generator",
+          "lootlemon_char": "c"
         }
       },
       {
@@ -952,41 +988,50 @@
         "augments": [
           {
             "name": "Strange Attractor",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "f"
           },
           {
             "name": "Peer Review",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "g"
           },
           {
             "name": "Wildcat Destabilization",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "h"
           },
           {
             "name": "Cold Storage",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "i"
           },
           {
             "name": "Inertia",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "j"
           }
         ],
         "capstones": [
           {
             "name": "Falling Bodies",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "d"
           },
           {
             "name": "Cold Plunge",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "e"
           },
           {
             "name": "Ground State",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "f"
           }
         ],
         "action_skill": {
-          "name": "Zero-Point"
+          "name": "Zero-Point",
+          "lootlemon_char": "b"
         }
       },
       {
@@ -1150,41 +1195,50 @@
         "augments": [
           {
             "name": "Voidstar",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "a"
           },
           {
             "name": "Neutron Capture",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "b"
           },
           {
             "name": "Field Research",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "c"
           },
           {
             "name": "Special Purpose Magnets",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "d"
           },
           {
             "name": "Containment Breach",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "e"
           }
         ],
         "capstones": [
           {
             "name": "Q-Ball",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "a"
           },
           {
             "name": "Demon Core",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "b"
           },
           {
             "name": "The Shattering Light",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "c"
           }
         ],
         "action_skill": {
-          "name": "CHROMA Accelerator"
+          "name": "CHROMA Accelerator",
+          "lootlemon_char": "a"
         }
       }
     ]
@@ -1338,41 +1392,50 @@
         "augments": [
           {
             "name": "Altered Cabrón",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "a"
           },
           {
             "name": "Dead Man Walking",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "b"
           },
           {
             "name": "Thundercutter",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "c"
           },
           {
             "name": "Parting Gift",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "d"
           },
           {
             "name": "Acid Drop",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "e"
           }
         ],
         "capstones": [
           {
             "name": "Huracán Especial",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "a"
           },
           {
             "name": "Inferno Protocol",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "b"
           },
           {
             "name": "Galvanic Panic",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "c"
           }
         ],
         "action_skill": {
-          "name": "Arc-Knives"
+          "name": "Arc-Knives",
+          "lootlemon_char": "a"
         }
       },
       {
@@ -1519,41 +1582,50 @@
         "augments": [
           {
             "name": "Sangre por Sangre",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "f"
           },
           {
             "name": "Battery Subscription Service",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "g"
           },
           {
             "name": "Ojo Rojo",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "h"
           },
           {
             "name": "Gibistruct Module",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "i"
           },
           {
             "name": "Engorged Bore",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "j"
           }
         ],
         "capstones": [
           {
             "name": "PROJECT: Raiju",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "d"
           },
           {
             "name": "PROJECT: Basilisk",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "e"
           },
           {
             "name": "PROJECT: Gorgon",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "f"
           }
         ],
         "action_skill": {
-          "name": "APOPHIS Lance"
+          "name": "APOPHIS Lance",
+          "lootlemon_char": "b"
         }
       },
       {
@@ -1707,41 +1779,50 @@
         "augments": [
           {
             "name": "Instinto",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "k"
           },
           {
             "name": "Bullet-Buddy Deluxe",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "l"
           },
           {
             "name": "Hell in a Shell",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "m"
           },
           {
             "name": "Insta-Fort Battle System",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "n"
           },
           {
             "name": "Unmissable Missiles",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "o"
           }
         ],
         "capstones": [
           {
             "name": "Double-Ought Autoshot",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "g"
           },
           {
             "name": "Beam Team",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "h"
           },
           {
             "name": "Volatile Hollowpoints",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "i"
           }
         ],
         "action_skill": {
-          "name": "Peacebreaker Cannons"
+          "name": "Peacebreaker Cannons",
+          "lootlemon_char": "c"
         }
       }
     ]
@@ -1909,41 +1990,50 @@
         "augments": [
           {
             "name": "Geistwave",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "a"
           },
           {
             "name": "Energy Vampire",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "b"
           },
           {
             "name": "Iron Maiden",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "c"
           },
           {
             "name": "Witchy Trigger Finger",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "d"
           },
           {
             "name": "Grave Harvest",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "e"
           }
         ],
         "capstones": [
           {
             "name": "Desecration",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "a"
           },
           {
             "name": "Vibe Check",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "b"
           },
           {
             "name": "Heartpiercer",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "c"
           }
         ],
         "action_skill": {
-          "name": "Incarnate"
+          "name": "Incarnate",
+          "lootlemon_char": "a"
         }
       },
       {
@@ -2108,41 +2198,50 @@
         "augments": [
           {
             "name": "Ghast Blaster",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "f"
           },
           {
             "name": "Coven",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "g"
           },
           {
             "name": "Wither",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "h"
           },
           {
             "name": "Hellish Harvest",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "i"
           },
           {
             "name": "Banshee's Wail",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "j"
           }
         ],
         "capstones": [
           {
             "name": "Heirloom",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "d"
           },
           {
             "name": "Grim Reaper",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "e"
           },
           {
             "name": "Dark Pact",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "f"
           }
         ],
         "action_skill": {
-          "name": "Dead Ringer"
+          "name": "Dead Ringer",
+          "lootlemon_char": "b"
         }
       },
       {
@@ -2305,41 +2404,50 @@
         "augments": [
           {
             "name": "Violent Outburst",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "k"
           },
           {
             "name": "Blink Strike",
-            "subtree": "top"
+            "subtree": "top",
+            "lootlemon_char": "l"
           },
           {
             "name": "Hexus Nexus",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "m"
           },
           {
             "name": "Vorpal Fang",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "n"
           },
           {
             "name": "Beast Mode",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "o"
           }
         ],
         "capstones": [
           {
             "name": "Trouble Bubble",
-            "subtree": "left"
+            "subtree": "left",
+            "lootlemon_char": "g"
           },
           {
             "name": "Double Trouble",
-            "subtree": "middle"
+            "subtree": "middle",
+            "lootlemon_char": "h"
           },
           {
             "name": "Unsealed",
-            "subtree": "right"
+            "subtree": "right",
+            "lootlemon_char": "i"
           }
         ],
         "action_skill": {
-          "name": "Phase Phamiliar"
+          "name": "Phase Phamiliar",
+          "lootlemon_char": "c"
         }
       }
     ]
