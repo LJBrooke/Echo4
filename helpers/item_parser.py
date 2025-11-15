@@ -50,7 +50,7 @@ async def reserialize(session, component_string: str) -> dict:
     payload = {"deserialized": component_string.strip()}
     
     try:
-        endpoint = f'{NICNL_URL}reserialize'
+        endpoint = f'{LOCAL_URL}reserialize'
         # Use the async session
         async with session.post(endpoint, json=payload, timeout=5) as response:
             # This will raise an aiohttp.ClientResponseError
@@ -61,7 +61,7 @@ async def reserialize(session, component_string: str) -> dict:
             return await response.json()
     except:
         # Fallback to original API in case local is down.
-        endpoint = f'{LOCAL_URL}reserialize'
+        endpoint = f'{NICNL_URL}reserialize'
         # Use the async session
         async with session.post(endpoint, json=payload) as response:
             if response.status == 200:
