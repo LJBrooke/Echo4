@@ -1,5 +1,6 @@
 import json
 import discord
+from builds import build
 from discord import app_commands
 from discord.ext import commands
 
@@ -221,6 +222,34 @@ class BuildCommands(commands.Cog):
         # Handle time out update to message.
         message = await interaction.original_response()
         view.set_message(message)
+        
+    # --- Interpret Lootlemon Build ---
+    @app_commands.command(name="build_summary", description="Describe a build")
+    @app_commands.describe(link="Lootlemon link of build")
+    async def build_inspect(self, interaction: discord.Interaction, link: str):
+        
+        build_obj = build.SkillBuild.from_lootlemon(link)
+        # build_obj.pretty_print()
+        
+        embed_content = f"**Action skill:**: {build_obj.action_skill or 'None'}"
+        embed_content = embed_content + f"\n**Augment:** {build_obj.augment}"
+        embed_content = embed_content + f"\n**Capstone:** {build_obj.capstone}"
+        embed_content = embed_content + "\n\n**Allocated skills:**"
+        for name, pts in build_obj.skills.items():
+            embed_content = embed_content + f"\n -> {name}: **{pts}**"
+        
+        embed = discord.Embed(title=f"{build_obj.vh.title()}", description=embed_content)
+        
+        embed.color = discord.Color.green() # Default to Harlowe's colour.
+        match build_obj.vh:
+            case "amon": embed.color = discord.Color.red()
+            case "rafa": embed.color = discord.Color.blue()
+            case "vex": embed.color = discord.Color.purple()
+            
+        embed.url = build_obj.to_lootlemon()
+        
+        await interaction.response.send_message(embed=embed)
+        
 
 # --- To load the Cog ---
 async def setup(bot):

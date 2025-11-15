@@ -96,6 +96,7 @@ class SystemCommands(commands.Cog):
 - **Girthquake**: Filled out Amon information and endless support promoting this bot.
 - **JoeForLong**: Filled out Rafa information.
 - **Ratore**: Filled out Vex information.
+- **Lango**: Built the /build_summary command.
 
 **Information Sources**
 - [Serialization tool by Nicnl and InflamedSebi](<https://borderlands4-deserializer.nicnl.com/>)
