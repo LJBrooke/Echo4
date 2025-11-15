@@ -77,6 +77,19 @@ class SkillBuild:
         self.augment = augment
         self.capstone = capstone
 
+    @property
+    def skill_trees(self) -> dict[str, dict[str, dict[str, int]]]:
+        """Return a structured representation of the skill trees for this build."""
+        skill_trees = {}
+        for skill, points in self.skills.items():
+            skill_metadata = SKILLS_BY_NAME["skills"].get(skill)
+            if not skill_metadata:
+                continue
+            tree = skill_metadata['tree']
+            subtree = skill_metadata['subtree']
+            skill_trees.setdefault(tree, {}).setdefault(subtree, {})[skill] = points
+        return skill_trees
+
     @staticmethod
     def from_lootlemon(url: str) -> 'SkillBuild':
         """Create a SkillBuild from a LootLemon URL."""
@@ -143,8 +156,12 @@ class SkillBuild:
         write(f"Augment: {self.augment or 'None'}")
         write(f"Capstone: {self.capstone or 'None'}")
         write("Allocated skills:")
-        for name, pts in self.skills.items():
-            write(f"  - {name}: {pts}")
+        for tree, subtrees in self.skill_trees.items():
+            write(f"  Tree: {tree}")
+            for subtree, skills in subtrees.items():
+                write(f"    Subtree: {subtree}")
+                for skill, pts in skills.items():
+                    write(f"      - {skill}: {pts}")
 
     def to_lootlemon(self) -> str:
         """Serialize this SkillBuild into a LootLemon class URL.
