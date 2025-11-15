@@ -67,8 +67,9 @@ jobs:
           echo "Deploying new Docker Compose stack..."
           # The 'up' command with '-d' and '--build' handles stopping/removing the old containers
           # and recreating them, as defined in your docker-compose.yml.
-          echo "Forcing a no-cache build for the bot..."
-          docker compose build --no-cache bot
+          # echo "Forcing a no-cache build for the bot..."
+          # docker compose build --no-cache bot
+          docker compose build bot
           
           echo "Deploying new Docker Compose stack..."
           docker compose up -d

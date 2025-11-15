@@ -158,37 +158,10 @@ class Repkit:
     async def get_serial(self) -> str:
         """
         Reconstructs the full component string in the exact required order
-        for serialization.
+        for serialization. Returns the item serial.
         """
-        
-        all_part_tokens = []
-        
-        # 1. Get all perks and rebuild the single perk token
-        all_perk_ids = self._get_current_perk_ids()
-        
-        # Clear existing perk parts
-        self.parts["Perks"] = []
-        if all_perk_ids:
-            # Sort IDs and create the new unified token
-            int_ids = sorted([int(pid) for pid in all_perk_ids])
-            ids_str = ' '.join(str(i) for i in int_ids)
-            new_token = f"{{{self.REPKIT_PART_KEY}:[{ids_str}]}}"
-            self.parts["Perks"] = [new_token]
-
-        # 2. Add all parts in the correct order
-        for part_type in self.PART_ORDER:
-            all_part_tokens.extend(self.parts.get(part_type, []))
-
-        # 3. Create the space-separated part string
-        part_string = ' '.join(all_part_tokens)
-        
-        # 4. Reconstruct the full component string
-        base_aspect = f"{self.item_type_int}, 0, 1, {self.level}|{self.skin_data}"
-        part_aspect = f"{part_string}|{self.extra}"
-        
-        component_string = f"{base_aspect}||{part_aspect}" # Note: No space before ||
-        
-        return (await item_parser.reserialize(self.session, component_string)).get('serial_b85')
+    
+        return (await item_parser.reserialize(self.session, self.get_component_list())).get('serial_b85')
 
     def _get_current_perk_ids(self) -> List[int]:
         """
@@ -368,3 +341,37 @@ class Repkit:
         except Exception as e:
             print(f"Error parsing repkit perk token {token}: {e}")
             return []
+        
+    def get_component_list(self) -> str:
+        """
+        Reconstructs the full component string in the exact required order
+        for serialization. Returns the raw component string.
+        """
+        all_part_tokens = []
+        
+        # 1. Get all perks and rebuild the single perk token
+        all_perk_ids = self._get_current_perk_ids()
+        
+        # Clear existing perk parts
+        self.parts["Perks"] = []
+        if all_perk_ids:
+            # Sort IDs and create the new unified token
+            int_ids = sorted([int(pid) for pid in all_perk_ids])
+            ids_str = ' '.join(str(i) for i in int_ids)
+            new_token = f"{{{self.REPKIT_PART_KEY}:[{ids_str}]}}"
+            self.parts["Perks"] = [new_token]
+
+        # 2. Add all parts in the correct order
+        for part_type in self.PART_ORDER:
+            all_part_tokens.extend(self.parts.get(part_type, []))
+
+        # 3. Create the space-separated part string
+        part_string = ' '.join(all_part_tokens)
+        
+        # 4. Reconstruct the full component string
+        base_aspect = f"{self.item_type_int}, 0, 1, {self.level}|{self.skin_data}"
+        part_aspect = f"{part_string}|{self.extra}"
+        
+        component_string = f"{base_aspect}||{part_aspect}" # Note: No space before ||
+        
+        return component_string

@@ -2,6 +2,10 @@
 import discord
 import re
 from helpers import item_parser
+import logging
+
+# Get a logger for this specific module
+log = logging.getLogger(__name__)
 
 class Weapon:
     """Represents the BL4 item being edited."""
@@ -85,6 +89,7 @@ class Weapon:
         """
         Asynchronously creates and initializes a Weapon instance.
         """
+        log.info("Creating new Weapon instance for item type %s (%s)", item_type_int, manufacturer)
         # First, create the "empty" instance using the synchronous __init__
         weapon = cls(db_pool, session, initial_serial)
         
@@ -116,6 +121,8 @@ class Weapon:
             weapon.item_type_int = item_type_int
             weapon.type = item_type.replace('_',' ')
             weapon.manufacturer = manufacturer
+            
+            log.debug("Querying part list from DB for %s %s", weapon.manufacturer, weapon.type)
             part_list_results = await item_parser.query_part_list(
                 weapon.db_pool, weapon.manufacturer, weapon.type, regular_part_tokens
             )
@@ -133,15 +140,17 @@ class Weapon:
             weapon.parts["Secondary Element"] = weapon.secondary_element_tokens
             
             weapon.primary_element_name, weapon.secondary_element_name = await weapon.get_current_element_names()
-
+            
+            log.info("Successfully created Weapon instance for %s", weapon.item_name)
             # Return the fully populated instance
             return weapon
             
         except Exception as e:
-            print(f"Error during Weapon.create: {e}")
+            log.error("Failed to create Weapon instance during create(): %s", e, exc_info=True)
             raise e
 
     async def get_serial(self) -> str:
+        log.debug("Reserializing weapon to get new serial...")
         serial_dict = await item_parser.reserialize(self.session, self.get_component_list())
         return serial_dict.get('serial_b85')
 
@@ -151,6 +160,7 @@ class Weapon:
         by querying the two element tokens.
         Returns: (primary_name, secondary_name or None)
         """
+        log.debug("Querying current element names from tokens...")
         primary_token_list = self.parts.get("Primary Element", [])
         secondary_token_list = self.parts.get("Secondary Element", [])
         
@@ -161,6 +171,7 @@ class Weapon:
             primary_name, _ = await item_parser.query_elements_by_id(self.db_pool, primary_token)
         else:
             primary_name = self.DEFAULT_PRIMARY_ELEMENT
+            log.debug("No primary element token found. Using default: %s", self.DEFAULT_PRIMARY_ELEMENT)
 
         # --- 2. Get Secondary Name from Secondary Token ---
         secondary_name = None
@@ -169,7 +180,8 @@ class Weapon:
             # We query the secondary token, which contains the info for the dual-element gun.
             # We are safe to use the secondary_element field here.
             _, secondary_name = await item_parser.query_elements_by_id(self.db_pool, secondary_token)
-            
+        
+        log.debug("Element names resolved: Primary=%s, Secondary=%s", primary_name, secondary_name)
         return primary_name or self.DEFAULT_PRIMARY_ELEMENT, secondary_name
 
     async def get_parts_for_embed(self) -> str:
@@ -177,6 +189,7 @@ class Weapon:
         Generates a formatted, indented string list of all current parts
         for an embed, with priority fields at the top.
         """
+        log.debug("Generating parts list for embed display.")
         display_lines = []
 
         rarity_list = self.parts.get("Rarity", [])
@@ -234,6 +247,7 @@ class Weapon:
         with a new list of part IDs and automatically updates accessories
         if a base part variant is changed.
         """
+        log.info("Updating parts for type: %s with %s new part(s)", part_type, len(new_part_ids_str))
         
         # 1. Capture the OLD variant before update
         old_part_data = self.parts.get(part_type, [{}])[0] if self.parts.get(part_type) else {}
@@ -259,6 +273,7 @@ class Weapon:
             
             # Only proceed if the variant has changed (e.g., '01' -> '02')
             if old_variant != new_variant:
+                log.info("Base part variant changed from '%s' to '%s'. Checking for accessory updates.", old_variant, new_variant)
                 
                 accessory_type = self.ACCESSORY_MAP[part_type]
                 updated_accessories = []
@@ -269,6 +284,7 @@ class Weapon:
                     # Check if the equipped accessory is the OLD variant.
                     # Accessories with variant=None (wildcards) are skipped.
                     if equipped_accessory.get('variant') == old_variant and old_variant is not None:
+                        log.debug("Accessory %s matches old variant '%s'. Attempting to find new variant '%s'.", equipped_accessory['part_string'], old_variant, new_variant)
                         
                         # a. Construct the new part string based on the new variant
                         part_string = equipped_accessory['part_string']
@@ -281,43 +297,53 @@ class Weapon:
                             # The new base part is a wildcard (no variant). 
                             # We keep the old accessory, even if it has a variant, as per your rule.
                             # We do not change its string or lookup a new ID.
+                            log.debug("New base part is a wildcard. Keeping original accessory: %s", part_string)
                             updated_accessories.append(equipped_accessory)
                             continue
 
                         # b. Query the DB for the new accessory part data
+                        log.debug("Querying DB for new accessory string: %s", new_part_string)
                         new_accessory_data = await item_parser.query_part_by_string(
                             self.db_pool, self.manufacturer, self.type, new_part_string
                         )
 
                         if new_accessory_data:
                             # Found the new variant part! Replace the old one.
+                            log.debug("Found matching new accessory: %s", new_accessory_data['part_string'])
                             updated_accessories.append(self._process_part_record(new_accessory_data))
                         else:
                             # New variant part not found (e.g., 'Barrel Accessory 02' doesn't exist).
                             # We skip the accessory, effectively removing it.
-                            print(f"Warning: Could not find accessory variant {new_part_string}. Accessory removed.")
+                            log.warning("Could not find accessory variant %s. Accessory removed.", new_part_string)
                     
                     else:
                         # Accessory is either a wildcard (no variant) or doesn't match the old variant. Keep it.
+                        log.debug("Accessory %s is a wildcard or did not match old variant. Keeping it.", equipped_accessory['part_string'])
                         updated_accessories.append(equipped_accessory)
 
                 # 4. Overwrite the old accessory list with the new, updated list
                 self.parts[accessory_type] = updated_accessories
-                print(f"Automatically updated {len(updated_accessories)} {accessory_type}(s).")
+                log.info("Accessory auto-update complete. Final %s count: %s", accessory_type, len(updated_accessories))
 
-        print(f"Completed update for {part_type}.")
+        log.info("Completed part update for %s", part_type)
 
     async def update_element(self, new_primary_name: str, new_secondary_name: str | None):
         """
         Updates the primary and optional secondary element tokens in two separate slots.
         new_secondary_name = None means remove the secondary element.
         """
+        log.info("Updating elements: Primary=%s, Secondary=%s", new_primary_name, new_secondary_name)
         
         # 1. Determine Maliwan flag (affects the dual-element token ID lookup)
-        is_maliwan = not self.manufacturer.lower() == 'maliwan'
+        # --- LOGIC CORRECTION ---
+        # Original was: not self.manufacturer.lower() == 'maliwan'
+        # This set the flag to False for Maliwan, which seems incorrect.
+        is_maliwan_flag = self.manufacturer.lower() == 'maliwan'
+        log.debug("Manufacturer is '%s'. Setting Maliwan flag to: %s", self.manufacturer, is_maliwan_flag)
 
         # 2. Lookup the token for the PRIMARY ELEMENT SLOT (Base element token)
         # This token is always (Primary, Secondary=null, Maliwan=False)
+        log.debug("Querying primary-only element token for: %s", new_primary_name)
         primary_token = await item_parser.query_element_id(
             self.db_pool, 
             new_primary_name, 
@@ -326,22 +352,25 @@ class Weapon:
         )
         
         if not primary_token:
+            log.error("Could not find a Primary-Only element ID for %s", new_primary_name)
             raise ValueError(f"Could not find a Primary-Only element ID for {new_primary_name}. (DB error)")
 
         # 3. Handle the SECONDARY ELEMENT SLOT (Dual-element token)
         secondary_token = None
         if new_secondary_name and new_secondary_name.lower() != 'none':
+            log.debug("Querying dual-element token for: %s + %s (Maliwan=%s)", new_primary_name, new_secondary_name, is_maliwan_flag)
             
             # The dual-element token queries (Primary, Secondary, Maliwan)
             secondary_token = await item_parser.query_element_id(
                 self.db_pool, 
                 new_primary_name, 
                 new_secondary_name, 
-                is_maliwan
+                is_maliwan_flag
             )
             
             if not secondary_token:
-                raise ValueError(f"Could not find dual-element ID for {new_primary_name} + {new_secondary_name} (Maliwan={is_maliwan}).")
+                log.error("Could not find dual-element ID for %s + %s (Maliwan=%s)", new_primary_name, new_secondary_name, is_maliwan_flag)
+                raise ValueError(f"Could not find dual-element ID for {new_primary_name} + {new_secondary_name} (Maliwan={is_maliwan_flag}).")
         
         self.primary_element_name = new_primary_name
         self.secondary_element_name = new_secondary_name
@@ -349,36 +378,39 @@ class Weapon:
         self.parts["Primary Element"] = [primary_token]
         self.parts["Secondary Element"] = [secondary_token] if secondary_token else []
 
-        print(f"Element set: Primary={new_primary_name}, Secondary={new_secondary_name if secondary_token else 'None'}")
+        log.info("Element parts updated successfully.")
     
     async def update_rarity(self, new_rarity_name: str):
         """
         Updates the weapon's rarity token based on the selected name.
         """
+        log.info("Updating rarity to %s", new_rarity_name)
         rarity_id = self.EDITABLE_RARITY_MAP.get(new_rarity_name)
         if not rarity_id:
             # Should not happen with the provided options
+            log.error("Invalid rarity name provided: %s", new_rarity_name)
             raise ValueError(f"Invalid rarity name: {new_rarity_name}")
 
         rarity_token = f"{{{rarity_id}}}"
+        log.debug("Rarity token set to %s", rarity_token)
         
         # Rarity is stored as a list of one token
         self.parts["Rarity"] = [rarity_token]
-        print(f"Rarity updated to: {new_rarity_name} ({rarity_token})")
 
     async def update_level(self, new_level: int):
         """
         Updates the weapon's level attribute.
         """
+        log.info("Updating level to %s", new_level)
         # Level validation is typically done in the modal, but useful to keep here
         new_level = int(new_level)
         self.level = str(new_level) 
         
         if not 1 <= new_level <= 50:
             self.level = '50'
+            log.warning("Invalid level %s provided. Clamping to 50.", new_level)
             #  raise ValueError("Level must be between 1 and 50.")
         # Store as string for consistency with how it's used in base_aspect
-        print(f"Level updated to: {new_level}")
     
     def get_current_element_names_sync(self) -> tuple[str, str | None]:
         """
@@ -402,6 +434,7 @@ class Weapon:
         Finds the base part for a given accessory type and returns its 'variant'
         (e.g., '01', '02', or None).
         """
+        log.debug("Checking base variant for accessory type: %s", accessory_part_type)
         base_part_type = None
         
         # 1. Define the relationship between accessories and their base
@@ -415,6 +448,7 @@ class Weapon:
 
         if not base_part_type:
             # This part type doesn't have a base, so no filtering is needed.
+            log.debug("Part type has no base. No filtering needed.")
             return None
 
         # 2. Get the currently equipped base part
@@ -422,12 +456,15 @@ class Weapon:
         if not equipped_base_parts:
             # No base part is equipped (e.g., a weapon with no scope)
             # In this case, we shouldn't filter.
+            log.debug("No base part (%s) is equipped. No filtering needed.", base_part_type)
             return None
         
         # 3. Get the part's stored variant (e.g., '01', '02', or None)
         # We assume the first part in the list is the equipped one.
         base_part_data = equipped_base_parts[0]
-        return base_part_data.get('variant')
+        variant = base_part_data.get('variant')
+        log.debug("Found base part. Variant is: %s", variant)
+        return variant
     
     def get_current_embed(self) -> discord.Embed:
         """Generates the current display for the item state."""
@@ -460,6 +497,7 @@ class Weapon:
         Reconstructs the full component string in the exact required order
         for serialization.
         """
+        log.debug("Reconstructing component string for serialization.")
         
         # 1. Define the required order of part types (The blueprint)
         # This list defines the *slots* in the component string.
@@ -510,7 +548,7 @@ class Weapon:
         
         component_string = f"{base_aspect}|| {part_aspect}"
         
-        # print(f"Reconstructed Component String: {component_string}")
+        log.debug("Reconstructed Component String: %s", component_string)
         
         return component_string
            
@@ -522,28 +560,35 @@ class Weapon:
         # If the type is not 'Manufacturer Part', we trust it.
         if db_part_type != "Manufacturer Part":
             return db_part_type
-            
+        
+        log.debug("Re-classifying 'Manufacturer Part' with string: %s", part_string)
+        
         # --- Re-classification Logic ---
         # Based on your table, we check substrings in the part_string
         
         if ".part_shield_" in part_string:
             # e.g., "JAK_SR.part_shield_default"
+            log.debug("Re-classified as: Body Accessory")
             return "Body Accessory"
             
         if ".part_mag_torgue_" in part_string:
             # e.g., "JAK_SR.part_mag_torgue_normal"
+            log.debug("Re-classified as: Magazine")
             return "Magazine"
             
         if ".part_barrel_licensed_" in part_string:
             # e.g., "JAK_SR.part_barrel_licensed_ted"
+            log.debug("Re-classified as: Barrel Accessory")
             return "Barrel Accessory"
             
         if ".part_secondary_ammo_" in part_string:
             # e.g., "JAK_SR.part_secondary_ammo_smg"
             # This acts as a stat modifier
+            log.debug("Re-classified as: Stat Modifier")
             return "Stat Modifier"
             
         # Fallback for any 'Manufacturer Part' we don't have a rule for
+        log.debug("Fell back to: Stat Modifier")
         return "Stat Modifier"
 
     def _build_structured_parts(self, part_list_results: list[dict]):
@@ -551,6 +596,7 @@ class Weapon:
         Ingests the *initial* raw part list from the DB and
         populates self.parts.
         """
+        log.debug("Building structured parts dictionary from %s raw DB results.", len(part_list_results))
         # 1. Initialize self.parts with all possible part type keys
         self.parts = {
             "Rarity": [], "Body": [], "Body Accessory": [], "Barrel": [],
@@ -570,7 +616,7 @@ class Weapon:
                 self.parts[true_part_type].append(processed_part)
             else:
                 # Fallback for an unhandled part type
-                print(f"Warning: Unhandled part type {true_part_type} for {processed_part['part_string']}")
+                log.warning("Unhandled part type %s for part string %s. Placing in 'Unhandled'.", true_part_type, processed_part['part_string'])
                 if 'Unhandled' not in self.parts:
                     self.parts['Unhandled'] = []
                 self.parts['Unhandled'].append(processed_part)
@@ -581,6 +627,7 @@ class Weapon:
             # Extract the number: '{98}' -> '98' -> 98
             rarity_id = int(rarity_token[1:-1])
         except (ValueError, IndexError):
+            log.warning("Could not parse rarity token: %s", rarity_token, exc_info=True)
             return "Unknown" # Fallback for malformed tokens
 
         match rarity_id:
@@ -600,6 +647,7 @@ class Weapon:
         Processes a single raw part record from the DB into the
         structured dictionary format used by self.parts.
         """
+        log.debug("Processing raw part record: %s", part_data.get('part_string', 'N/A'))
         db_part_type = part_data['part_type']
         part_string = part_data['part_string']
         
@@ -621,6 +669,7 @@ class Weapon:
             part_variant = variant_match.group(1) # Get '01', '02', etc.
         
         if part_variant:
+            log.debug("Found variant: %s", part_variant)
             processed_part['variant'] = part_variant
             
         return processed_part

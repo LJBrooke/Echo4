@@ -150,34 +150,8 @@ class Shield:
         """
         Reconstructs the full component string in the exact required order
         for serialization.
-        """
-        
-        all_part_tokens = []
-        
-        for part_type in self.PART_ORDER:
-            parts_for_type = self.parts.get(part_type, [])
-            if not parts_for_type:
-                continue
-
-            # Rarity and Perks are stored as raw tokens (e.t., '{9}', '{246:25}')
-            if part_type in ["Rarity", "General", "Energy", "Armour"]:
-                all_part_tokens.extend(parts_for_type)
-            
-            # UniquePart is stored as a list of dicts
-            elif part_type == "UniquePart":
-                part_tokens = [f"{{{part['id']}}}" for part in parts_for_type]
-                all_part_tokens.extend(part_tokens)
-
-        # 3. Create the space-separated part string
-        part_string = ' '.join(all_part_tokens)
-        
-        # 4. Reconstruct the full component string
-        base_aspect = f"{self.item_type_int}, 0, 1, {self.level}|{self.skin_data}"
-        part_aspect = f"{part_string}|{self.extra}"
-        
-        component_string = f"{base_aspect}|| {part_aspect}"
-        
-        return (await item_parser.reserialize(self.session, component_string)).get('serial_b85')
+        """       
+        return (await item_parser.reserialize(self.session, self.get_component_list())).get('serial_b85')
 
     async def get_perks(self) -> dict[str, list[dict]]:
         """
@@ -488,3 +462,36 @@ class Shield:
                 id_map[part_type] = perk_ids
                 
         return id_map
+
+    def get_component_list(self) -> str:
+        """
+        Reconstructs the full component string in the exact required order
+        for serialization. Returns the raw component string.
+        """
+        
+        all_part_tokens = []
+        
+        for part_type in self.PART_ORDER:
+            parts_for_type = self.parts.get(part_type, [])
+            if not parts_for_type:
+                continue
+
+            # Rarity and Perks are stored as raw tokens (e.t., '{9}', '{246:25}')
+            if part_type in ["Rarity", "General", "Energy", "Armour"]:
+                all_part_tokens.extend(parts_for_type)
+            
+            # UniquePart is stored as a list of dicts
+            elif part_type == "UniquePart":
+                part_tokens = [f"{{{part['id']}}}" for part in parts_for_type]
+                all_part_tokens.extend(part_tokens)
+
+        # 3. Create the space-separated part string
+        part_string = ' '.join(all_part_tokens)
+        
+        # 4. Reconstruct the full component string
+        base_aspect = f"{self.item_type_int}, 0, 1, {self.level}|{self.skin_data}"
+        part_aspect = f"{part_string}|{self.extra}"
+        
+        component_string = f"{base_aspect}|| {part_aspect}"
+        
+        return component_string
