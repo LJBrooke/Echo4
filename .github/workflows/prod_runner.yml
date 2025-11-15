@@ -51,9 +51,9 @@ jobs:
           docker stop $CONTAINER_NAME || true
           docker rm $CONTAINER_NAME || true
 
-          echo "Stopping and removing old DB container..."
-          docker stop discord-bot-db || true
-          docker rm discord-bot-db || true      
+          # echo "Stopping and removing old DB container..."
+          # docker stop discord-bot-db || true
+          # docker rm discord-bot-db || true      
 
       # 4. Build the Docker Image 🏗️
       # This overwrites the $IMAGE_NAME tag, pointing it to the new build

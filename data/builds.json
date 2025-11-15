@@ -75,6 +75,15 @@
             "youtube": "https://www.youtube.com/watch?v=Gv28zVBJzo0"
         },
         {
+            "name": "Stray Harlowe",
+            "author": "[Lazydata](<https://www.youtube.com/@LazyData>)",
+            "tree": "Green",
+            "com": ["Bio Robot"],
+            "description": "The Stray is by far the fastest mobbing weapon in the game right now. Clearing hoards of mobs without you ever needing to make eye content.",
+            "moba": null,
+            "youtube": "https://www.youtube.com/watch?v=agCckQP0-IQ"
+        },	
+        {
             "name": "Quantum Toss",
             "author": "[PhyrexianGrace](<https://www.youtube.com/@PhyrexianGrace>)",
             "tree": "Green",
