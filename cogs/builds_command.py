@@ -1,8 +1,10 @@
 import json
 import discord
+import logging
 from builds import build
 from discord import app_commands
 from discord.ext import commands
+log = logging.getLogger(__name__)
 
 # --- Load Data and Prepare Choices ---
 try:
@@ -178,7 +180,37 @@ class BuildCommands(commands.Cog):
         self.bot = bot
         
     # --- Helper Functions ---
+    async def _check_for_link(self, interaction: discord.Interaction) -> str:
+        """
+        Checks the last 10 messages for a Lootlemon class link
+        and returns the first one found (newest to oldest).
+        """
+        LEMON_PREFIX = "https://www.lootlemon.com/class/"
+        try:
+            # Scan the last 10 messages (newest to oldest)
+            async for message in interaction.channel.history(limit=10):
+                
+                # Simple check first for performance
+                if LEMON_PREFIX in message.content:
+                    # If the prefix is in the message, find the actual link
+                    # Handle newlines and split by space
+                    words = message.content.replace('\n', ' ').split(' ') 
+                    for word in words:
+                        # Find the first "word" that starts with the prefix
+                        if word.startswith(LEMON_PREFIX):
+                            # Found the link, return it immediately
+                            return word
+            
+            # If we get through all 10 messages without returning, no link was found
+            return "No valid Lootlemon link found"
 
+        except (discord.Forbidden, discord.HTTPException) as e:
+            log.warning(f"Could not check for 'Lootlemon link' in message history: {e}")
+            return "No valid Lootlemon link found" # Return the "not found" string on permission error
+        except Exception as e:
+            log.error(f"Unexpected error during 'Lootlemon link' check: {e}", exc_info=True)
+            return "No valid Lootlemon link found" # Return the "not found" string on general error
+        
     # --- Autocomplete Function for the creator 'who' option ---
     async def creator_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
         return [
@@ -225,9 +257,14 @@ class BuildCommands(commands.Cog):
         
     # --- Interpret Lootlemon Build ---
     @app_commands.command(name="build_summary", description="Describe a build")
-    @app_commands.describe(link="Lootlemon link of build")
+    @app_commands.describe(link="Lootlemon link of build or ^ if someone has already posted the link.")
     async def build_inspect(self, interaction: discord.Interaction, link: str):
         
+        if link.strip()=='^':
+            link = await self._check_for_link(interaction)
+            if 'https://www.lootlemon.com/class/' not in link:
+                return await interaction.response.send_message(content=link)
+            
         build_obj = build.SkillBuild.from_lootlemon(link)
         # build_obj.pretty_print()
         
@@ -249,7 +286,6 @@ class BuildCommands(commands.Cog):
         embed.url = build_obj.to_lootlemon()
         
         await interaction.response.send_message(embed=embed)
-        
 
 # --- To load the Cog ---
 async def setup(bot):
