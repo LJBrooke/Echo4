@@ -38,7 +38,7 @@ services:
     networks:
       - echo-network
 
-  # --- Your Discord Bot Service ---
+  # --- Discord Bot Service ---
   bot:
     # 'build: .' tells compose to look for a 'Dockerfile' in the current directory
     # If your bot's Dockerfile is elsewhere, adjust the path (e.g., './bot-code')
@@ -106,3 +106,4 @@ volumes:
 networks:
   echo-network:
     driver: bridge
+    external: true

@@ -5,6 +5,7 @@ import logging
 log = logging.getLogger(__name__)
 
 # Serialization URL, Nicnl and InflamedSebi are amazing.
+LOCAL_URL = 'http://borderlands-serials:8080/api/v1/'
 NICNL_URL = 'https://borderlands4-deserializer.nicnl.com/api/v1/'
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -18,14 +19,26 @@ async def deserialize(session, serial: str) -> dict:
         session: The bot's aiohttp.ClientSession
         serial (str): The serial string
     """
-    endpoint = f'{NICNL_URL}deserialize'
     payload = {"serial_b85": serial.strip()}
     
-    # Use the async session
-    async with session.post(endpoint, json=payload) as response:
-        if response.status == 200:
+    try: 
+        endpoint = f'{LOCAL_URL}deserialize'
+        # Use the async session
+        async with session.post(endpoint, json=payload, timeout=5) as response:
+            # This will raise an aiohttp.ClientResponseError
+            # if the status code is 4xx or 5xx, which triggers the 'except' block.
+            response.raise_for_status()
+
+            # If we get here, status was 200-OK
             return await response.json()
-        return {"error": f"API returned status {response.status}"}
+    except:
+        # Fallback to original API in case local is down.
+        endpoint = f'{NICNL_URL}deserialize'
+        # Use the async session
+        async with session.post(endpoint, json=payload) as response:
+            if response.status == 200:
+                return await response.json()
+            return {"error": f"API returned status {response.status}"}
 
 async def reserialize(session, component_string: str) -> dict:
     """
@@ -34,14 +47,26 @@ async def reserialize(session, component_string: str) -> dict:
         session: The aiohttp.ClientSession
         component_string (str): The deserialized component string
     """
-    endpoint = f'{NICNL_URL}reserialize'
     payload = {"deserialized": component_string.strip()}
     
-    # Use the async session
-    async with session.post(endpoint, json=payload) as response:
-        if response.status == 200:
+    try:
+        endpoint = f'{NICNL_URL}reserialize'
+        # Use the async session
+        async with session.post(endpoint, json=payload, timeout=5) as response:
+            # This will raise an aiohttp.ClientResponseError
+            # if the status code is 4xx or 5xx, which triggers the 'except' block.
+            response.raise_for_status()
+
+            # If we get here, status was 200-OK
             return await response.json()
-        return {"error": f"API returned status {response.status}"}
+    except:
+        # Fallback to original API in case local is down.
+        endpoint = f'{LOCAL_URL}reserialize'
+        # Use the async session
+        async with session.post(endpoint, json=payload) as response:
+            if response.status == 200:
+                return await response.json()
+            return {"error": f"API returned status {response.status}"}
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # ASYNC DATABASE FUNCTIONS

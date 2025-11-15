@@ -643,7 +643,7 @@ class EditorCommands(commands.Cog):
         response = await item_parser.deserialize(self.bot.session, serial.strip())
         
         log.debug(response)
-        message = '**Item:** '+response.get('additional_data') + '\n**Deserialized String:** ```'+response.get('deserialized')+"```"
+        message = '**Item:** '+response.get('additional_data') + '\n**Deserialized String:** ```'+str(response.get('deserialized'))+"```"
                
         message = message+parts_footer
         await interaction.response.send_message(content=message)
