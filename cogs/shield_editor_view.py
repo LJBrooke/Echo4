@@ -388,8 +388,8 @@ class MainShieldEditorView(BaseEditorView):
                 bot_ref = self.cog
             
             # Get the final state of the item
-            final_serial = await self.weapon.get_serial()
-            final_component_string = self.weapon.get_component_list()
+            final_serial = await self.shield.get_serial()
+            final_component_string = self.shield.get_component_list()
 
             await item_parser.log_item_edit(
                 db_pool=bot_ref.db_pool,
