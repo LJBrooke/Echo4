@@ -101,7 +101,30 @@ CREATE TABLE item_edit_history (
     parts_json JSONB
 );
 
+CREATE TABLE characters (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    class_name VARCHAR(100)
+);
+CREATE TABLE skill_trees (
+    id SERIAL PRIMARY KEY,
+    character_id INTEGER REFERENCES characters(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL
+);
+CREATE TABLE entities (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    source_category VARCHAR(100) NOT NULL,
+    character_id INTEGER REFERENCES characters(id) ON DELETE SET NULL,
+    tree_id INTEGER REFERENCES skill_trees(id) ON DELETE SET NULL,
+    attributes JSONB
+);
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+CREATE INDEX idx_entities_name_trgm ON entities USING GIN (name gin_trgm_ops);
 
 insert into element_list 
 (id, primary_element, secondary_element, underbarrel)
