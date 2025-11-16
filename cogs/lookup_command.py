@@ -76,7 +76,7 @@ class LookupCommand(commands.Cog):
             
         return choices
        
-    def _format_entity_embed(self, record: asyncpg.Record) -> discord.Embed:
+    def _format_entity_embed(self, record: asyncpg.Record, tree_id: int | None) -> discord.Embed:
         """
         Takes a single database record and formats it into a rich Discord embed.
         """
@@ -84,7 +84,6 @@ class LookupCommand(commands.Cog):
         # The 'attributes' column is auto-decoded from JSONB into a Python dict
         attributes_raw = record['attributes']
 
-        # --- FIX for AttributeError ---
         # asyncpg might return the JSONB as a string instead of auto-decoding.
         # We'll manually parse it if it's a string.
         if isinstance(attributes_raw, str):
@@ -95,12 +94,25 @@ class LookupCommand(commands.Cog):
                 attributes = {"name": "Error: Corrupted Data"}
         else:
             attributes = attributes_raw
-        # --- END FIX ---
+        
+        # --- 1. Set Color based on Tree ID ---
+        colour = discord.Color.blurple() # Default
+        if tree_id is not None:
+            # Apply your modulo logic: 1, 4, 7, 10 -> Green
+            # 2, 5, 8, 11 -> Blue
+            # 3, 6, 9, 12 -> Red
+            match tree_id % 3:
+                case 1: # 1, 4, 7, 10
+                    colour = discord.Color.green()
+                case 2: # 2, 5, 8, 11
+                    colour = discord.Color.blue()
+                case 0: # 3, 6, 9, 12
+                    colour = discord.Color.orange()
         
         # Create the base embed with the entity's name
         embed = discord.Embed(
             title=record['name'],
-            color=discord.Color.blue()
+            color=colour
         )
 
         # 1. Set Description
@@ -256,7 +268,8 @@ class LookupCommand(commands.Cog):
             
             # Add all main results
             for record in results:
-                embed = self._format_entity_embed(record)
+                tree_id = record['tree_id']
+                embed = self._format_entity_embed(record, tree_id)
                 embeds.append(embed)
 
         # Send all found embeds (up to 10, Discord's limit)
