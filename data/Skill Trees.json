@@ -8,158 +8,187 @@
             {
               "name": "Cast Iron",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Forgeskill Cooldown Rate and Gun Handling.\n"
             },
             {
               "name": "Gathering Storm",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon deals increased Elemental Damage for a Duration.\n This effect can stack.\n Max Stacks: 3 Stack Duration: 14s"
             },
             {
               "name": "Executioner",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Critical Hit Damage.\n The effect is Doubled for a Duration after dealing Melee Damage.\n Double Duration: 8s"
             },
             {
               "name": "Get the Lead Out",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Reload Speed.\n The effect is Doubled for a Duration after causing a Detonation.\n Double Duration: 12s"
             },
             {
               "name": "Destruction Engine",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Forgeskill Damage and Detonation Damage.\n"
             },
             {
               "name": "Tempered Pyre",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon activates his Forgeskill, he spawns an Axe Forgedrone that attacks nearby enemies for a Duration, dealing Incendiary Melee Damage.\n Activating a Forgeskill while Tempered Pyre is active fully Restores the Duration of all active Forgedrones.\n Forgedrone Duration: 20s"
             },
             {
               "name": "Bolt Action",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon Reloads, his Guns gain Bonus Shock Damage for a Duration.\n Duration: 4s"
             },
             {
               "name": "Bellows",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Amon Activates his Forgeskill, he gains increased Gun Damage for a Duration.\n Duration: 8s"
             },
             {
               "name": "Twin Tempers",
               "max_points": 1,
               "tier": 2,
-              "requires": "Tempered Pyre"
+              "requires": "Tempered Pyre",
+              "description": "Tempered Pyre now spawns an additional Axe Forgedrone that deals Cryo Melee Damage.\n Forgedrones from Tempered Pyre have reduced Duration.\n Reduced Duration: 20%"
             },
             {
               "name": "Vital Organs",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Amon gains Critical Hit Chance with Guns for a Duration.\n This effect can stack.\n Max Stacks: 3 Stack Duration: 10s"
             },
             {
               "name": "Herald's Call",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Amon gains increased Shock Damage.\n"
             }
           ],
           "left": [
             {
               "name": "Tempered Ice",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Amon activates his Ordnance, he spawns a Hammer Forgedrone that attacks nearby enemies for a Duration, dealing Cryo Melee Damage.\n Forgedrone Duration: 25s Cooldown: 30s"
             },
             {
               "name": "Cacophany",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Ordnance Damage and Detonation Radius.\n"
             },
             {
               "name": "Masterwork",
               "max_points": 5,
               "tier": 1,
-              "requires": "Tempered Ice"
+              "requires": "Tempered Ice",
+              "description": "Forgedrones gain increased Damage and Duration.\n"
             },
             {
               "name": "Endless Bombardment",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Grenades have a Chance to refund themselves on use.\n Heavy Ordnance have a Chance to refund 1 Ammo on damaging enemies.\n"
             },
             {
               "name": "Stoked",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon deals Ordnance Damage, he gains increased Fire Rate for a Duration.\n This effect can stack.\n Max Stacks: 3 Stack Duration: 12s"
             },
             {
               "name": "Ordained Hammer",
               "max_points": 1,
               "tier": 2,
-              "requires": "Masterwork"
+              "requires": "Masterwork",
+              "description": "Hammer Forgedrones now deal Ordnance Damage in addition to their other types and gain a Chance to cause a Detonation on damaging enemies, dealing Cryo Damage in an area.\n"
             }
           ],
           "middle": [
             {
               "name": "Blast Furnace",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Amon or his Forgedrones Critically Hit an enemy or cause a Detonation, he gains increased Damage Dealt for a Duration.\n Detonations grant multiple Stacks.\n Detonation Stacks: +5 Max Stacks: 30 Stack Duration: 12s"
             },
             {
               "name": "Tempered Lightning",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Amon activates his Action Skill, he spawns a Sword Forgedrone that attacks nearby enemies for a Duration, dealing Shock Melee Damage.\n Activating an Action Skill while Tempered Lightning is active will partially Restore the Duration of all active Forgedrones.\n Duration: 18s"
             },
             {
               "name": "Armor of Contempt",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains Overshield when he deals Action Skill Damage.\n"
             },
             {
               "name": "Lightning Rod",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon's Gun Shots have a Chance on Critical Hit to spawn an Elemental Bolt, dealing Shock Damage.\n Elemental Bolt Chance: 25% Cooldown: 8s"
             },
             {
               "name": "Escalation",
               "max_points": 5,
               "tier": 1,
-              "requires": "Tempered Lightning"
+              "requires": "Tempered Lightning",
+              "description": "Forgedrones gain increased Attack Speed and Movement Speed.\n"
             },
             {
               "name": "Honed Point",
               "max_points": 3,
               "tier": 2,
-              "requires": "Escalation"
+              "requires": "Escalation",
+              "description": "Forgedrones have a Chance to Critically Hit.\n Whenever a Forgedrone Critically Hits, they partially restore Amon's Action Skill Cooldown.\n"
             }
           ],
           "right": [
             {
               "name": "Permafrost",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Amon Freezes an enemy, Cryo Hazard is created under them, dealing Cryo Damage for a Duration.\n Duration: 8s Cooldown: 2s"
             },
             {
               "name": "Raging Inferno",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Action Skill Damage has a Chance to Critically Hit and Burn enemies when it does.\n"
             },
             {
               "name": "Wildheart",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Status Effect Damage and Hazard Damage.\n"
             },
             {
               "name": "Freezer Burn",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Dealing Incendiary Damage with Guns increases Cryo Damage for a Duration.\n Dealing Cryo Damage with Guns increases Incendiary Damage for a Duration.\n Duration: 12s"
             },
             {
               "name": "Reactive Armor",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Detonations partially Restore Amon's Shield and Ordnance Cooldown.\n"
             },
             {
               "name": "Reverse Explosion",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Amon deals Forgeskill Damage, he creates a Drone Singularity for a Duration.\n Duration: 8s Cooldown: 60s"
             }
           ]
         },
@@ -171,44 +200,52 @@
           {
             "name": "Axe and Stone",
             "subtree": "top",
-            "lootlemon_char": "k"
+            "lootlemon_char": "k",
+            "description": "Amon gains increased Movement Speed for a Duration after damaging an enemy with a Forgeaxe, and can Detonate Primed enemies with a Melee Attack.\n Detonating a Flame Axe restores Action Skill Cooldown.\n Detonating a Cryo Axe restores Ordnance Cooldown.\n Move Speed: +40% Move Speed Duration: 4s Active Skill Cooldown Restore: 40% Ordnance Cooldown Restore: 40%"
           },
           {
             "name": "Endless War",
             "subtree": "top",
-            "lootlemon_char": "l"
+            "lootlemon_char": "l",
+            "description": "Primed enemies take increased Gun Damage for each stack of Prime.\n If Amon Detonates a Primed enemy, a new Forgeaxe is spawned that seeks out a nearby enemy.\n Cooldown: 2s Gun Damage Received: +20% per Prime Stack"
           },
           {
             "name": "Hour of the Hammer",
             "subtree": "left",
-            "lootlemon_char": "m"
+            "lootlemon_char": "m",
+            "description": "Amon now readies Forgehammers, choosing Frost or Shock.\n Enemies damaged by Forgehammer are Primed for a Duration, and will Detonate when they die or are damaged by a Forgeskill, dealing Damage to nearby enemies.\n Can throw a Cryo Hammer, dealing Cryo Melee Damage in an area on impact, or a Shock Hammer, dealing Shock Melee Damage in an area on impact.\n Forgehammer Damage: 6,719"
           },
           {
             "name": "Blade Tempest",
             "subtree": "middle",
-            "lootlemon_char": "n"
+            "lootlemon_char": "n",
+            "description": "Amon now readies Forgeswords, choosing Flame or Shock.\n Whenever activated, consume all Charges to launch a Barrage of Forgeswords.\n Enemies damaged by Forgeswords are Primed for a Duration, and will Detonate when they die or are damaged by a Forgeskill dealing Damage to the target, but none to nearby enemies.\n Can fire a Barrage of Flame Swords, dealing Incendiary Melee Damage, or a Barrage of Shock Swords, dealing Shock Melee Damage.\n This effect can stack.\n Forgesword Damage: 3,346 Detonation Damage: 3,346 per Prime Stack Forgeswords: 3 /Charge Charges: 3"
           },
           {
             "name": "Searing Cold",
             "subtree": "right",
-            "lootlemon_char": "o"
+            "lootlemon_char": "o",
+            "description": "Frost Axes apply Freeze on impact.\n Flame Axes now pass through enemies.\n"
           }
         ],
         "capstones": [
           {
             "name": "Snowmaul",
             "subtree": "left",
-            "lootlemon_char": "g"
+            "lootlemon_char": "g",
+            "description": "Double-Edge is now Snowmaul.\n Press and hold Action Skill to throw a Twinned Forgehammer, dealing Cryo Melee Damage to nearby enemies on impact that Ricochets between nearby enemies up to 3 times.\n If no Ricochet targets are found, it deals Damage an additional time before destroying itself.\n For each Detonation caused, it Ricochets an additional time.\n Twinned Forgehammer Damage: 6,719 Cooldown: 30s"
           },
           {
             "name": "Storm Surge",
             "subtree": "middle",
-            "lootlemon_char": "h"
+            "lootlemon_char": "h",
+            "description": "Double-Edge is now Storm Surge.\n Press and hold Action Skill to throw a Twinned Forgeblade, dealing Shock Melee Damage in an area on impact.\n Storm Surge creates a Forgestorm on impact for a Duration, dealing Shock Status Effect Damage over time.\n Twinned Forgeblade Damage: 7,344 Forgestorm Damage/s: 2,141 Duration: 18s Cooldown: 35s"
           },
           {
             "name": "Conflangarang",
             "subtree": "right",
-            "lootlemon_char": "i"
+            "lootlemon_char": "i",
+            "description": "Double-Edge now deals Incendiary Melee Damage in both directions, gains increased Radius, and leaves a trail of Fire as it travels if close enough to the ground, dealing Incendiary Damage over time.\n Causing a Detonation or damaging an enemy with Conflangarang will restore Forgeskill Cooldown.\n Double-Edge Radius: +33% Fire Trail Damage/s: 1,606 Fire Trail Duration: 5s Forgeskill Cooldown Restoration: 10% Cooldown: 40s"
           }
         ]
       },
@@ -219,153 +256,182 @@
             {
               "name": "Wrath of Nature",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Status Effect Application Chance and Cryo Effectiveness.\n This effect is Doubled when his Action Skill is active.\n"
             },
             {
               "name": "Scorched Kairos",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Ordnance Damage and Magazine Size.\n"
             },
             {
               "name": "The Thrill",
               "max_points": 3,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains Missing Health Regeneration.\n Every time Amon takes or absorbs Non-Status Effect Damage, he gains a Stack of Resolute for a Duration, which increases this effect.\n Max Stacks: 20 Stack Duration: 14s"
             },
             {
               "name": "Battleborn",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Gun Damage the more Full his Health.\n This effect is Doubled while Amon is at Maximum Health.\n"
             },
             {
               "name": "Eternal",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Action Skill Duration and Gun Swap Speed.\n"
             },
             {
               "name": "Tail of the Comet",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon deals Ordnance Damage, there is a Chance to apply a Cryo Status Effect that deals Cryo Damage over time for a Duration.\n Tail of the Comet is affected by Status Effect Application Chance.\n Freeze Chance: 20% Duration: 4s"
             },
             {
               "name": "Scar Tissue",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Maximum Health Capacity and Repkit Healing.\n"
             },
             {
               "name": "Bullet Hail",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Amon's Gun Shots have a Chance to Ricochet as an Elemental Shard, dealing Cryo Damage.\n Ricochet Damage: -25%"
             },
             {
               "name": "Machinist",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Amon Restores a percentage of Ordnance Cooldown.\n"
             },
             {
               "name": "Ancient Ways",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Amon deals increased Cryo Damage.\n"
             },
             {
               "name": "Warrior's Cup",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Amon uses a Repkit while his Action Skill is active, partially restore Action Skill Duration.\n"
             }
           ],
           "left": [
             {
               "name": "Wildfire",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Ricochet Damage, Burning Damage, and Burning Duration.\n"
             },
             {
               "name": "Burning Rage",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Killing an enemy with Incendiary Damage will grant a Stack of Flame Affinity for a Duration.\n Flame Affinity Stacks grant increased Reload Speed and Action Skill Cooldown Rate.\n Max Flame Affinity Stacks: 5 Flame Affinity Stack Duration: 30s"
             },
             {
               "name": "Ballistic Bulwark",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains Overshield when he deals Ordnance Damage.\n"
             },
             {
               "name": "Disco Infernus",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon applies Burning to an enemy, he gains increased Fire Rate for a Duration.\n This effect can stack.\n Max Stacks: 3 Stack Duration: 7s"
             },
             {
               "name": "Worldbreaker",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon Ground Slams, he consumes all Flame Affinity Stacks to create a Flame Fissure in front of him, dealing Incendiary Melee Damage to all enemies hit.\n Worldbreaker deals Bonus Damage for each Stack of Flame Affinity consumed.\n Bonus Damage: +25% /stack Cooldown: 60s"
             },
             {
               "name": "Cooling Mantle",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Partially Restore Worldbreaker's Cooldown.\n Worldbreaker Cooldown Restore: 6s"
             }
           ],
           "middle": [
             {
               "name": "Icy Rage",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Killing an enemy with Cryo Damage will grant a Stack of Cryo Affinity for a Duration.\n Cryo Affinity Stacks grant increased Gun Damage.\n Max Stacks: 5 Stack Duration: 30s"
             },
             {
               "name": "Northern Wind",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon's Gun Critical Hits have a Chance to apply additional Slow to enemies, as if dealt Cryo Damage.\n Chance is Doubled while his Action Skill is active.\n Slow Amount:\u00a025%"
             },
             {
               "name": "Winter's Kiss",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon deals Ordnance Damage, he consumes a Stack of Cryo Affinity for each nearby enemy to spawn an Elemental Shard, dealing Cryo Damage in an area.\n"
             },
             {
               "name": "Primal Surge",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon applies a Status Effect to an enemy, there is a Chance to partially restore his Shield and Ammo.\n Restoration Chance: 25%"
             },
             {
               "name": "Age of Ice",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon deals increased Damage to Frozen enemies and Bosses.\n"
             },
             {
               "name": "Caroming Shard",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Elemental Shard has a Chance to Ricochet.\n"
             }
           ],
           "right": [
             {
               "name": "Blackout",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Ordnance Damage has a Chance to Critically Hit, and Shock enemies when they do.\n"
             },
             {
               "name": "Thunderous Rage",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Killing an enemy with Shock Damage will grant a Stack of Shock Affinity for a Duration.\n Shock Affinity Stacks grant increased Critical Hit Damage.\n Max Shock Affinity Stacks: 5 Shock Affinity Duration: 30s"
             },
             {
               "name": "Tactician",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "While Hipfiring, Amon gains increased Fire Rate, but decreased Gun Handling.\n While Aiming, Amon gains increased Gun Damage and Gun Handling.\n"
             },
             {
               "name": "Smelter",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon Restores a percentage of Forgeskill Cooldown.\n"
             },
             {
               "name": "Strike the Anvil",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon deals Action Skill Damage, he consumes a Stack of Shock Affinity to cause an Elemental Bolt to strike that enemy, dealing Shock Damage.\n"
             },
             {
               "name": "High Voltage",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Elemental Bolts now Stagger enemies, and consume an additional Stack of Shock Affinity to Multiply Damage Dealt.\n Bosses cannot be Staggered, and Badasses have a reduced Chance to be Staggered.\n Elemental Bolt Damage: +200%"
             }
           ]
         },
@@ -373,44 +439,52 @@
           {
             "name": "Blastchill",
             "subtree": "top",
-            "lootlemon_char": "f"
+            "lootlemon_char": "f",
+            "description": "Forgewaves now consume more Vengeance and explode on impact, dealing Cryo Ordnance Damage in an area.\n Explosion Radius is further increased if the Forgewave passes through Firewall.\n Forgewave Damage: 4,015 Forgewave Vengeance Cost: 30% Explosion Radius: +50%"
           },
           {
             "name": "Cryonic Thrum",
             "subtree": "top",
-            "lootlemon_char": "g"
+            "lootlemon_char": "g",
+            "description": "While Scourge is active, Amon Taunts enemies and sends out a Cryonic Pulse every second, dealing Cryo Damage to enemies, and restoring Allies' Health.\n While Aiming, Amon's Movement Speed is reduced, but Amon gains Bonus Cryo Damage with Guns and consumes Vengeance on each Gun Shot.\n Pulse Damage: 535 Health Restoration: 535 Move Speed: -60% while Aiming Bonus Cryo Damage: 35% Vengeance Consumed: 2.\n5%"
           },
           {
             "name": "Molten Rebuke",
             "subtree": "left",
-            "lootlemon_char": "h"
+            "lootlemon_char": "h",
+            "description": "Forgewave is now Molten Rebuke.\n Press Action Skill to Consume all Vengeance and throw the Forgeshield at target enemy, dealing Incendiary Ordnance Damage, and Ricocheting on impact.\n Molten Rebuke Ricochets additional times based on Vengeance consumed.\n Whenever the Forgeshield is thrown, Damage Absorption is Disabled until it returns.\n Forgeshield Damage: 4,667 Extra Ricochet: +1 per 20% Vengeance"
           },
           {
             "name": "Eternal Winter",
             "subtree": "middle",
-            "lootlemon_char": "i"
+            "lootlemon_char": "i",
+            "description": "Forgewaves now partially restore Action Skill Duration and Firewall Duration on damaging enemies, and can be activated three times in succession.\n The third activation launches a Massive Forgewave that deals increased Damage and does not consume Vengeance.\n Action Skill Duration Restoration: 2.\n5% Firewall Duration Restoration: 5% Massive Forgewave Damage: 7,897"
           },
           {
             "name": "Stormlance",
             "subtree": "right",
-            "lootlemon_char": "j"
+            "lootlemon_char": "j",
+            "description": "Forgewave is now Stormlance.\n Press Action Skill to throw a Forgespear, dealing Shock Ordnance Damage on impact, consuming Vengeance to increase Damage Dealt.\n Enemies damaged by Forgespear are Primed for a Duration, and will Detonate when they are damaged by a Forgeskill, dealing Shock Damage to the target, but none to nearby enemies.\n Detonations can also be caused by Gun Critical Hits, but deal less Damage.\n This effect can stack.\n Forgespear Damage: 8,923 Vengeance Consumed: 20% Detonation Damage: 4,461 Gun Critical Hit Detonation Damage: -50% Prime Duration: 10s Max Prime Stacks: 10"
           }
         ],
         "capstones": [
           {
             "name": "Ring of Frostfire",
             "subtree": "left",
-            "lootlemon_char": "d"
+            "lootlemon_char": "d",
+            "description": "Firewall is now a Ring that deals Incendiary Status Effect Damage to enemies inside of it, and Cryo Damage to enemies who enter or leave.\n Firewall grants Friendly Projectiles that pass through it further increased Damage and Projectile Speed.\n Incendiary Damage/s: 535 Cryo Damage: 1,785 Friendly Projectile Damage: +50% Friendly Projectile Speed: +100% Cooldown: 60s"
           },
           {
             "name": "Glacial Rapture",
             "subtree": "middle",
-            "lootlemon_char": "e"
+            "lootlemon_char": "e",
+            "description": "Firewall is now Glacial Rapture.\n Press and hold Action Skill to swing Forgewhips, dealing Cryo Ordnance Damage over 2 Hits to nearby enemies before slamming into the ground, creating a Cryonic Fissure that deals Cryo Ordnance Damage and leaves Cryo Hazards for a Duration.\n Forgewhip Damage: 3,123 /hit Fissure Damage: 7,584 Hazard Damage/s: 2,677 Hazard Duration: 6s Cooldown: 60s"
           },
           {
             "name": "Wrathfall",
             "subtree": "right",
-            "lootlemon_char": "f"
+            "lootlemon_char": "f",
+            "description": "Firewall is now Wrathfall.\n Press and hold Action Skill to call down a Massive Forgesword to strike a target enemy, dealing Shock Ordnance Damage to enemies in the area.\n Wrathfall always Critically Hits.\n Damage: 9,815 Cooldown: 45s"
           }
         ],
         "action_skill": {
@@ -425,154 +499,183 @@
             {
               "name": "Impetus",
               "max_points": 3,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Shield Regeneration Rate and Movement Speed for a Duration.\n This effect can stack.\n Max Stacks: 3 Stack Duration: 15s"
             },
             {
               "name": "What Burns Within",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Incendiary Damage.\n"
             },
             {
               "name": "Discombobulate",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains Melee Critical Hit Chance.\n"
             },
             {
               "name": "Heavy Plate",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Maximum Shield Capacity and Maximum Overshield Capacity.\n"
             },
             {
               "name": "Wield the Storm",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Status Effect Damage and Status Effect Duration.\n"
             },
             {
               "name": "Gut Punch",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Melee Damage and Ordnance Damage have a chance to apply Weakness to enemies for a Duration.\n Weakened enemies deal reduced Damage, and take increased Damage.\n Weakness is affected by Status Effect Duration, and is itself considered a Status Effect.\n Enemy Damage Dealt: -40% Enemy Damage Taken: +20% Duration: 8s"
             },
             {
               "name": "Tritanium Knuckles",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Melee Damage and Skill Damage.\n"
             },
             {
               "name": "Forged in Steel",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Amon becomes immune to all Damage for a brief Duration whenever he activates a Forgeskill.\n Immune Duration: 6s"
             },
             {
               "name": "Bullet Storm",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Amon applies a Status Effect, he gains increased Gun Damage for a Duration.\n This effect can stack.\n Max Stacks: 5 Stack Duration: 10s"
             },
             {
               "name": "Metal Urge",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Amon deals Gun Damage, he gains increased Action Skill Cooldown Rate for a Duration.\n This effect can stack.\n Max Stacks: 20 Stack Duration: 12s"
             },
             {
               "name": "The Best Defense",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Amon gains Overshield whenever he deals Melee Damage.\n"
             }
           ],
           "left": [
             {
               "name": "Berserk",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Amon activates his Forgeskill, he becomes Berserk for a Duration, gaining Slow Immunity, and Bonus Cryo Damage with Gun Damage and Melee Damage.\n Duration: 15s"
             },
             {
               "name": "Bloodlust",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Amon's Shield Breaks, he gains Bloodlust for a Duration, gaining increased Reload Speed and Lifesteal.\n Bloodlust is also activated on Action Skill Activation.\n Duration: 8s"
             },
             {
               "name": "There is only Red",
               "max_points": 3,
               "tier": 1,
-              "requires": "Bloodlust"
+              "requires": "Bloodlust",
+              "description": "Whenever Amon kills an enemy while Berserk is active, partially restore Berserk's Duration, and increase Bonus Cryo Damage from Berserk.\n Duration Restoration: 4s"
             },
             {
               "name": "Rimebreak",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon's Shield Breaks, he partially Restores Shield and Detonates, dealing Cryo Damage to all nearby enemies and Freezing them.\n Cooldown: 45s"
             },
             {
               "name": "Brimming Vigor",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Maximum Health Capacity and deals increased Melee Damage the more full his Health.\n"
             },
             {
               "name": "My Touch is Death",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Amon deals Melee Damage, there is a chance to Activate Kill Skills.\n"
             }
           ],
           "middle": [
             {
               "name": "Into the Fray",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Damage Dealt and Damage Reduction based on his distance from the enemy.\n The closer the enemy, the greater the bonus.\n"
             },
             {
               "name": "Burning Ramparts",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Amon gains increased Fire Rate and Status Effect Chance the more full his Shields.\n"
             },
             {
               "name": "Harbinger",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Melee Damage and Maximum Shield Capacity for a Duration.\n This effect can stack.\n Max Stacks: 5 Stack Duration: 20s"
             },
             {
               "name": "Rearm",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon deals Damage with a Melee Attack, his current Gun has its Ammo partially refilled.\n"
             },
             {
               "name": "Maiming Strike",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Gun Critical Hits have a chance to apply Weakness to enemies for a Duration.\n Weakened enemies deal reduced Damage, and take increased Damage.\n Weakness is affected by Status Effect Duration, and is itself considered a Status Effect.\n Enemy Damage Dealt: -40% Enemy Damage Taken: +20% Duration: 8s"
             },
             {
               "name": "Mortal Flare",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Amon kills a Weakened enemy, they Detonate, dealing Incendiary Melee Damage to nearby enemies.\n Cooldown: 5s"
             }
           ],
           "right": [
             {
               "name": "Catastrophe",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Amon applies Shock to an enemy, he gains increased Critical Hit Chance for a Duration.\n Whenever Amon applies Burning to an enemy, he gains increased Critical Hit Damage for a Duration.\n Both effects stack separately.\n Max Stacks: 3 Stack Duration: 12s"
             },
             {
               "name": "Dragon's Breath",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Amon Activates his Ordnance, his next Gun Shot is converted to Incendiary Damage, Staggering damaged enemies, and gaining increased Damage Dealt.\n Bosses cannot be Staggered, and Badasses have a chance to be Staggered.\n"
             },
             {
               "name": "Judgment",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon deals increased Melee Damage to enemies below 50% total HP.\n"
             },
             {
               "name": "Fists of Stone",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Amon deals Melee Damage, Restore a percentage of Forgeskill Cooldown.\n Melee Attacks Double this effect.\n"
             },
             {
               "name": "Crackling Aegis",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Amon gains increased Status Effect Damage and Ordnance Damage based on his Shields.\n The fuller his Shield, the greater the effect.\n"
             },
             {
               "name": "Electrical Fire",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Amon Burns an enemy, he also Shocks them.\n Whenever Amon Shocks an enemy, he also Burns them.\n Cooldown: 2s"
             }
           ]
         },
@@ -580,44 +683,52 @@
           {
             "name": "Pyroclast",
             "subtree": "top",
-            "lootlemon_char": "a"
+            "lootlemon_char": "a",
+            "description": "Whenever Onslaughter is activated, Amon fully Restores his Health and Shield, and is surrounded by a Forgestorm that deals Incendiary Status Effect Damage to nearby enemies over time.\n Killing an enemy inside of the Forgestorm restores Amon's Action Skill Duration, and increases Forgestorm's Damage.\n Forgestorm Damage/s: 535 Active Skill Duration Restore: 20% Forgestorm Damage: +20% /kill Max Bonus Damage: +200%"
           },
           {
             "name": "Thermal Diffusion",
             "subtree": "top",
-            "lootlemon_char": "b"
+            "lootlemon_char": "b",
+            "description": "Rocket Punch now has two modes, gains increased Radius, and deals Bonus Damage based on Amon's Maximum Shield Capacity.\n Pressing Action Skill causes Rocket Punch to deal Incendiary Melee Attack Damage.\n Pressing Melee causes Rocket Punch to deal Cryo Melee Attack Damage.\n Rocket Punch Radius: +100% Bonus Damage: +20% Max-Shield"
           },
           {
             "name": "Fellfrost",
             "subtree": "left",
-            "lootlemon_char": "c"
+            "lootlemon_char": "c",
+            "description": "Pressing Action Skill immediately after a Rocket Punch causes Amon to use a follow-up attack, dealing Cryo Melee Attack Damage in a large area in front of Amon.\n Non-Boss enemies hit below 25% Total HP are killed.\n Follow Up Damage: 11,154"
           },
           {
             "name": "Force of Nature",
             "subtree": "middle",
-            "lootlemon_char": "d"
+            "lootlemon_char": "d",
+            "description": "While Onslaughter is active, Gun Damage dealt to enemies will Prime them for a Duration, and will Detonate when they die or are damaged by a Forgeskill, dealing Incendiary Damage to nearby enemies.\n Detonations can also be caused by Melee Attack Damage, but deal less Damage.\n This effect can stack.\n Detonation Damage: 100% of Gun Damage Dealt Max Prime Stacks: 10 Prime Duration: 10s Melee Explosion Damage: -50%"
           },
           {
             "name": "Fulminating Fist",
             "subtree": "right",
-            "lootlemon_char": "e"
+            "lootlemon_char": "e",
+            "description": "Amon gains increased Status Effect Chance while Onslaughter is active.\n Pressing Action Skill launches a concentrated Lightning Wave that deals Shock Melee Attack Damage to enemies it passes through.\n Lightning Wave Damage: ,417 Status Effect Chance: +30%"
           }
         ],
         "capstones": [
           {
             "name": "Hoarcleave",
             "subtree": "left",
-            "lootlemon_char": "a"
+            "lootlemon_char": "a",
+            "description": "Molten Slam is now Hoarcleave.\n Press and hold Action Skill to swing a Massive Forgeaxe, launching a Forgewave that deals Cryo Melee Damage and Freezes enemies it passes through.\n Enemies killed by Hoarcleave cause a Detonation, dealing Cryo Damage.\n Forgewave Damage: 6,558 Detonation Damage: 6,558 Cooldown: 55s"
           },
           {
             "name": "Molten Roil",
             "subtree": "middle",
-            "lootlemon_char": "b"
+            "lootlemon_char": "b",
+            "description": "Molten Slam gains increased Radius and Stores Damage.\n Pyres erupt under up to 3 enemies after a delay.\n Pyres deal additional Incendiary Melee Damage based on Damage Stored by Molten Slam, distributed among the remaining targets.\n Radius: +33% Damage Stored: 40% of Damage Dealt Cooldown: 70s"
           },
           {
             "name": "Stormcutter",
             "subtree": "right",
-            "lootlemon_char": "c"
+            "lootlemon_char": "c",
+            "description": "Molten Slam is now Stormcutter.\n Press and hold Action Skill to swing a Massive Forgesword, launching a Forgewave that deals Shock Melee Damage to all enemies it passes through.\n Restore Action Skill Cooldown, Action Skill Duration, and Ordnance Cooldown for each enemy hit.\n Forgewave Damage: 8,477 Active Skill Cooldown Restore: 20% Active Skill Duration Restore: 20% Ordnance Cooldown Restore: 20% Cooldown: 65s"
           }
         ],
         "action_skill": {
@@ -636,150 +747,178 @@
             {
               "name": "Mains Hum",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Maximum Shield Capacity and increased Maximum Overshield Capacity.\n"
             },
             {
               "name": "Personal Observation",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe deals increased Melee Damage and her Melee Attacks gain a chance to Entangle enemies.\n"
             },
             {
               "name": "Action at a Distance",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Harlowe applies a Status Effect to an enemy, she gains a chance to apply that Status Effect to each Entangled enemy.\n"
             },
             {
               "name": "Momentum",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Harlowe Entangles an enemy, she and her allies deal increased Critical Hit Damage.\n Duration: 12s"
             },
             {
               "name": "Mass Function",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe and her allies gain increased Reload Speed for every Entangled enemy.\n"
             },
             {
               "name": "Neutron Decay",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe Irradiates an enemy, she gains increased Gun Damage.\n This effect can stack.\n Max Stacks: 5 Stack Duration: 12s"
             },
             {
               "name": "Heat Death",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe gains increased Cryo Efficiency.\n"
             },
             {
               "name": "Creative Overflow",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe deals increased Gun Damage based on her Overshield.\n The more Overshield she has, the bigger the bonus.\n"
             },
             {
               "name": "Resonance Cascade",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe deals Radiation Damage to an enemy, she gains increased Action Skill Damage.\n This effect can stack.\n Max Stacks: 5 Stack Duration: 8s"
             },
             {
               "name": "Confirmative Reality",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe shoots an Entangled enemy, she and all allies restore a portion of their Action Skill Cooldown.\n"
             },
             {
               "name": "Absolute Zero",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe Freezes an enemy, she receives a Stack of Zero Point.\n For every Stack of Zero Point, her Action Skill Duration freezes for a short time.\n"
             }
           ],
           "left": [
             {
               "name": "Blue Shift",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "While her Action Skill is Cooling Down, Harlowe deals Bonus Cryo Damage with her Melee Attacks.\n While her Action Skill is Active, Harlowe deals Bonus Radiation Damage with her Melee Attacks.\n"
             },
             {
               "name": "Decoherence",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe deals increased Damage with all sources to Entangled enemies.\n Enemies inside of her Flux Generator take further increased Damage.\n"
             },
             {
               "name": "Latent Charge",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe deals Bonus Damage with Guns, Melee Attacks, and Action Skills while she has Overshield.\n The more Overshield she has, the bigger the bonus.\n"
             },
             {
               "name": "Feedback Loop",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe Entangles an enemy, she gains increased Action Skill Damage, Action Skill Duration, and Action Skill Cooldown Rate.\n This effect can stack.\n Max Stacks: 5 Stack Duration: 8s"
             },
             {
               "name": "Runaway Reaction",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe gains increased Status Effect Chance.\n Whenever Harlowe applies a Status Effect to an enemy, it becomes Entangled.\n"
             }
           ],
           "middle": [
             {
               "name": "Gamma Ray Burst",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Harlowe retriggers her Action Skill, the next shot fired from her Gun drains her Shield and deals Bonus Radiation Damage based on the amount drained.\n"
             },
             {
               "name": "Harlowe's Certainty Principle",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Gun Handling, which is further increased with every enemy in her Flux Generator.\n"
             },
             {
               "name": "Jaunt",
               "max_points": 1,
-              "tier": 1
+              "tier": 1,
+              "description": "Press and hold Melee Attack to make Harlowe swap places with her Flux Generator.\n"
             },
             {
               "name": "Critical Funding",
               "max_points": 5,
               "tier": 1,
-              "requires": "Harlowe's Certainty Principle"
+              "requires": "Harlowe's Certainty Principle",
+              "description": "Whenever Harlowe Critically Hits an enemy, she gains a chance to Entangle it, and Refills a portion of her Gun's Magazine.\n Chance: 15%"
             },
             {
               "name": "Exposed Core",
               "max_points": 1,
               "tier": 2,
-              "requires": "Gamma Ray Burst"
+              "requires": "Gamma Ray Burst",
+              "description": "While her Shield is down, Harlowe gains increased Status Effect Chance.\n"
             },
             {
               "name": "Meltdown",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe's Critical Hits with Guns deal Bonus Radiation Damage.\n"
             }
           ],
           "right": [
             {
               "name": "Refraction",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe and her allies gain Ricochet Chance against Entangled enemies.\n Critical Hits Double this chance.\n Ricochets have Reduced Damage.\n Ricochet Damage: -50%"
             },
             {
               "name": "Excited State",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Critical Hit Damage.\n Whenever an enemy is damaged by Harlowe's Action Skill, the next shot on that enemy will be an Automatic Critical Hit.\n"
             },
             {
               "name": "Accretion",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe and her allies gain Lifesteal against Entangled enemies.\n"
             },
             {
               "name": "Distribution Function",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe's Action Skill damages an enemy, restore a portion of her and all allies' Shield Capacity.\n If their Shields are full, gain Overshield instead.\n"
             },
             {
               "name": "Pencils Down",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "While Harlowe's Action Skill is Cooling Down, she grants herself and her allies increased Reload Speed and Fire Rate.\n"
             },
             {
               "name": "Annihilation",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe's Flux Generator occasionally throws Grenades.\n If Harlowe or her Allies are inside the Flux Generator and have a Grenade equipped, it throws a copy of that Grenade.\n Grenade Spawn Rate: 7s"
             }
           ]
         },
@@ -787,44 +926,52 @@
           {
             "name": "Coronal Mass Ejection",
             "subtree": "top",
-            "lootlemon_char": "k"
+            "lootlemon_char": "k",
+            "description": "Enemies inside Harlowe's Flux Generator lose all Elemental Resistances.\n Harlowe and her allies inside her Flux Generator gain increased Status Effect Chance.\n Status Effect Chance: +100%"
           },
           {
             "name": "Blue Giant",
             "subtree": "top",
-            "lootlemon_char": "l"
+            "lootlemon_char": "l",
+            "description": "Harlowe's Flux Generator gains increased Radius.\n Additionally, whenever she retrieves Flux Generator, she creates a Cryo Hazard where her Flux Generator was located, and a Radiation Hazard wherever she next places her Flux Generator.\n Only one of each of these Hazards may be active at a time.\n Terminal Radius: +50% Hazard Damage/s: 803 Hazard Duration: 5s"
           },
           {
             "name": "Unified Theory",
             "subtree": "left",
-            "lootlemon_char": "m"
+            "lootlemon_char": "m",
+            "description": "Harlowe's Flux Generator gains increased Action Skill Damage.\n This effect is increased based on how many Allies and Enemies are inside of her Flux Generator.\n Action Skill Damage: +10% per Ally and Enemy in Radius"
           },
           {
             "name": "Nuclear Winter",
             "subtree": "middle",
-            "lootlemon_char": "n"
+            "lootlemon_char": "n",
+            "description": "Whenever Harlowe and her allies are inside the Flux Generator's Radius, they deal Bonus Cryo Damage.\n Whenever Harlowe and her allies leave the Flux Generator's Radius, they instead deal Bonus Radiation Damage for a Duration.\n Whenever Harlowe inflicts Cryo or Radiation Status Effects, that enemy becomes Entangled.\n Bonus Cryo Damage: 25% of Damage Dealt Bonus Radiation Damage: 25% of Damage Dealt Bonus Damage Duration: 12s"
           },
           {
             "name": "Perpetual Engine",
             "subtree": "right",
-            "lootlemon_char": "o"
+            "lootlemon_char": "o",
+            "description": "When Harlowe activates her Flux Generator, she gains Damage Reduction and increased Action Skill Duration for each Entangled enemy and each additional enemy she Entangles while her Action Skill is active.\n Damage Reduction: +7% per Entangled enemy Action Skill Duration: +7% per Entangled enemy"
           }
         ],
         "capstones": [
           {
             "name": "Potential Transference",
             "subtree": "left",
-            "lootlemon_char": "g"
+            "lootlemon_char": "g",
+            "description": "Whenever Harlowe relocates her Flux Generator, it Teleports to a location in her crosshairs, consuming a Charge and creating a Shock Burst that deals Shock Damage to enemies inside it, grants a free Second Wind to allies, and Heals allies within the Flux Generator.\n Burst Damage: 7,138 Health Restore: 1,472 Charges: 3 Action Skill Duration: 22s Action Skill Cooldown: 52s"
           },
           {
             "name": "Violent Horizon",
             "subtree": "middle",
-            "lootlemon_char": "h"
+            "lootlemon_char": "h",
+            "description": "Harlowe's Flux Generator occasionally shoots Radiation Projectiles at nearby enemies outside of its radius.\n If these Projectiles Irradiate an enemy, the Flux Generator then drags them within its radius.\n Retrigger: Harlowe's Flux Generator creates a Singularity burst that drags in nearby enemies and increases Action Skill Damage.\n Damage: 3,569 Action Skill Damage: +10% per Retrigger Action Skill Duration: 25s Action Skill Cooldown: 60s Retrigger Cooldown: 3s"
           },
           {
             "name": "Group Study",
             "subtree": "right",
-            "lootlemon_char": "i"
+            "lootlemon_char": "i",
+            "description": "Harlowe spawns a HALO Sidekick for each ally instead of her Flux Generator.\n HALO Sidekicks automatically fly to each ally and hover near them, granting increased Gun Damage, Fire Rate, and Reload Speed.\n Action Skill Retrigger: Overload Harlowe's HALO Sidekicks to increase their effects.\n This effect stacks.\n While Overloaded, Harlowe's Action Skill Duration drains faster.\n Gun Damage: +25% /activation Fire Rate : +10% /activation Reload Speed: +10% /activation Duration Rate: +25% /activation Action Skill Duration: 28s Action Skill Cooldown: 32s"
           }
         ],
         "action_skill": {
@@ -839,149 +986,177 @@
             {
               "name": "Quantum Immortality",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Harlowe Entangles an enemy, she gains Health Regeneration.\n Duration: 8s"
             },
             {
               "name": "Parallel Circuit",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "After triggering or retriggering an Action Skill, Harlowe gains increased Gun Damage.\n Duration: 8s"
             },
             {
               "name": "Pulse Drive",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Action Skill Cooldown Rate.\n"
             },
             {
               "name": "Make Extraordinary",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains Critical Hit Chance with all Skills.\n This chance increases every time Harlowe Entangles an enemy.\n This effect can stack.\n Max Stacks: 10 Stack Duration: 8s"
             },
             {
               "name": "Bright Future",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe triggers or retriggers an Action Skill, she gains increased Fire Rate.\n Duration: 8s"
             },
             {
               "name": "Negative Entropy",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe gains increased Gun Handling.\n This bonus is Doubled while an enemy is in Stasis.\n"
             },
             {
               "name": "Periodic Table Flip",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe gains increased Elemental Damage, Status Effect Application Chance, and Cryo Effectiveness.\n"
             },
             {
               "name": "Ripple Effect",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe kills an Entangled enemy, automatically Entangle another nearby enemy.\n"
             },
             {
               "name": "Precision Engineering",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe gains increased Critical Hit Damage.\n"
             },
             {
               "name": "Too Coolant for Schoolant",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe deals Cryo Damage, gain increased Action Skill Cooldown Rate.\n Duration: 4s"
             },
             {
               "name": "Cryodynamics",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe gains increased Cryo Damage.\n"
             }
           ],
           "left": [
             {
               "name": "Concurrence",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Action Skill Duration for every Entangled enemy.\n"
             },
             {
               "name": "Force of Will",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Harlowe Critically Hits an enemy, Daze that enemy.\n Dazed enemies have decreased Movement Speed and Attack Speed.\n Daze can stack.\n Stack Duration: 7s"
             },
             {
               "name": "Control Group",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Killing an Entangled enemy restores a portion of Harlowe's Action Skill Cooldown and Action Skill Duration.\n"
             },
             {
               "name": "Slingshot",
               "max_points": 5,
               "tier": 1,
-              "requires": "Force of Will"
+              "requires": "Force of Will",
+              "description": "Whenever Harlowe Dazes an enemy, she also Entangles them, and then she gains increased Movement Speed.\n Duration: 8s"
             },
             {
               "name": "Freeze Frame",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe's Guns deal Bonus Cryo Damage for every enemy she has in Stasis.\n This effect can stack.\n Max Stacks: 10"
             },
             {
               "name": "Stun Lock",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe Critically Hits an enemy, she briefly puts that enemy into Stasis.\n This form of Stasis lasts for a short duration, or until the enemy is shot again.\n Cooldown: 10s"
             }
           ],
           "middle": [
             {
               "name": "Unstable Ice-otope",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe deals Bonus Cryo Damage with all sources.\n Duration: 8s"
             },
             {
               "name": "Keep Ice on That",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "All Cryo Damage Harlowe deals gains Lifesteal.\n If Harlowe's Health is full, she gains Overshield instead.\n"
             },
             {
               "name": "Endothermic Reaction",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe Freezes an enemy, create an Endothermic Aura that deals constant Cryo Damage to enemies around it.\n Harlowe's Endothermic Aura deals increased Damage based on her Overshield.\n The more full, the greater the bonus Cooldown: 4s"
             },
             {
               "name": "Flash Freeze",
               "max_points": 1,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe deals Cryo Damage with an Action Skill, she gains a chance to Freeze that enemy.\n Duration: 8s"
             },
             {
               "name": "Heat Sink",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe Freezes an enemy, she gains increased Action Skill Cooldown Rate.\n Duration: 8s"
             },
             {
               "name": "Triple Point",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe deals non-Cryo Damage to an Entangled enemy, she deals Bonus Cryo Damage to that enemy.\n If she deals Cryo Damage to an Entangled enemy, she deals increased bonus Damage.\n Bonus Cryo Damage: +15% of Non-Cryo Damage Dealt Bonus Cryo Damage: +30% of Cryo Damage Dealt"
             }
           ],
           "right": [
             {
               "name": "Indiscrete Math",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Splash Damage.\n"
             },
             {
               "name": "Experimentation",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Killing an Entangled enemy causes an Elemental Explosion on all other Entangled enemies.\n"
             },
             {
               "name": "Domino Effect",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe deals Splash Damage to an Entangled enemy, she gains a chance to trigger Entangled Damage Share again.\n"
             },
             {
               "name": "Sustained Reaction",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Killing an Entangled enemy restores a portion of Harlowe's Action Skill Duration.\n"
             },
             {
               "name": "Gordian Knot",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe kills an Entangled enemy, she gains a chance to instantly fully restore her Action Skill.\n"
             }
           ]
         },
@@ -989,44 +1164,52 @@
           {
             "name": "Strange Attractor",
             "subtree": "top",
-            "lootlemon_char": "f"
+            "lootlemon_char": "f",
+            "description": "Whenever Harlowe shoots an enemy with a Gun, bullets Ricochet off of that enemy onto all enemies in Stasis.\n If Harlowe Critically Hits an enemy, that enemy becomes Entangled.\n"
           },
           {
             "name": "Peer Review",
             "subtree": "top",
-            "lootlemon_char": "g"
+            "lootlemon_char": "g",
+            "description": "Whenever an enemy enters Stasis, spawn a homing Rejuvenating Projectile that targets Harlowe or her Allies once the enemy is Slammed, killed, or Stasis ends.\n The Rejuvenating Projectile grants decreased Action Skill Duration Rate and increased Action Skill Cooldown Rate for a Duration.\n If the target is in Fight for Your Life, they immediately gain Second Wind as if they killed an enemy.\n Action Skill Cooldown Rate: +50% Action Skill Duration Rate: -50% Duration: 12s"
           },
           {
             "name": "Wildcat Destabilization",
             "subtree": "left",
-            "lootlemon_char": "h"
+            "lootlemon_char": "h",
+            "description": "Entangled enemies take Bonus Radiation Damage from Entangle.\n Whenever Harlowe deals Radiation Gun Damage to an enemy, restore Action Skill Duration.\n Whenever Harlowe kills an enemy in Stasis, create a Radiation Nova.\n This Radiation Nova deals Damage based on remaining Action Skill Duration.\n Bonus Radiation Damage: 25% of Damage Dealt Duration Restored: 1% of Duration Radiation Nova Damage: 4,461"
           },
           {
             "name": "Cold Storage",
             "subtree": "middle",
-            "lootlemon_char": "i"
+            "lootlemon_char": "i",
+            "description": "All Damage Dealt to enemies in Stasis is stored.\n Whenever an enemy is Slammed or Stasis ends, create a Cryo Explosion based on all Stored Damage and centered on that enemy, and also automatically Freeze other enemies nearby.\n Maximum Stored Damage: 26,769"
           },
           {
             "name": "Inertia",
             "subtree": "right",
-            "lootlemon_char": "j"
+            "lootlemon_char": "j",
+            "description": "Whenever an enemy Harlowe has in Stasis dies, a new enemy is automatically added to Stasis.\n When this happens, Harlowe's Action Skill Duration resets, however it drains quicker.\n Stasis Duration Rate: +20% per additional enemy"
           }
         ],
         "capstones": [
           {
             "name": "Falling Bodies",
             "subtree": "left",
-            "lootlemon_char": "d"
+            "lootlemon_char": "d",
+            "description": "Pressing Action Skill places an additional enemy in Stasis at the cost of Action Skill Duration.\n When Stasis ends, automatically Slam all enemies straight down.\n Duration Cost: 4s Action Skill Duration: 14s Action Skill Cooldown: 45s"
           },
           {
             "name": "Cold Plunge",
             "subtree": "middle",
-            "lootlemon_char": "e"
+            "lootlemon_char": "e",
+            "description": "Whenever Harlowe Slams an enemy, create a Singularity on that enemy, followed by a Cryo Explosion.\n Cryo Nova Damage: 2,668 Action Skill Duration: 10s Action Skill Cooldown: 40s"
           },
           {
             "name": "Ground State",
             "subtree": "right",
-            "lootlemon_char": "f"
+            "lootlemon_char": "f",
+            "description": "Every time Harlowe Slams an enemy, gain increased Slam Damage and Slam Damage Radius.\n Enemies in Stasis take Decreased Damage.\n Press Action Skill to Slam all enemies in Stasis straight down.\n Slam Damage: +30% per Slam Slam Radius: +30% per Slam Action Skill Cooldown: 35s Action Skill Duration: 14s"
           }
         ],
         "action_skill": {
@@ -1041,154 +1224,183 @@
             {
               "name": "Cyclotron",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Fire Rate.\n"
             },
             {
               "name": "PPE",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Maximum Shield Capacity and Shield Recharge Rate.\n"
             },
             {
               "name": "Fuzzy Math",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Status Effect Chance.\n"
             },
             {
               "name": "Field-Ready Prototype",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Action Skill Damage.\n"
             },
             {
               "name": "Bleeding Edge",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe gains increased Reload Speed.\n"
             },
             {
               "name": "Elementary",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe gains increased Elemental Damage and Status Effect Damage.\n"
             },
             {
               "name": "Test Subjects",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe applies a Status Effect to an enemy, she gains increased Action Skill Cooldown Rate.\n Duration: 8s"
             },
             {
               "name": "Get Up and Go",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe activates or retriggers an Action Skill, she gains increased Movement Speed.\n Duration: 8s"
             },
             {
               "name": "Elephant's Foot",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe's Shield breaks, she deals Radiation Damage to all Entangled enemies.\n Harlowe gains Overshield equal to the amount of Damage dealt this way.\n Cooldown: 16s"
             },
             {
               "name": "Great Red DoT",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe gains increased Status Effect Duration.\n"
             },
             {
               "name": "Enriched",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe gains increased Radiation Damage.\n"
             }
           ],
           "left": [
             {
               "name": "Practical Applications",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Skill Damage.\n"
             },
             {
               "name": "Carry the One",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Harlowe Entangles an enemy, she gains a chance to Entangle another nearby enemy.\n"
             },
             {
               "name": "Core Sample",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe gains Lifesteal against Frozen enemies.\n If she's at full Health, she gains Overshield instead.\n"
             },
             {
               "name": "Break the Ice",
               "max_points": 1,
-              "tier": 1
+              "tier": 1,
+              "description": "Convert all CHROMA Accelerator Damage to Cryo Damage.\n"
             },
             {
               "name": "Opposing Force",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe Freezes an enemy, she gains increased Action Skill Cooldown rate.\n This effect can stack.\n Max Stacks: 10 Stack Duration: 16s"
             },
             {
               "name": "Cold Welding",
               "max_points": 3,
               "tier": 2,
-              "requires": "Carry the One"
+              "requires": "Carry the One",
+              "description": "Whenever Harlowe Freezes an Entangled enemy, it deals Cryo Damage to itself and all other Entangled enemies.\n Duration: 8s"
             }
           ],
           "middle": [
             {
               "name": "Poisoned Sun",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains increased Radiation Damage and Irradiation Chance.\n"
             },
             {
               "name": "Glow Up",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Harlowe gains Critical Hit Chance with Guns against Irradiated enemies.\n"
             },
             {
               "name": "Fissile Launcher",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe damages an Irradiated enemy or an Entangled enemy, shoot a Radiation Dart at another enemy.\n Cooldown: 2s"
             },
             {
               "name": "Chain Reactor",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Harlowe deals Bonus Radiation Damage to Entangled enemies.\n"
             },
             {
               "name": "Wasted",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Killing an Irradiated enemy or killing an enemy with Radiation Damage leaves behind a Radiation Hazard.\n Hazard Damage/s: 803 Hazard Duration: 5s"
             },
             {
               "name": "Dirty Bomb",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe Irradiates an enemy, create a Radiation Explosion on that enemy.\n The Radiation Explosion Damage is based on the total Irradiated Damage.\n"
             }
           ],
           "right": [
             {
               "name": "Highly Efficient",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Harlowe kills an enemy with a Skill, Restore a portion of her Shield Capacity.\n"
             },
             {
               "name": "Mechanical Brilliance",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Harlowe damages an enemy with a Skill, she gains increased Skill Damage.\n This effect can stack.\n Max Stacks: 5 Stack Duration: 12s"
             },
             {
               "name": "Eureka!",
               "max_points": 1,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Harlowe enters Fight For Your Life, she throws a free Unstable Energy Pocket at a nearby enemy - if there are any.\n Damage: 8,923 Cooldown: 40s"
             },
             {
               "name": "Rounding Up",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "For every enemy her Action Skill damages, Harlowe gains increased Gun Damage when her Action Skill ends.\n This effect can stack.\n Max Stacks: 5 Stack Duration: 14s"
             },
             {
               "name": "Alternative Fuel Source",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Harlowe activates CHROMA Accelerator, drain her Shield and Amp her next Unstable Energy Pocket.\n"
             },
             {
               "name": "QED",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Harlowe attaches an Unstable Energy Pocket to her fist, and slams it into an enemy in front of her.\n Damage: 5,800 Cooldown: 40s"
             }
           ]
         },
@@ -1196,44 +1408,52 @@
           {
             "name": "Voidstar",
             "subtree": "top",
-            "lootlemon_char": "a"
+            "lootlemon_char": "a",
+            "description": "Whenever Harlowe's Unstable Energy Pocket passes by an enemy, it loses a portion of its current Total Health and becomes Frozen.\n Health Loss: 30% Max-Health Drain: 13,384"
           },
           {
             "name": "Neutron Capture",
             "subtree": "top",
-            "lootlemon_char": "b"
+            "lootlemon_char": "b",
+            "description": "All Damage Harlowe's Unstable Energy Pocket deals to enemies is stored.\n Whenever it explodes, a portion of that Stored Damage is transferred to Harlowe's Gun, causing her to deal Bonus Radiation Damage.\n Damage Transfer: 4% of Action Skill Damage Dealt Duration: 8s"
           },
           {
             "name": "Field Research",
             "subtree": "left",
-            "lootlemon_char": "c"
+            "lootlemon_char": "c",
+            "description": "Whenever Harlowe kills an enemy with her Unstable Energy Pocket and when she kills an Entangled enemy while her Unstable Energy Pocket is active, refund a portion of her next Action Skill Cooldown.\n Action Skill Cooldown Refund: 15% /kill"
           },
           {
             "name": "Special Purpose Magnets",
             "subtree": "middle",
-            "lootlemon_char": "d"
+            "lootlemon_char": "d",
+            "description": "Harlowe's Unstable Energy Pocket pulls enemies along as it passes by, and its detonation deals increased Damage for every enemy it has already hit.\n Damage: 11% per enemy hit"
           },
           {
             "name": "Containment Breach",
             "subtree": "right",
-            "lootlemon_char": "e"
+            "lootlemon_char": "e",
+            "description": "Whenever Harlowe's Unstable Energy Pocket detonates, it Splits into several smaller, fast moving Unstable Energy Pockets.\n Damage: 2,945 Extra Projectiles: 5"
           }
         ],
         "capstones": [
           {
             "name": "Q-Ball",
             "subtree": "left",
-            "lootlemon_char": "a"
+            "lootlemon_char": "a",
+            "description": "Harlowe's Unstable Energy Pocket bounces as it travels and can no longer be manually detonated.\n Each time it bounces, it creates a Radiation Explosion.\n Whenever it strikes an enemy, it changes direction and bounces towards another enemy.\n Action Skill Cooldown: 38s Action Skill Duration: 16s Maximum Bounces: 10"
           },
           {
             "name": "Demon Core",
             "subtree": "middle",
-            "lootlemon_char": "b"
+            "lootlemon_char": "b",
+            "description": "As Harlowe's Unstable Energy Pocket travels, it shoots Radiation Darts at enemies.\n Whenever Harlowe Entangles an enemy while her Action Skill is active, automatically Irradiate that enemy.\n Radiation Dart Damage: 4,461 Action Skill Cooldown: 42s"
           },
           {
             "name": "The Shattering Light",
             "subtree": "right",
-            "lootlemon_char": "c"
+            "lootlemon_char": "c",
+            "description": "CHROMA Accelerator gains Charges as Harlowe keeps it readied for the Duration of CHROMA Accelerator or until all Charges are used.\n Holding the Action Skill ends The Shattering Light early and refunds a portion of the Cooldown for every Charge remaining.\n Press Action Skill: Fire a fast-moving Unstable Energy Pocket, consuming a Charge.\n Charges: 5 Detonation Damage: 4,461 Action Skill Duration: 21s Action Skill Cooldown: 50s"
           }
         ],
         "action_skill": {
@@ -1252,185 +1472,219 @@
             {
               "name": "Handshake Deal",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased your Gun Damage and Melee Damage.\n"
             },
             {
               "name": "Midnight Oil",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa's Action Skills deal Bonus Corrosive Damage per stack of Midnight Oil.\n Rafa gains a stack of Midnight Oil every second his Action Skill is active, losing all stacks when Action Skill ends.\n Max Stacks: 10"
             },
             {
               "name": "Expedite",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Overdrive grants Rafa further increased Move Speed.\n"
             },
             {
               "name": "Dial In",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Rafa damages an enemy with a Melee attack, his Melee Attacks gain Critical Hit Chance.\n This Chance stacks, and all Stacks are removed whenever Rafa Critically Hits an enemy.\n Max Stacks: 5"
             },
             {
-              "name": "El Corazón",
+              "name": "El Coraz\u00f3n",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "A portion of Rafa's Maximum Health Capacity is converted into Maximum Shield Capacity.\n"
             },
             {
               "name": "Diamond Hands",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Dealing Melee Damage grants Rafa a Stack of Diamond Hands.\n Gain increased Gun Damage for every Stack of Diamond Hands.\n Once Rafa deals Gun Damage, Stacks begin to decay quickly until they run out.\n Max Stacks: 20"
             },
             {
               "name": "Saldar",
               "max_points": 5,
               "tier": 2,
-              "requires": "Dial In"
+              "requires": "Dial In",
+              "description": "Rafa's Melee Critical Hits restore Health.\n"
             },
             {
               "name": "In the Zone",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Killing an enemy freezes Overdrive's Duration.\n"
             },
             {
               "name": "To the Last",
               "max_points": 5,
               "tier": 2,
-              "requires": "El Corazón"
+              "requires": "El Coraz\u00f3n",
+              "description": "Rafa gains increased Gun Damage and increased Skill Damage.\n The lower his Health, the greater the bonuses.\n"
             },
             {
               "name": "Hard Sell",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Rafa's Shields break, he instantly gains a portion of his Shield Maximum Capacity as Overshield.\n This Skill cannot be used again until Rafa activates his Action Skill.\n"
             }
           ],
           "left": [
             {
               "name": "Blowout",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Rafa applies a Heavy Arms Mark or Critically Hits an enemy with his Action Skill, they explode in Corrosive Lobbed Projectiles.\n The longer Rafa's Action Skill has been active, the more Corrosive Projectiles are spawned.\n Max Projectiles: 6 Cooldown: 4s"
             },
             {
               "name": "El Paraguas",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Splash Damage and increased Splash Damage Critical Hit Chance.\n"
             },
             {
               "name": "Protecto-Pulse",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Pressing Action Skill while Arc-Knives are active or Rafa retriggers his Action Skill drains a portion of Rafa's Shields, and deals that much Shock Damaqe to nearby enemies.\n"
             },
             {
               "name": "Shock Market",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Rafa deals Splash Damage, deal Bonus Shock Damage based on the Damage Dealt.\n"
             },
             {
               "name": "Liquidation",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Marked enemies killed by Rafa leave behind a Corrosive Hazard for a Duration.\n Hazard Damage: 1,686 Duration: 8s"
             }
           ],
           "middle": [
             {
-              "name": "Artillería",
+              "name": "Artiller\u00eda",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Ordnance Cooldown Rate.\n"
             },
             {
               "name": "Collaborative Ignition",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa deals Bonus Damage of his Weapon's Element with all Skills and Ordnances while Overdrive is active.\n"
             },
             {
               "name": "Booming Business",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Rafa Critically Hits an enemy, he gains a chance to spawn a Free Grenade.\n If Rafa has a Grenade equipped, spawn a Grenade based on that.\n"
             },
             {
               "name": "Sinergia",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Rafa deals Ordnance Damage, he also deals increased Gun Damage and Melee Damage.\n This effect stacks.\n Stack Duration: 14s Max Stacks: 10"
             },
             {
               "name": "Hemolitions",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "While Overdrive is active, Rafa may use Grenades while cooling down at the cost of Health.\n Every time a Grenade is used this way, it costs more Health until Rafa's Grenade fully cools down.\n"
             },
             {
               "name": "El Diablito",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "A portion of all Fire Damage Rafa deals also deals Bonus Fire Ordnance Damage.\n"
             }
           ],
           "right": [
             {
               "name": "El Borracho",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa deals increased Corrosive Damage while his Action Skill is active.\n The longer it has been active, the greater the bonus.\n Max Stacks: 10"
             },
             {
               "name": "Empuje",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Action Skill Duration.\n"
             },
             {
               "name": "Sustainable Energy",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Rafa gains Health Regeneration based on how much Overdrive time is remaining.\n"
             },
             {
               "name": "Motivar",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Pressing Action Skill during Arc-Knives grants a stack of Motivar, increasing Overdrive Duration.\n Stacks are lost whenever Rafa activates an Action Skill.\n Max Stacks: 5"
             },
             {
               "name": "Cruel Accrual",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Rafa gains increased Skill Damage with all Skills.\n The longer his Action Skill has been active, the greater the bonus.\n Max Stack: 20"
             }
           ]
         },
         "augments": [
           {
-            "name": "Altered Cabrón",
+            "name": "Altered Cabr\u00f3n",
             "subtree": "top",
-            "lootlemon_char": "a"
+            "lootlemon_char": "a",
+            "description": "Whenever Rafa kills an enemy while Arc-Knives is active, restore a portion of his Max-Health.\n Whenever Rafa gains Health, deal Bonus Corrosive Damage with all attacks, and gain increased Movement Speed.\n This effect stacks.\n Health Restored: 1,428 on kill Bonus Corrosive Damage: +10% Move Speed: +10% Health Restored: 30 on kill Stack Duration: 16 s Max Stacks: 25"
           },
           {
             "name": "Dead Man Walking",
             "subtree": "top",
-            "lootlemon_char": "b"
+            "lootlemon_char": "b",
+            "description": "Arc-Knives does not end when its Ouration runs out.\n Instead, it only ends if Rafa enters Fight For Your Life or activates Blade Fury.\n While Arc-Knives' Duration is depleted, Rafa loses Health instead.\n Whenever Rafa damages an enemy, he gains Overshield.\n Health Drain: 3% per second Additional Health Drain: +2% every 10 seconds Overshield: 15% of Damage Dealt"
           },
           {
             "name": "Thundercutter",
             "subtree": "left",
-            "lootlemon_char": "c"
+            "lootlemon_char": "c",
+            "description": "Arc-Knives attacks deal Shock Melee Splash Damage, and gains increased Radius.\n Rafa deals increased Splash Damage.\n Splash Damage: +35%"
           },
           {
             "name": "Parting Gift",
             "subtree": "middle",
-            "lootlemon_char": "d"
+            "lootlemon_char": "d",
+            "description": "Whenever Rafa activates his Dash Attack, he leaves behind a Grenade.\n If he has a Grenade equipped, use that Grenade instead.\n Enemies damaged by these Grenades become Marked.\n Whenever Rafa applies a Mark to an enemy, apply an additional Mark.\n Default Grenade Damage: 6,246"
           },
           {
             "name": "Acid Drop",
             "subtree": "right",
-            "lootlemon_char": "e"
+            "lootlemon_char": "e",
+            "description": "Arc-Knives' Dash Attack is replaced by Caustic Leap.\n Pressing Action Skill causes Rafa to leap forward and create a Caustic Hazard wherever he lands.\n Whenever a Mark is removed from an enemy, it explodes in a Corrosive Nova.\n Leap Damage: 6,978 Hazard Damage: 803/s Nova Damage: 1,785"
           }
         ],
         "capstones": [
           {
-            "name": "Huracán Especial",
+            "name": "Hurac\u00e1n Especial",
             "subtree": "left",
-            "lootlemon_char": "a"
+            "lootlemon_char": "a",
+            "description": "Activating Blade Fury causes Rafa to spin his blades, creating Singularity that draws in all Marked enemies and other nearby enemies while dealing continuous Shock Damage.\n Whenever this attack kills an enemy, gain increased Action Skill Cooldown Rate until Overdrive ends.\n Shock Damage: 4,033 per second Action Skill Cooldown Rate: +8% per kill"
           },
           {
             "name": "Inferno Protocol",
             "subtree": "middle",
-            "lootlemon_char": "b"
+            "lootlemon_char": "b",
+            "description": "While Arc-Knives are active, Rafa's Exo-Suit stores all Damage Dealt to him.\n The Exo-Suit then heats up and constantly deals a small amount of Fire Damage to him.\n Additionally, Rafa's Melee Attacks deal Bonus Fire Damage.\n A portion of all Damage Dealt to Rafa is also dealt to enemies he has Marked.\n Using Blade Fury causes Rafa to consume all stored Damage, and deals Bonus Fire Damage based on stored Damage.\n A portion of all Damage dealt this way is returned to Rafa as Health.\n Health Drain: 1% of Total HP per second Bonus Fire Damage: Up to 50% of total Damage Taken Marked Enemy Damage: 20% of Damage Taken"
           },
           {
             "name": "Galvanic Panic",
             "subtree": "right",
-            "lootlemon_char": "c"
+            "lootlemon_char": "c",
+            "description": "Whenever Rafa performs a Melee Attack while Arc-Knives is active, fire an Acid STRM Glider at an enemy in his view.\n Acid STRM Gliders deal Corrosive Splash Damage based on the number of total Marked enemies.\n Additionally, killing an enemy while Arc-Knives is active restores Action Skill Duration.\n Activating Blade Fury causes Rafa to fire a volley of Acid STRM Gliders in front of him and end Arc-Knives.\n Acid STRM Glider Damage: 2,231 Acid STRM Glider Bonus Damage: +8% per Marked enemy Actional Skill Duration Restore: +5% per kill"
           }
         ],
         "action_skill": {
@@ -1445,137 +1699,162 @@
             {
               "name": "Rinse",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Reload Speed.\n"
             },
             {
               "name": "Las Jaras",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa Regenerates Ammo while Overdrive is active.\n"
             },
             {
               "name": "The Thrill",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Fire Rate.\n Gain further increased Fire Rate while Overdrive is active.\n"
             },
             {
               "name": "Preparado",
               "max_points": 5,
               "tier": 1,
-              "requires": "Rinse"
+              "requires": "Rinse",
+              "description": "Whenever Rafa Reloads his current Gun, he gains increased Action Skill Cooldown Rate.\n This effect stacks.\n Max Stacks: 3 Duration: 6s"
             },
             {
               "name": "Pa' Dentro",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Activating an Action Skill grants Rafa Health Regeneration for a Duration.\n Duration: 7s"
             },
             {
               "name": "Arriba",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Rafa kills an enemy, he gains increased Ordnance Cooldown Rate for a Duration.\n Duration: 10s"
             },
             {
               "name": "First Impression",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "The first shot fired from a fully-loaded Magazine gains Increased Damage.\n"
             },
             {
               "name": "Al Centro",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Rafa gains increased Gun Handling and Action Skill Handling while Overdrive is active.\n The longer Overdrive has been active, the greater the bonus.\n"
             },
             {
               "name": "Metal Management",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Rafa activates or retriggers an Action Skill, his Gun consumes no Ammo for a Duration.\n Duration: 2s"
             },
             {
               "name": "Abajo",
               "max_points": 5,
               "tier": 2,
-              "requires": "Arriba"
+              "requires": "Arriba",
+              "description": "Whenever Rafa throws a Grenade, he gains increased Action Skill Cooldown Rate.\n Duration: 10s"
             }
           ],
           "left": [
             {
               "name": "Brain Dump",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains Critical Hit Chance with his guns while Overdrive is active.\n"
             },
             {
               "name": "Conductivo",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Status Effect Chance, and also gains further increased Shock Chance.\n"
             },
             {
-              "name": "El Catrín",
+              "name": "El Catr\u00edn",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "After Sliding, Rafa's Action Skill deals Bonus Shock Damage, and he deals increased Critical Hit Damage.\n Duration: 6s after Sliding"
             },
             {
               "name": "Awe",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Rafa Shocks an enemy, all shots fired at that enemy are Critical Hits for a Duration.\n Duration: 2s"
             },
             {
               "name": "Fiesta",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Rafa applies a Status Effect, his Action Skills consume no Duration, and Apophis Lance consumes no Charges.\n"
             }
           ],
           "middle": [
             {
               "name": "Drone Defense",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Rafa activates an Ordnance, spawn STRM Gliders that hover near him.\n As he takes Damage, transfer some of that Damage to his STRM Gliders.\n Once a STRM Glider receives too much damage, it explodes, dealing Corrosive Splash Damage to nearby enemies.\n Max STRM Gliders: 3"
             },
             {
               "name": "El Soldado",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Gun Damage while Overdrive is active.\n This bonus is doubled while Rafa is charging APOPHIS Lance.\n"
             },
             {
               "name": "The Right Tools",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Rafa gains increased Ordnance Damage after Reloading his Gun.\n This bonus stacks.\n Max Stacks: 5 Duration: 8s"
             },
             {
               "name": "Debtonation",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Rafa damages an enemy with an Action Skill, place a Remote Detonator on that enemy.\n Remote Detonators gain increased Damage and increased Splash Radius for every Remote Detonator on an enemy.\n Remote Detonators automatically explode after a delay or whenever the enemy it's attached to dies.\n Ordnance Override.\n Detonate all Remote Detonators.\n Max Detonators: 10 Detonators Delay: 12s"
             },
             {
               "name": "Drone Assault",
               "max_points": 1,
               "tier": 2,
-              "requires": "Drone Defense"
+              "requires": "Drone Defense",
+              "description": "Whenever Rafa activates or retriggers an Action Skill, send one of his STRM Gliders at an enemy in his view.\n Once it arrives, it explodes in a Corrosive Explosion equal to its remaining health.\n"
             }
           ],
           "right": [
             {
               "name": "Jaque",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Rafa damages an enemy with a Skill, he gains a Stack of Jaque.\n For every Stack of Jaque, he gains increased Overdrive Bonuses.\n Whenever Overdrive ends, lose all Stacks.\n Max Stacks: 20"
             },
             {
               "name": "La Garza",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Weapon Handling with Weapons and Action Skills while Overdrive is active.\n"
             },
             {
               "name": "Mate",
               "max_points": 5,
               "tier": 1,
-              "requires": "Jaque"
+              "requires": "Jaque",
+              "description": "When Overdrive ends, convert all Jaque Stacks into Mate Stacks.\n Gain increased Action Skill Cooldown Rate for every Stack of Mate.\n Once Rafa's Action Skill is readied, lose all Stacks of Mate.\n Max Stacks: 20"
             },
             {
               "name": "Deadline",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Rafa gains increased Fire Rate and increased Reload Speed while Overdrive is active.\n"
             },
             {
               "name": "Per my Last",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Rafa deals damage with an Action Skill to an enemy, he gains a chance to deal that Damage again.\n"
             }
           ]
         },
@@ -1583,44 +1862,52 @@
           {
             "name": "Sangre por Sangre",
             "subtree": "top",
-            "lootlemon_char": "f"
+            "lootlemon_char": "f",
+            "description": "Whenever Rafa consumes a Charge, he gains increased Action Skill Cooldown Rate.\n This bonus is increased for every Charge consumed.\n Duration: 8s"
           },
           {
             "name": "Battery Subscription Service",
             "subtree": "top",
-            "lootlemon_char": "g"
+            "lootlemon_char": "g",
+            "description": "Apophis Lance gains an Additional Charge.\n Additionally, whenever Rafa consumes 4 or more Charges, gain increased Skill Damage for a Duration.\n Skill Damage: +50% Duration: 14s"
           },
           {
             "name": "Ojo Rojo",
             "subtree": "left",
-            "lootlemon_char": "h"
+            "lootlemon_char": "h",
+            "description": "Apophis Lance gains Critical Hit Chance.\n Whenever Rafa damages an enemy with Apophis Lance, gain further increased Critical Hit Chance.\n Critical Hit Chance: +35% Bonus Critical Hit Chance: +35% Duration: 8s"
           },
           {
             "name": "Gibistruct Module",
             "subtree": "middle",
-            "lootlemon_char": "i"
+            "lootlemon_char": "i",
+            "description": "Whenever Rafa kills an enemy with his Apophis Lance, spawn a free Grenade on that enemy.\n If Rafa has a Grenade equipped, spawn a copy of that Grenade instead.\n"
           },
           {
             "name": "Engorged Bore",
             "subtree": "right",
-            "lootlemon_char": "j"
+            "lootlemon_char": "j",
+            "description": "APOPHIS Lance gains increased Projectile Radius and Projectile Speed.\n PROJECT: Gorgon gains increased Number of Chains.\n Projectile Size: +25% Projectile Speed: +50% Chains: +2"
           }
         ],
         "capstones": [
           {
             "name": "PROJECT: Raiju",
             "subtree": "left",
-            "lootlemon_char": "d"
+            "lootlemon_char": "d",
+            "description": "APOPHIS Lance's weapon is replaced with a close range Shocking Taser.\n Pressing and holding Action Skill causes Rafa to deal Shock Damage in an arc in front of him.\n The longer Rafa holds this attack, the greater damage it deals.\n Charges are consumed over time while in use.\n Shock Damage/s: 4461 Shock Damage Scalar/s: +12%"
           },
           {
             "name": "PROJECT: Basilisk",
             "subtree": "middle",
-            "lootlemon_char": "e"
+            "lootlemon_char": "e",
+            "description": "APOPHIS Lance now fires a Corrosive Blob that leaves a Corrosive Hazard and Splits into several smaller Projectiles whenever it detonates.\n The more Charges APOPHIS Lance consumes at once, the more it Splits.\n Corrosive Blob Damage: 7,602 Hazard Damage/s: 2,677"
           },
           {
             "name": "PROJECT: Gorgon",
             "subtree": "right",
-            "lootlemon_char": "f"
+            "lootlemon_char": "f",
+            "description": "Apophis Lance's weapon is replaced with an Incendiary Laser that pierces enemies.\n Pressing and holding Action Skill causes the Laser to deal increased Damage and Chain to more enemies as it consumes Charges.\n Incinidary Laser Damage/s: 6,246"
           }
         ],
         "action_skill": {
@@ -1635,144 +1922,171 @@
             {
               "name": "Sitiar",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Gun Damage.\n"
             },
             {
               "name": "Deft Hands",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa and his Peacebreaker Cannons gain increased Fire Rate.\n"
             },
             {
               "name": "Shield Barriest",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Shield Recharge Rate and improved Shield Regen Delay while Overdrive is active.\n"
             },
             {
               "name": "Juerga",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Rafa Critically Hits an enemy, Action Skill Duration is restored.\n Cooldown: 4s"
             },
             {
               "name": "Field Repairs",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Rafa activates an Action Skill, restore a portion of his Maximum Shield Capacity.\n If his Shields are already full, gain Overshield instead.\n"
             },
             {
               "name": "CYA",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Killing an enemy restores Shields based on Rafa's Maximum Health Capacity.\n"
             },
             {
               "name": "Resiliencia",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Rafa gains increased Damage Reduction while Overdrive is active.\n"
             },
             {
               "name": "Maestro",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Rafa gains increased Skill Damage.\n"
             },
             {
               "name": "Venganza",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Rafa's Shields break after being fully recharged, spawn a free Grenade.\n If he has a Grenade equipped, use that Grenade instead.\n"
             },
             {
               "name": "El Valiente",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Rafa deals increased Damage from all sources.\n The fuller Rafa's Shields are, the greater the bonus.\n While Rafa's Shields are at Maximum Capacity, double the bonus.\n"
             }
           ],
           "left": [
             {
               "name": "Asymmetric Warfare",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Indirect Projectiles gain increased Damage.\n Indirect projectiles include all Action Skill Weapons, Thrown Weapons, and Projectiles not fired from your Gun.\n"
             },
             {
               "name": "Errant Spark",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "All Indirect Projectiles deal Bonus Fire Damage.\n If the Indirect Projectile already deals Fire Damage, double the Bonus damage.\n"
             },
             {
               "name": "Hostile Acquisition",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Rafa's Indirect projectiles gain Life Steal.\n"
             },
             {
               "name": "Rolling Stone",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "While moving, shots have a Chance to Bounce Off of Rafa.\n This Chance is doubled while Sliding.\n"
             },
             {
               "name": "Proprietary Incendiary",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Press and hold Action Skill to lob a STRM Glider at an enemy.\n Once it reaches its targets, it explodes and deals Fire Splash Damage based on the amount of Ammo in Rafa's Gun when he threw the STRM Glider.\n STRM Gilder Damage: up to 4,238 Cooldown: 28s"
             },
             {
               "name": "Lateral Plinking",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Rafa's Indirect Projectiles gain a chance to Ricochet.\n"
             }
           ],
           "middle": [
             {
               "name": "Confeti",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa's Ordnances deal Bonus Damage in his current Weapon's Element.\n"
             },
             {
               "name": "Vitriol",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "The first shot fired from Rafa's fully-loaded Magazine deals Bonus Corrosive Damage.\n"
             },
             {
               "name": "Pain Reaction",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Rafa's Weapons gain a chance to Ricochet off of enemies with Status Effects.\n Ricochet Damage is based on the Damage Dealt.\n"
             },
             {
               "name": "Concentrated Build Up",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "While Aiming with a Gun, Rafa deals Bonus Shock Damage.\n Each time Rafa hits an enemy this way, deal increased Bonus Damage until he zooms out.\n Max Stacks: 20"
             },
             {
-              "name": "El Alacrán",
+              "name": "El Alacr\u00e1n",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Enemies damaged by Rafa's Peacebreaker Cannons have increased Status Effect Chance.\n Duration: 8s"
             },
             {
               "name": "Inspirado",
               "max_points": 3,
               "tier": 2,
-              "requires": "Concentrated Build Up"
+              "requires": "Concentrated Build Up",
+              "description": "Whenever Rafa inflicts a Status Effect on an enemy, gain increased Action Skill Cooldown Rate and improved Action Skill Duration Rate.\n This effect stacks.\n Duration: 8s Max Stacks: 5"
             }
           ],
           "right": [
             {
               "name": "Barrage",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Rafa gains increased Splash Damage while Overdrive is active.\n"
             },
             {
               "name": "Everdrive",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Overdrive gains increased Duration.\n"
             },
             {
               "name": "Devil-May-Care",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "While Overdrive is active, Rafa gains increased Move Speed, and gains Health Regeneration.\n While Overdrive is not active, Rafa takes increased Damage, and gains increased Action Skill Cooldown Rate.\n"
             },
             {
               "name": "Temerario",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Rafa gains increased Gun Damage, but decreased Gun Handling for each stack of Temerario.\n Rafa gains a stack every second Overdrive is active, losing all stacks when Overdrive ends.\n Max Stacks:\u00a010"
             },
             {
               "name": "Soltado",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Double all Overdrive bonuses.\n Duration: 8s"
             }
           ]
         },
@@ -1780,44 +2094,52 @@
           {
             "name": "Instinto",
             "subtree": "top",
-            "lootlemon_char": "k"
+            "lootlemon_char": "k",
+            "description": "Rafa's Peacebreaker Cannons gain increased Critical Hit Chance.\n Pressing Action Skill while Peacebreaker Cannons are active causes them to Double their Critical Hit Chance and gain increased Critical Hit Damage, while also causing his Action Skill Duration to drain faster.\n Killing an enemy causes Rafa to regain Action Skill Duration, while also causing his Action Skill Duration to drain faster.\n Crit Chance: +20% Crit Chance and Damage: +20% /stack Action Skill Duration Rate: +20% /stack Action Skill Duration Restore: +10% on kill Duration Rate: +3% on each kill Duration: 8s Max Stacks: 10"
           },
           {
             "name": "Bullet-Buddy Deluxe",
             "subtree": "top",
-            "lootlemon_char": "l"
+            "lootlemon_char": "l",
+            "description": "While Peacebreaker Cannons are active, Rafa and his allies Regenerate Ammo.\n Rafa's Peacebreaker Cannons deal Bonus Fire Damage based on how full his Gun is, and his Turrets shoot Exploding Bullets while his Magazine is full.\n Pressing Action Skill while Peacebreaker Cannons are active causes Rafa's shots to consume no Ammo, but causes his Action Skill Duration to drain faster.\n Bonus Fire Damage: up to +25% Ammo Regen: +5% Action Skill Duration Rate: 35% while active Duration: 8s"
           },
           {
             "name": "Hell in a Shell",
             "subtree": "left",
-            "lootlemon_char": "m"
+            "lootlemon_char": "m",
+            "description": "Pressing Action Skill while Peacebreaker Cannons are active causes them to fire two Large Firebombs that deal Fire Damage to a large area.\n Killing enemies Reduces this Skill's Cooldown.\n Damage: 7,138 Cooldown: 30s Cooldown Reduction: 6s per kill"
           },
           {
             "name": "Insta-Fort Battle System",
             "subtree": "middle",
-            "lootlemon_char": "n"
+            "lootlemon_char": "n",
+            "description": "Rafa's Peacebreaker Cannons also deal Ordnance Damage, and he deals increased Ordnance Damage while Peacebreaker Cannons are active.\n Pressing Action Skill while Peacebreaker Cannons are active causes them to disconnect from Rafa and become a Turret Companion that begins firing at enemies in place.\n Additionally, it will occasionally fire Grenades at its targets.\n If Rafa has a Grenade equipped, it copies that Grenade.\n Pressing Action Skill again returns the Turret Companion to Rafa's back.\n Ordnance Damage: +25%"
           },
           {
             "name": "Unmissable Missiles",
             "subtree": "right",
-            "lootlemon_char": "o"
+            "lootlemon_char": "o",
+            "description": "Pressing Action Skill while Peacebreaker Cannons is active causes them to fire a volley of Homing Rockets at enemies in view, at the cost of Action Skill Duration.\n Homing Rocket Damage: 2,900 Rockets: 6 Shot Cost: 5% Max-Duration per missile"
           }
         ],
         "capstones": [
           {
             "name": "Double-Ought Autoshot",
             "subtree": "left",
-            "lootlemon_char": "g"
+            "lootlemon_char": "g",
+            "description": "Rafa's Peacebreaker Cannons' Weapons are replaced with Shotguns that deal increased Damage and have increased Pellet Count.\n Additionally, Rafa's Turrets gain a chance to Ricochet off of targets.\n Ricochets deal Reduced Damage, and Critical Hits always Ricochet.\n Damage: 196 /shot Pellets: 6 Ricochet Chance: 10% Ricochet Damage: 50% of Damage Dealt"
           },
           {
             "name": "Beam Team",
             "subtree": "middle",
-            "lootlemon_char": "h"
+            "lootlemon_char": "h",
+            "description": "Rafa's Peacebreaker Cannons' Weapons are replaced with a Shock Beam and a Corrosive Beam.\n Each beam automatically locks onto enemies in your view, and may lock onto different enemies.\n Whenever Rafa applies a Status Effect, gain increased Action Skill Damage.\n This effect stacks.\n Beam Damage: 1,115 Action Skill Damage: +5% Max Stacks: 50"
           },
           {
             "name": "Volatile Hollowpoints",
             "subtree": "right",
-            "lootlemon_char": "i"
+            "lootlemon_char": "i",
+            "description": "Rafa's Peacebreaker Cannons' Weapons are replaced with Rockets that deal Splash Damage.\n Rocket Damage: 1,338 per shot"
           }
         ],
         "action_skill": {
@@ -1836,154 +2158,183 @@
             {
               "name": "Guns and Needles",
               "max_points": 3,
-              "tier": 0
+              "tier": 0,
+              "description": "Restore Repkit Cooldown by a percentage.\n"
             },
             {
               "name": "Volatile Essence",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains increased Splash Damage.\n Double this effect when an Action Skill is active.\n"
             },
             {
               "name": "Leeching Attunement",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "While Vex is Attuned to Kinetic, she gains increased Lifesteal and Reload Speed.\n Effects persist for a Duration after Attunement is switched.\n Attunement Duration: 6s"
             },
             {
               "name": "Grave Sights",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains increased Critical Hit Damage and Weapon Handling.\n Stack Duration: 10s Max Stacks: 3"
             },
             {
               "name": "Fiendish Invigoration",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "When Vex uses a Repkit, she and her Minions gain increased Movement Speed and Fire Rate for a Duration.\n Duration: 10s"
             },
             {
               "name": "Bloodletter",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Gun and Skill Critical Hits have a chance to apply Bleed, causing Kinetic Status Effect Damage over time for a Duration.\n Bleed is based on Gun Damage and is affected by Status Effect Chance and is considered a Status Effect.\n Bleed Chance: 50% Bleed Duration: 4s Max Stacks: 20"
             },
             {
               "name": "Grave Implements",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and her Minions gain increased Gun Damage for a Duration.\n Stack Duration: 10s Max Stacks: 3"
             },
             {
               "name": "Channeling",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex gains increased Action Skill Duration and Attunement Duration.\n"
             },
             {
               "name": "Material Components",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex gains increased Kinetic Damage and Kinetic Status Effect Damage.\n"
             },
             {
               "name": "Grave Power",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex's Kill Skills gain increased Max Stacks.\n"
             },
             {
               "name": "Target Prescience",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex's Gun Damage gains Critical Hit Chance against any part of enemies.\n"
             }
           ],
           "left": [
             {
               "name": "Radiant Attunement",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "While Vex is Attuned to Radiation, she gains increased Splash Damage and Maximum Shield Capacity.\n Effects persist for a Duration after Attunement is switched.\n Attunement Duration: 6s"
             },
             {
               "name": "Conjunction",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains increased Gun Damage the more Full her Shield and gains Damage Reduction the less Full her Health.\n"
             },
             {
               "name": "Dreadlight",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "When Vex deals Gun Damage, there is a chance to spawn a Radioactive Hazard, dealing Radiation Damage over time.\n Radioactive Hazard Chance: 5% Hazard Duration: 8s"
             },
             {
               "name": "Restorative Tonic",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "When Vex uses a Repkit, she gains Shield Regeneration for a Duration.\n Duration: 4s"
             },
             {
               "name": "Full Moon",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex gains Action Skill Cooldown Rate and Ordnance Cooldown Rate based on the fullness of her Shield.\n"
             },
             {
               "name": "Havoc",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex gains increased Radiation Damage and Radiation Status Effect Damage.\n"
             }
           ],
           "middle": [
             {
               "name": "Drink Full",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Vex deals Gun Damage, gain a Stack of Drink Full, increasing Fire Rate.\n Stacks of Drink Full are lost if a new Stack has not been gained for a Duration.\n Max Stacks: 50 Duration: 5s"
             },
             {
               "name": "Keen Mind",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex's Skill Damage gains Critical Hit Chance against any part of enemies.\n"
             },
             {
               "name": "Phase Pocket",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex gains increased Magazine Size and Gun Switch Speed.\n Double this effect when an Action Skill is active.\n"
             },
             {
               "name": "Mortal Terror",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Chance to trigger Kill Skills when Critically Hitting enemies.\n"
             },
             {
               "name": "Grave Elements",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and her Minions gain Elemental Damage for a Duration.\n Stack Duration: 20s Max Stacks: 10"
             },
             {
               "name": "Strike Me Down",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Whenever Vex would enter Fight For Your Life, she immediately gets a Second Wind, becomes Invisible for a Duration, and causes a Phase Explosion.\n Phase Explosion Damage: 7,647 Invisibility Duration: 4s Cooldown: 120s"
             }
           ],
           "right": [
             {
               "name": "Grave Vitality",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains increased Maximum Health Capacity and Health Regeneration.\n Stack Duration: 20s Max Stacks: 10"
             },
             {
               "name": "Ars Arcana",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains increased Skill Damage.\n"
             },
             {
               "name": "A Deeper Grave",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex's Kill Skills gain increased Duration.\n"
             },
             {
               "name": "Blood Shot",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "When Vex uses a Repair Kit, her next Gun Shot will become a Blood Shot, converting damage dealt into Kinetic Damage and dealing Bonus Damage based on her current Health.\n"
             },
             {
               "name": "Essence Leech",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex gains Lifesteal.\n Double this effect when an Action Skill is active.\n"
             },
             {
               "name": "Blood Is Power",
               "max_points": 3,
               "tier": 2,
-              "requires": "Essence Leech"
+              "requires": "Essence Leech",
+              "description": "Vex gains Bonus Kinetic Damage with Guns based on Lifesteal when her Health is Full.\n"
             }
           ]
         },
@@ -1991,44 +2342,52 @@
           {
             "name": "Geistwave",
             "subtree": "top",
-            "lootlemon_char": "a"
+            "lootlemon_char": "a",
+            "description": "Instead of causing a Phase Explosion, Vex launches a Geistwave, dealing Ordnance Damage to enemies it passes through.\n Each affected enemy takes increased Damage for a Duration.\n Damage: 6,692 Enemy Damage Taken: 30% Enemy Damage Taken Duration: 15s"
           },
           {
             "name": "Energy Vampire",
             "subtree": "top",
-            "lootlemon_char": "b"
+            "lootlemon_char": "b",
+            "description": "Vex deals Status Effect Damage to nearby enemies over time and gains Overshield for each enemy affected.\n Killing an enemy while Incarnate is active will grant a Stack of Energy Vampire, increasing Status Effect Damage.\n Stacks are lost when Incarnate ends.\n Damage: 446 every 0.\n5 seconds Overshield: 372 per enemy every 0.\n5 seconds Status Effect Damage: +10% per Stack Max Stacks: 5"
           },
           {
             "name": "Iron Maiden",
             "subtree": "left",
-            "lootlemon_char": "c"
+            "lootlemon_char": "c",
+            "description": "Phase Explosion and Eldritch Blast restore Shield for each enemy hit and deal increased Damage based on Vex's current Shield.\n"
           },
           {
             "name": "Witchy Trigger Finger",
             "subtree": "middle",
-            "lootlemon_char": "d"
+            "lootlemon_char": "d",
+            "description": "Dealing Damage with Eldritch Blast or Phase Explosion will Reload Vex's current Gun and grant a stack of Witchy Trigger Finger, increasing Gun Damage for a Duration.\n Stacks of Witchy Trigger Finger persist even after Incarnate ends.\n Gun Damage: +15% per Stack Max Stacks: 3 Stack Duration: 15"
           },
           {
             "name": "Grave Harvest",
             "subtree": "right",
-            "lootlemon_char": "e"
+            "lootlemon_char": "e",
+            "description": "Killing an enemy while Incarnate is active will spawn a Soul Orb that deals Status Effect Damage over time to nearby enemies for a Duration.\n Detonate a Soul Orb at range by pressing Action Skill dealing Ordnance Damage to nearby enemies.\n Picking up a Soul Orb will restore Health and Action Skill Duration.\n Duration: 10s Soul Orb Damage: 357 every 0.\n5s Detonation Damage: 5,729 Health Restored: 35% Action Skill Duration Restored: 20%"
           }
         ],
         "capstones": [
           {
             "name": "Desecration",
             "subtree": "left",
-            "lootlemon_char": "a"
+            "lootlemon_char": "a",
+            "description": "Phase Explosion and Eldritch Blast create Hazards, dealing Damage over time for a Duration.\n Eldritch Blast is now Homing.\n If it hits an airborne enemy, it bursts after a delay, dealing Damage to nearby enemies.\n Hazard Damage: 1,907/s Hazard Duration: 8s Airborne Burst Damage: 4,640"
           },
           {
             "name": "Vibe Check",
             "subtree": "middle",
-            "lootlemon_char": "b"
+            "lootlemon_char": "b",
+            "description": "Eldritch Blast is now a Charge Skill.\n Activating Eldritch Blast consumes all Charges to Ricochet on hitting an enemy, for each Charge consumed.\n Eldritch Blast's Cooldown reduction from Gun Damage is doubled.\n Eldritch Blast Charges: 3"
           },
           {
             "name": "Heartpiercer",
             "subtree": "right",
-            "lootlemon_char": "c"
+            "lootlemon_char": "c",
+            "description": "Eldritch Blast now Sacrifices Health on use, but becomes a Piercing wave.\n Enemies hit take Damage, and Allies hit restore Health.\n Gains Bonus Damage and Healing based on Sacrificed Health.\n Eldritch Blast no longer has a Cooldown.\n Health Sacrificed: 20% of Current Health Damage/Health Restored: 5,836 Bonus Damage/Healing: 150% of Sacrificed Health"
           }
         ],
         "action_skill": {
@@ -2043,155 +2402,184 @@
             {
               "name": "Sanguine Fiends",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex and her Minion(s) restore Health.\n"
             },
             {
               "name": "Idle Hands",
               "max_points": 3,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex and her Minions gain Reload Speed based on the fullness of her Health.\n"
             },
             {
               "name": "Cold Iron",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains increased Gun Damage.\n Minion(s) gain additional Gun Damage.\n"
             },
             {
               "name": "Fell Inscriptions",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex and her Minions gain increased Melee Damage, and Maximum Health Capacity.\n"
             },
             {
               "name": "Grave Assault",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and her Minions gain increased Fire Rate for a Duration.\n Stack Duration: 10s Max Stacks: 3"
             },
             {
               "name": "Portents of Suffering",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and her Minions gain increased Status Effect Damage.\n"
             },
             {
               "name": "Cursed Blade",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex's Melee Attacks apply Curse to hit enemies, making them take Kinetic Status Effect Damage any time they take Gun Damage.\n Duration: 10s"
             },
             {
               "name": "Blood Sacrifice",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Kill Skills are triggered whenever Vex's Minion(s) die.\n"
             },
             {
               "name": "Grave Fiends",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex and her Minions deal increased Damage.\n Max Stacks: 3 Stack Duration: 16s"
             },
             {
               "name": "Grave Quickening",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex gains increased Action Skill Cooldown Rate.\n Stack Duration: 10s Max Stacks: 3"
             },
             {
               "name": "Extra Cursed",
               "max_points": 1,
               "tier": 2,
-              "requires": "Cursed Blade"
+              "requires": "Cursed Blade",
+              "description": "Curse Damage now triggers on Minion Melee Damage and deals increased Damage when its triggered by a Critical Hit.\n"
             }
           ],
           "left": [
             {
               "name": "Blight Attunement",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "While Vex is Attuned to Corrosive, killing an enemy creates an Haunting Remnant Minton for a Duration that seeks out nearby enemies, dealing Corrosive Status Effect Damage over time.\n Restore Haunting Remnant's Duration, if active.\n Remnant Duration: 16s Remnant Duration Restored on Kill: 4s Remnant Cooldown: 40s Attunement Duration: 6s"
             },
             {
               "name": "Prismatic Ichor",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "When Vex or her Minions apply a Status Effect, apply another random Elemental Status Effect.\n Cooldown: 2s"
             },
             {
               "name": "Keen Suffering",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Status Effect Damage gains a chance to Critically Hit.\n"
             },
             {
               "name": "Ghasterbait",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Vex Dodges, she creates a Specter nearby and becomes Invisible for a duration, or her next Gun Shot.\n Invisibility Duration: 8s"
             },
             {
               "name": "Shot to Go!",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "When Vex swaps her current Gun, her new Gun has its Ammo partially restored.\n"
             },
             {
               "name": "Necrosis",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex gains increased Corrosive Damage and Corrosive Status Effect Damage.\n"
             }
           ],
           "middle": [
             {
               "name": "Burning Attunement",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "While Vex is Attuned to Incendiary, Vex and her Minions gain Critical Hit Damage and Status Effect Application Chance.\n Effects persist for a Duration after Attunement is switched.\n Attunement Duration: 6s"
             },
             {
               "name": "Recurrence",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Whenever Vex deals Gun Damage or Melee Damage, gain a Stack of Recurrence which increases her and her Minions' Gun Damage and Melee Damage.\n Stacks of Recurrence are lost if a new Stack has not been gained for a Duration.\n Max Stacks: 50 Duration: 5s"
             },
             {
               "name": "Reverburnations",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Melee Damage dealt by Vex or her Minions have a chance to deal Incendiary Melee Damage.\n Incendiary Melee Damage Chance: 50%"
             },
             {
               "name": "Haruspex",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex now throws a Phase Dagger from her offhand that deals Melee Damage to enemies hit.\n Phase Daggers can Critically Hit.\n Kill Skill: Phase Dagger's Cooldown is reset.\n Cooldown: 18s"
             },
             {
               "name": "Burnt Offering",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex gains increased Incendiary Damage and Incendiary Status Effect Damage.\n"
             },
             {
               "name": "Pincushion",
               "max_points": 1,
               "tier": 2,
-              "requires": "Haruspex"
+              "requires": "Haruspex",
+              "description": "Haruspex now throws 5 Phase Daggers from both hands in a fan pattern.\n Killing an enemy now only refunds 33% of Phase Dagger's Cooldown.\n"
             }
           ],
           "right": [
             {
               "name": "Prismatic Weaponry",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex and her Specters deal Bonus Damage with Gun Critical Hits.\n Bonus Damage is a random Elemental Type that changes on Reload, and is increased for each active Attunement.\n Bonus Damage Multiplier: 50% per active Attunement"
             },
             {
               "name": "Obedient Fiends",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains increased Minion Damage.\n Minion Skills and Command Skills gain further increased Damage.\n"
             },
             {
               "name": "Spirit Bomb",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Reapers gain Maximum Health Capacity and will release a Spirit Bomb Remnant when they die, dealing Damage of their Elemental Type to nearby enemies.\n"
             },
             {
               "name": "Ancient Rites",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex gains a stack of Ancient Rites for each of her active Minions every second, increasing Minion Damage.\n Stacks are lost after a duration with no active Minion for a Duration.\n Duration: 8s Max Stacks: 40"
             },
             {
               "name": "Death Follows Closer",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Vex takes Damage while at Low Health, Spawn a Reaper nearby.\n"
             },
             {
               "name": "Diener",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Dead Ringer gains an additional Charge.\n"
             }
           ]
         },
@@ -2199,44 +2587,52 @@
           {
             "name": "Ghast Blaster",
             "subtree": "top",
-            "lootlemon_char": "f"
+            "lootlemon_char": "f",
+            "description": "Minion Skill.\n Specters gain the ability to use Ghast Blast, dealing Gun Damage to all nearby enemies on impact Specters will use Ghast Blast on spawn, and after they Reload.\n Damage: 4,863"
           },
           {
             "name": "Coven",
             "subtree": "top",
-            "lootlemon_char": "g"
+            "lootlemon_char": "g",
+            "description": "Spawning a Reaper grants Vex and her Minions Health Regeneration for a Duration.\n Spawning a Specter grant Vex and her Minions Critical Hit Chance for a Duration.\n Both effects can stack.\n Health Regeneration: 10% Critical Hit Chance: 10% Duration: 20s Max Stacks: 3"
           },
           {
             "name": "Wither",
             "subtree": "left",
-            "lootlemon_char": "h"
+            "lootlemon_char": "h",
+            "description": "Minion Skill.\n Specters cast Wither on an enemy when they Spawn, dealing Status Effect Damage over time, and increasing Damage taken for a Duration.\n Killing a Withered enemy allows Specters to use Wither again.\n Damage/s: 361 Damage Taken: +30% Duration: 15s"
           },
           {
             "name": "Hellish Harvest",
             "subtree": "middle",
-            "lootlemon_char": "i"
+            "lootlemon_char": "i",
+            "description": "Minion Skill.\n Reapers gain the ability to use Hellish Harvest, dealing Melee Damage 3 times in a large area around themselves and regenerate Health for each enemy hit.\n Reapers will use Hellish Harvest on spawn, and every third time they Melee Attack.\n Damage: 32 per hit Health Regeneration: 15% Max-Health per hit"
           },
           {
             "name": "Banshee's Wail",
             "subtree": "right",
-            "lootlemon_char": "j"
+            "lootlemon_char": "j",
+            "description": "Minion Skill.\n Reapers can now use Banshee's Wail periodically, dealing Damage to nearby enemies and granting Overshield to nearby Allies.\n Damage increases apply to Overshield granted to Allies.\n Damaged enemies deal reduced Damage for a Duration.\n Damage: 52 Overshield: 46 Enemy Damage Dealt: -50% Duration: 10s Cooldown: 20s"
           }
         ],
         "capstones": [
           {
             "name": "Heirloom",
             "subtree": "left",
-            "lootlemon_char": "d"
+            "lootlemon_char": "d",
+            "description": "Specters gain a copy of Vex's currently equipped Gun for a Duration.\n Only one Specter can have a copied Gun at a time, and spawning a new Specter will remove the copied Gun from the previous Specter.\n Copied Gun Damage: 100% Duration: 10s"
           },
           {
             "name": "Grim Reaper",
             "subtree": "middle",
-            "lootlemon_char": "e"
+            "lootlemon_char": "e",
+            "description": "Press and hold Action Skill to spawn a Grim Reaper that drains nearby enemies, dealing Status Effect Damage over time and restoring Health for each drained enemy.\n When an enemy dies while being drained, there is a chance a new Reaper will be spawned.\n Damage/s: 7 Health Restored/s: 1% Chance to spawn Reaper: 33% Cooldown: 120s"
           },
           {
             "name": "Dark Pact",
             "subtree": "right",
-            "lootlemon_char": "f"
+            "lootlemon_char": "f",
+            "description": "Vex can equip two Augments, and gains the ability to use Dark Pact.\n Dark Pact: Press and hold Action Skill to fully restore Health of all active Phase Clones, as well as granting increased Movement Speed and Minion Attack Speed for a Duration.\n Phase Clones do not lose Health over time while Dark Pact is active, and Health loss is reset when Dark Pact ends.\n Minion Movement Speed Multiplier: +30% Minion Attack Speed Multiplier: +30% Duration: 12s Cooldown: 42s"
           }
         ],
         "action_skill": {
@@ -2251,153 +2647,182 @@
             {
               "name": "Grave Sustenance",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Restore a percentage of missing Action Skill Duration.\n"
             },
             {
               "name": "Enchantment",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains bonus Kinetic Damage with weapons while her Action Skill is active.\n"
             },
             {
               "name": "Blood is Magic",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex deals increased Action Skill Damage the higher her Health.\n"
             },
             {
               "name": "Hasty Fiends",
               "max_points": 3,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex and her Minions gain increased Movement Speed and Damage Reduction.\n"
             },
             {
               "name": "Grave Command",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Restores a percentage of Trouble\u2019s Command Skill Cooldown and Respawn Cooldown.\n"
             },
             {
               "name": "Overprotective",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and her Minions gain Overshield.\n"
             },
             {
               "name": "Yowl and Bay",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex\u2019s Minions gain increased Maximum Health Capacity.\n Vex gains increased Gun Damage for a Duration after Commanding Trouble.\n Gun Damage Duration: 8s"
             },
             {
               "name": "Mourning",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex\u2019s Kill Skills gain increased Effectiveness.\n"
             },
             {
               "name": "Claw and Bang",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex and her Minions gain increased Melee Damage and Ordnance Damage.\n"
             },
             {
               "name": "Overheal",
               "max_points": 3,
-              "tier": 2
+              "tier": 2,
+              "description": "While Vex has Overshield, she and her Minions gain Health Regeneration.\n"
             },
             {
               "name": "Vorpal Fiends",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex and her Minions gain Critical Hit Damage.\n"
             }
           ],
           "left": [
             {
               "name": "Icy Attunement",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "While Vex is Attuned to Cryo, killing an enemy restores Ammo and Ordnance Cooldown.\n Effects persist for a Duration after Attunement is switched.\n Attunement Duration: 6s"
             },
             {
               "name": "Blast Rites",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "On Ordnance Activation, Vex gains Overshield and increased Fire Rate for a Duration.\n Fire Rate Duration: 8s"
             },
             {
               "name": "Overspirited",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Killing an enemy with Ordnance Damage or Action Skill will spawn an Explosive Remnant that deals Cryo Ordnance Damage to nearby enemies.\n Explosive Remnant gains increased Damage based on Overkill Damage.\n Cooldown: 6s"
             },
             {
               "name": "Blasted Fiends",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex gains increased Ordnance Damage.\n A percentage of Vex\u2019s Ordnance Damage increases Minion Damage.\n"
             },
             {
               "name": "Corporeal",
               "max_points": 3,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and get Minions gain increased Maximum Overshield Capacity and Overshield Duration.\n While Vex has Overshield, she and her Minion(s) gain increased Damage Dealt.\n"
             },
             {
               "name": "Shiver",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex gains increased Cryo damage and Cryo Status Effect Damage"
             }
           ],
           "middle": [
             {
               "name": "Elemental Essence",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex gains increased Elemental Damage.\n Double this effect when an Action Skill is Active.\n"
             },
             {
               "name": "Keen Fiends",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Minion Damage gains Critical Hit Chance against any part of enemies.\n"
             },
             {
               "name": "Infernal Sum",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and her Minions deals increased Critical Hit Damage to enemies below 66.\n6% HP.\n"
             },
             {
               "name": "Sacrificial Essence",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and her Minions gain increased Damage Dealt, but Vex gains increased Damage Taken for a Duration.\n Stacks are lost when Vex dodges or enters Fight For Your Life.\n Damage Taken: +3% /stack Max Stacks: 10 Stack Duration: 40s"
             },
             {
               "name": "Reawakening",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Whenever Vex or her Minions Critically Hit, there is a chance to restore Action Skill Cooldown.\n Action Skill Cooldown Restored: 4s Cooldown: 2s"
             },
             {
               "name": "Tail Whip",
               "max_points": 1,
-              "tier": 2
+              "tier": 2,
+              "description": "Trouble gains the ability to Tail Whip, dealing Damage in an area over 2 hits.\n Damage: 2,900 per Hit Cooldown: 15s"
             }
           ],
           "right": [
             {
               "name": "Shocking Attunement",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "While Vex is Attuned to Shock, Vex gains Movement Speed and Gun Damage while moving.\n Effects persist for a Duration after Attunement is switched.\n Attunement Duration: 6s"
             },
             {
               "name": "Grave Current",
               "max_points": 5,
-              "tier": 0
+              "tier": 0,
+              "description": "Vex's Minions gain Bonus Shock Damage.\n Stack Duration: 10s Max Stacks: 3"
             },
             {
               "name": "Deadwire",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "When Vex deals Gun Damage, there is a Chance to spawn a Spark Remnant that will seek out a nearby enemy and explode, dealing Shock Minion Damage to nearby enemies.\n Chance: 10% Cooldown: 2s"
             },
             {
               "name": "Grave Thirst",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "Vex and her Minions gain Lifesteal for a Duration.\n Stack Duration: 16s Max Stacks: 3"
             },
             {
               "name": "Infusion",
               "max_points": 5,
-              "tier": 1
+              "tier": 1,
+              "description": "When Vex uses a Repkit, Vex and her Minions gain Bonus Damage with Weapons and Melee Damage for a Duration.\n Bonus Damage Elemental Type is based on Vex's currently equipped Weapon.\n Duration: 15s"
             },
             {
               "name": "Stormblessed",
               "max_points": 5,
-              "tier": 2
+              "tier": 2,
+              "description": "Vex gains increased Shock Damage and Shock Status Effect Damage.\n"
             }
           ]
         },
@@ -2405,44 +2830,52 @@
           {
             "name": "Violent Outburst",
             "subtree": "top",
-            "lootlemon_char": "k"
+            "lootlemon_char": "k",
+            "description": "Command Skill.\n Press and hold Action Skill to Command Trouble to explode himself, dealing Ordnance Damage to all nearby enemies and restoring Health to Vex.\n While Phase Phamiliar is active, sacrifice 33% of his Maximum Health Capacity instead.\n Damage 8,031 Max-Health Restored: 75%"
           },
           {
             "name": "Blink Strike",
             "subtree": "top",
-            "lootlemon_char": "l"
+            "lootlemon_char": "l",
+            "description": "Command Skill: Press and hold Action Skill to Command Trouble to Blink Strike target enemy, dealing Damage.\n Blink Strike always Critical Strikes enemies below 50% HP.\n Damage: 6,451 Cooldown: 25s"
           },
           {
             "name": "Hexus Nexus",
             "subtree": "left",
-            "lootlemon_char": "m"
+            "lootlemon_char": "m",
+            "description": "Trouble now Taunts enemies, making them more likely to target him.\n Command Skill: Press and Hold Action Skill to command Trouble to charge target enemy, dealing Melee Damage in an area on impact and creating a Singularity for a Duration.\n Damage: 6,246 Cooldown: 45s Singularity Duration: 10s"
           },
           {
             "name": "Vorpal Fang",
             "subtree": "middle",
-            "lootlemon_char": "n"
+            "lootlemon_char": "n",
+            "description": "Trouble gains a chance to Critically Hit with all attacks.\n Command Skill.\n Press and Hold Action Skill to Command Trouble to summon Phase Daggers overhead that fire at nearby enemies, dealing Melee Damage on impact.\n Trouble Critical Hit Chance: +10% Phase Dagger Damage: 1,901 Phase Dagger Max Stack: 5 Phase Dagger Duration: 15s Cooldown: 35s"
           },
           {
             "name": "Beast Mode",
             "subtree": "right",
-            "lootlemon_char": "o"
+            "lootlemon_char": "o",
+            "description": "Command Skill: Press and hold Action Skill to Command Trouble to enter Beast Mode, becoming Immune to Damage and gaining increased Minion Attack Speed and Movement Speed for a Duration.\n Kill Skil: Extend Beast Mode's Duration.\n Trouble Attack Speed Multiplier: +30% Trouble Movement Speed Multiplier.\n +30% Cooldown: 25s Duration: 10s"
           }
         ],
         "capstones": [
           {
             "name": "Trouble Bubble",
             "subtree": "left",
-            "lootlemon_char": "g"
+            "lootlemon_char": "g",
+            "description": "Trouble now gains Overshield whenever he deals Damage.\n While Phase Phamiliar is active, Trouble gains an Elemental Aura, dealing Ordnance Damage over time to nearby enemies.\n Overshield Gained: 80% of Damage Dealt Aura Damage: 357 every 0.\n5s"
           },
           {
             "name": "Double Trouble",
             "subtree": "middle",
-            "lootlemon_char": "h"
+            "lootlemon_char": "h",
+            "description": "Trouble now gains a Chance to create an Illusion near the enemy when dealing Damage.\n Critical Hits have double that Chance.\n Illusions become Badasses while Phase Phamiliar is active.\n Illusion Chance: 15% Illusion Duration: 8s Illusion Damage Multiplier: 75% Illusion Damage Taken Multiplier: 300% Max Illusions: 3"
           },
           {
             "name": "Unsealed",
             "subtree": "right",
-            "lootlemon_char": "i"
+            "lootlemon_char": "i",
+            "description": "Trouble will now Mark his current target, causing them to take increased Gun Damage from Vex.\n When a Marked enemy is killed, Trouble gains a Stack of Unsealed for a Duration, granting Health Regeneration and increased Damage.\n While Phase Phamiliar is active, Unsealed effects are doubled.\n Gun Damage: +50% against Marked target Health Regeneration: +1% per Stack Damage Dealt: +15% per Stack Stack Duration: 12s Max Stacks: 3"
           }
         ],
         "action_skill": {
