@@ -107,6 +107,9 @@ class LookupCommand(commands.Cog):
                     colour = discord.Color.blue()
                 case 0: # 3, 6, 9, 12
                     colour = discord.Color.orange()
+        elif record.get('source_category')=='Enhancement':
+            # colour= discord.Color.fuchsia()
+            colour= discord.Color.yellow()
         
         # Create the base embed with the entity's name
         embed = discord.Embed(
