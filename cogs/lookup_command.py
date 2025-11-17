@@ -146,7 +146,7 @@ class LookupCommand(commands.Cog):
 
         # 4. Add all other attributes as fields
         # These are keys we've already handled in the main embed parts
-        RESERVED_KEYS = {'description', 'icon_url', 'damage_effects', 'name', 'condition', 'sub_branch'}
+        RESERVED_KEYS = {'description', 'icon_url', 'damage_effects', 'name', 'condition', 'sub_branch', 'lootlemon_char'}
         
         for key, value in attributes.items():
             if key in RESERVED_KEYS or value is None:
