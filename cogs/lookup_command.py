@@ -129,7 +129,7 @@ class LookupCommand(commands.Cog):
         source_url = None
         if record['char_name']:
             source_text = f"{record['char_name'].title()}"
-            source_url=f"https://www.lootlemon.com/skill/{record['char_name']}-{record['name'].lower().replace(" ","-")}"
+            source_url=f"https://www.lootlemon.com/skill/{record['char_name']}-{record['name'].lower().replace(' ','-')}"
         if record['tree_name']:
             source_text += f" - {record['tree_name']}: "
         source_text += record['source_category'].title()
