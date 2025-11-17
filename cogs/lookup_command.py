@@ -117,15 +117,17 @@ class LookupCommand(commands.Cog):
             color=colour
         )
         
-        if tree_id is not None:
+        if tree_id is not None or record.get('source_category')=='Enhancement':
             embed.set_footer( text= "Description Courtesy: lootlemon.com",
-                icon_url="https://cdn.discordapp.com/icons/605010218241228805/a_1b8ff501394eb114a63bf58a0a578748.png?size=16"
+                icon_url="https://cdn.discordapp.com/icons/605010218241228805/a_1b8ff501394eb114a63bf58a0a578748.png?size=64"
             )
 
         # 1. Set Description
         if attributes.get('description'):
             # Use the .replace() from our ingestion script to restore newlines
             embed.description = attributes['description'].replace('.\\n', '.\n')
+        elif record.get('source_category')=='Enhancement':
+            embed.description = attributes.get('effect')
 
         # 2. Set Author (to show source)
         source_text=''
@@ -149,7 +151,7 @@ class LookupCommand(commands.Cog):
 
         # 4. Add all other attributes as fields
         # These are keys we've already handled in the main embed parts
-        RESERVED_KEYS = {'description', 'icon_url', 'damage_effects', 'name', 'condition', 'sub_branch', 'lootlemon_char'}
+        RESERVED_KEYS = {'description', 'icon_url', 'damage_effects', 'name', 'condition', 'sub_branch', 'lootlemon_char', 'effect'}
         
         for key, value in attributes.items():
             if key in RESERVED_KEYS or value is None:

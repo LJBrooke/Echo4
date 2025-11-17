@@ -529,3 +529,138 @@ values
 (104,   'Standard', 'Perk', null),
 (105,   'Large', 'Perk', 'More healing, longer cooldown'),
 (106,   'Mega',	'Perk', 'Even more healing, even longer cooldown');
+
+INSERT INTO entities (name, source_category, character_id, tree_id, attributes)
+VALUES
+  ('Accelerator', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Daedalus parts gain +1% Fire Rate/bullets fired , Max 50x, resets on Reload.", "manufacturer": "Daedalus"} $$::jsonb
+  ),
+  ('Backup Plan', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Daedalus parts slowly regenerate reserve Ammo while equipped.", "manufacturer": "Daedalus"} $$::jsonb
+  ),
+  ('Mixologist', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Maliwan parts deal +10% Bonus Damage from the inactive Mode's Element.", "manufacturer": "Maliwan", "damage_type": "Bonus Element"} $$::jsonb
+  ),
+  ('Primed Potency', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Maliwan parts have +100% Status Effect Chance on the first bullet after Reload.", "manufacturer": "Maliwan"} $$::jsonb
+  ),
+  ('Freeloader', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Ripper parts have a 30% Chance to instantly refill its Magazine when it's empty.", "manufacturer": "Ripper"} $$::jsonb
+  ),
+  ('Short Circuit', 'Enhancement', NULL, NULL,
+    $$ {"effect": "After Reloading an empty Magazine, Guns with Ripper parts have a 30% Chance to increase the next Magazine's Fire Rate by +100%.", "manufacturer": "Ripper"} $$::jsonb
+  ),
+  ('Stabilizer', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Hyperion parts gain +40% Accuracy.", "manufacturer": "Hyperion"} $$::jsonb
+  ),
+  ('Bulwark', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Hyperion parts gain +100% Gun Shield Capacity.", "manufacturer": "Hyperion"} $$::jsonb
+  ),
+  ('Headringer', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Torgue parts gain +25% Damage, and +100% Damage Radius.", "manufacturer": "Torgue", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Boompuppy', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Torgue parts have a 50% Chance to call down a Missile Barrage on a nearby enemy.", "manufacturer": "Torgue"} $$::jsonb
+  ),
+  ('High Roller', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Ripper parts increase Gun Damage by 2% for each consecutive shot, for a Maximum 25 Stacks.", "manufacturer": "Ripper", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Leaper', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Jakobs parts gain 40% Chance to Ricochet non-Critical Hits.", "manufacturer": "Jakobs"} $$::jsonb
+  ),
+  ('Bounce Pass', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Jakobs parts increase the number of possible Ricochets by 1.", "manufacturer": "Jakobs", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Explosi-ception', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Torgue Sticky Magazines deal +50% of Gun Damage on impact.", "manufacturer": "Torgue"} $$::jsonb
+  ),
+  ('Stim Converter', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Hyperion parts regenerate up to 10% Health when the Gun Shield is hit.", "manufacturer": "Hyperion"} $$::jsonb
+  ),
+  ('Bottom Feeder', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Vladof parts reduce Underbarrel Cooldown Duration by 40%.", "manufacturer": "Vladof"} $$::jsonb
+  ),
+  ('Underdog', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Vladof-licensed parts gain +50% Underbarrel Damage.", "manufacturer": "Vladof", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Muzzle Break', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Order parts gain +50% Acc & Burst Fire Speed when firing Max Charge.", "manufacturer": "Order"} $$::jsonb
+  ),
+  ('Free Charger', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Order parts have a 30% Chance to make the next shot's Charge Time and Ammo cost 0 when firing from Maximum Charge.", "manufacturer": "Order"} $$::jsonb
+  ),
+  ('Hard Charger', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Ripper parts gain +25% dmg, but Charge Time is increased by 30%.", "manufacturer": "Ripper", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Power Shot', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Order parts gain 30% Damage when firing from Maximum Charge.", "manufacturer": "Order", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Digi-Divider', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Tediore parts have a 50% Chance to spawn another Projectile Reload.", "manufacturer": "Tediore"} $$::jsonb
+  ),
+  ('Extend-a-friend', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Tediore parts have a +50% longer Lifetime for Thrown Turrets.", "manufacturer": "Tediore"} $$::jsonb
+  ),
+  ('Synthesizer', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Maliwan parts have +25% Status Effect Damage.", "manufacturer": "Maliwan", "damage_type": "Soup"} $$::jsonb
+  ),
+  ('Transfuser', 'Enhancement', NULL, NULL,
+    $$ {"effect": "On kill, Guns with Maliwan parts spread their active Status Effect to up to 3 nearby targets.", "manufacturer": "Maliwan"} $$::jsonb
+  ),
+  ('Air Burst', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Torgue parts fire Projectiles that explode on proximity.", "manufacturer": "Torgue"} $$::jsonb
+  ),
+  ('Stockpiler', 'Enhancement', NULL, NULL,
+    $$ {"effect": "On Reload, Guns with Daedalus parts gain up to +25% Damage based on the amount of spare Ammo for currently-equipped Gun.", "manufacturer": "Daedalus", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Cold Open', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with COV Magazines gain +20% Damage when below 50% heat.", "manufacturer": "COV", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Ventilator', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with COV Magazines have a 25% Chance to cost 0 Heat when fired.", "manufacturer": "COV"} $$::jsonb
+  ),
+  ('Banger', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Tediore parts use +50% Maximum Loaded Ammo when calculating Thrown Damage.", "manufacturer": "Tediore"} $$::jsonb
+  ),
+  ('Sequencer', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Jakobs parts grant consecutive Critical Hits a stacking +5% Bonus Damage, for a Maximum 8 Stacks.", "manufacturer": "Jakobs", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Bullet Fabricator', 'Enhancement', NULL, NULL,
+    $$ {"effect": "On kill, Daedalus parts have a 40% Chance to refill your Mags.", "manufacturer": "Daedalus"} $$::jsonb
+  ),
+  ('Bullet Hose', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Vladof parts have a 30% Chance to add an extra Projectile per shot.", "manufacturer": "Vladof"} $$::jsonb
+  ),
+  ('Box Magazine', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Vladof parts gain +20% Fire Rate and +20% Magazine Size.", "manufacturer": "Vladof"} $$::jsonb
+  ),
+  ('Ammo Generator', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Order parts slowly refill from reserve Ammo while held.", "manufacturer": "Order"} $$::jsonb
+  ),
+  ('Shock Guard', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Hyperion parts trigger a Shock Nova when deployed (this feature has an 8s Cooldown).", "manufacturer": "Hyperion"} $$::jsonb
+  ),
+  ('Recycler', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Tediore parts keep 50% of a Magazine's Ammo on Reload.", "manufacturer": "Tediore"} $$::jsonb
+  ),
+  ('Smelter', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with COV Magazines have a +35% Fire Rate when over 50% Heat.", "manufacturer": "COV"} $$::jsonb
+  ),
+  ('Duct Tape', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with COV Magazines have a 100% Chance to deal Critical Damage while Overheating.", "manufacturer": "COV"} $$::jsonb
+  ),
+  ('Piercer', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Jakobs parts have a 20% chance to grant a Critical Hit.", "manufacturer": "Jakobs"} $$::jsonb
+  ),
+  ('Sure Shot', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Projectiles from Guns with Atlas parts automatically attach a Tracker Dart every 25s.", "manufacturer": "Atlas"} $$::jsonb
+  ),
+  ('Trauma Bond', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Atlas parts gain +30% Damage while Target Lock is active.", "manufacturer": "Atlas", "damage_type": "Enhancement"} $$::jsonb
+  ),
+  ('Protractor', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Atlas parts have a +50% Chance to not consume Ammo while Target Lock is active.", "manufacturer": "Atlas"} $$::jsonb
+  ),
+  ('Tracker Antenna', 'Enhancement', NULL, NULL,
+    $$ {"effect": "Guns with Atlas parts gain +40% Fire Rate while Target Lock is active.", "manufacturer": "Atlas"} $$::jsonb
+  );
