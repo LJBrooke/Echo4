@@ -98,9 +98,8 @@ class LookupCommand(commands.Cog):
         # --- 1. Set Color based on Tree ID ---
         colour = discord.Color.blurple() # Default
         if tree_id is not None:
-            # Apply your modulo logic: 1, 4, 7, 10 -> Green
-            # 2, 5, 8, 11 -> Blue
-            # 3, 6, 9, 12 -> Red
+            # All VH skill trees are stored in the same colour order
+            # Hence id % 3 provides the right mapping for all 3 VH.
             match tree_id % 3:
                 case 1: # 1, 4, 7, 10
                     colour = discord.Color.green()
@@ -114,6 +113,11 @@ class LookupCommand(commands.Cog):
             title=record['name'],
             color=colour
         )
+        
+        if tree_id is not None:
+            embed.set_footer( text= "Description Courtesy: lootlemon.com",
+                icon_url="https://cdn.discordapp.com/icons/605010218241228805/a_1b8ff501394eb114a63bf58a0a578748.png?size=16"
+            )
 
         # 1. Set Description
         if attributes.get('description'):
@@ -121,12 +125,18 @@ class LookupCommand(commands.Cog):
             embed.description = attributes['description'].replace('.\\n', '.\n')
 
         # 2. Set Author (to show source)
-        source_text = record['source_category'].upper()
+        source_text=''
+        source_url = None
         if record['char_name']:
-            source_text += f" ({record['char_name'].title()})"
+            source_text = f"{record['char_name'].title()}"
+            source_url=f"https://www.lootlemon.com/skill/{record['char_name']}-{record['name'].lower().replace(" ","-")}"
         if record['tree_name']:
-            source_text += f" - {record['tree_name']}"
+            source_text += f" - {record['tree_name']}: "
+        source_text += record['source_category'].title()
+        
         embed.set_author(name=source_text)
+        if source_url is not None:
+            embed.url = source_url
 
         # 3. Set Thumbnail (the "top right bit")
         # This is where we use the extracted icon URL
