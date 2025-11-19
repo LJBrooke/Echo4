@@ -416,6 +416,7 @@ class EditorCommands(commands.Cog):
             editor_view = MainRepkitEditorView(self.bot, item_object, interaction.user.id, session_id)
 
         elif item_type_int < 100: # Assuming < 100 are weapons
+            item_type=item_type.replace("riffle", "rifle")
             item_object = await weapon_class.Weapon.create(
                 self.bot.db_pool, 
                 self.bot.session, 

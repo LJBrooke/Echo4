@@ -118,7 +118,7 @@ class LookupCommand(commands.Cog):
         )
         
         if tree_id is not None or record.get('source_category')=='Enhancement':
-            embed.set_footer( text= "Description Courtesy: lootlemon.com",
+            embed.set_footer( text= "Description Courtesy: Lootlemon.com",
                 icon_url="https://cdn.discordapp.com/icons/605010218241228805/a_1b8ff501394eb114a63bf58a0a578748.png?size=64"
             )
 
