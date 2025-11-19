@@ -191,6 +191,7 @@ async def query_part_by_string(db_pool, manufacturer: str, weapon_type: str, par
     Args:
         db_pool: The bot's asyncpg.Pool
     """
+    weapon_type = weapon_type.lower().replace('riffle', 'rifle')
     query = """
     SELECT
         id,
