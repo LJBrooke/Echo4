@@ -105,7 +105,8 @@ async def query_type(db_pool, id: int) -> list[str]:
     # Use 'with pool.acquire()' to get a connection
     async with db_pool.acquire() as conn:
         result = await conn.fetchrow(query, id)
-    return result.get('item_type'), result.get('manufacturer') if result else None
+    item_type = result.get('item_type').replace('riffle','rifle')
+    return item_type, result.get('manufacturer') if result else None
 
 async def query_element_id(db_pool, primary: str, secondary: str, Maliwan: bool) -> str:
     """
@@ -641,7 +642,6 @@ async def get_button_dict(db_pool: str, session, item_serial: str) -> dict:
     # TODO FINISH THIS FUNC
     return part_dict
     
-
 async def compile_part_list(db_pool, item_code: str) -> str:
     """
     Compiles a part list, calling async DB functions.
