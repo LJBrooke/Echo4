@@ -164,6 +164,7 @@ async def query_part_list(db_pool, Manufacturer: str, Weapon_Type: str, part_lis
         Manufacturer (str): Weapon Manufacturer
         Weapon_Type (str): Weapon Type
     """
+    Weapon_Type = Weapon_Type.lower().replace('riffle', 'rifle')
     query = f"""
     SELECT
         part_string, 
