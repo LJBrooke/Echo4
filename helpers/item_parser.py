@@ -707,7 +707,6 @@ async def part_list_driver(session, db_pool, item_code: str) -> str:
     # This function is now async
     part_list_str = await compile_part_list(db_pool, item_code)
     
-    
     item_name = "Unknown Item" # A safe default
     additional_data = deserial_data.get('additional_data')
 
