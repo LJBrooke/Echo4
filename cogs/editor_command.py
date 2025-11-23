@@ -457,7 +457,7 @@ class EditorCommands(commands.Cog):
             current_component_string = item_object.get_component_list()
         except Exception as e:
             current_component_string = {}
-        message_content = f"```{await item_object.get_serial()}```\n_ _\n"
+        message_content = f"```{current_serial}```\n_ _\n"
         
         try:
             await item_parser.log_item_edit(
