@@ -140,7 +140,6 @@ class ElementSelectionView(BaseEditorView):
 
         await interaction.delete_original_response()
         
-
 class PartSelectionView(BaseEditorView):
     """
     An ephemeral view for part selection, using decorated components.
@@ -274,7 +273,6 @@ class PartSelectionView(BaseEditorView):
                 ephemeral=True
             )
         await interaction.delete_original_response()
-
 
 class MainWeaponEditorView(BaseEditorView):
     """

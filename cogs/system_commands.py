@@ -37,6 +37,29 @@ class SystemCommands(commands.Cog):
             
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {e}", ephemeral=True)
+    
+    @app_commands.command(name="sync_lemons", description="[Owner Only] Force-sync the Lootlemon site index with the database.")
+    @commands.is_owner()
+    async def sync_lootlemon(self, interaction: discord.Interaction):
+        """
+        Runs the Lootlemon sync process.
+        """
+        try:
+            # Failsafe for commands.is_owner() not working.
+            if interaction.user.id != OWNER_ID:
+                await interaction.response.send_message("You do not have permission to use this command. If you have found old data please report it to Prismatic.", ephemeral=True)
+            
+            # Defer the response, as this will take several seconds
+            await interaction.response.defer(ephemeral=True)
+            
+            # Call the helper function, passing the bot's session and db_pool
+            status_message = await sync_parts.sync_lemons(
+                session=self.bot.session
+            )
+            await interaction.followup.send(status_message, ephemeral=True)
+            
+        except Exception as e:
+            await interaction.followup.send(f"An error occurred: {e}", ephemeral=True)
 
     @sync_part_sheet.error
     async def on_sync_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
@@ -86,9 +109,9 @@ class SystemCommands(commands.Cog):
         
         await interaction.response.send_message("Shutting down...", ephemeral=True)
         await self.bot.close()
-        
+          
     @app_commands.command(name="credits", description="Who builds the Bot?")
-    async def creadits(self, interaction: discord.Interaction):
+    async def credits(self, interaction: discord.Interaction):
         credits='''**Bot Developer:**
 - **Prismatic**
 

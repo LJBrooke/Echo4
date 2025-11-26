@@ -120,6 +120,12 @@ CREATE TABLE entities (
     attributes JSONB
 );
 
+CREATE TABLE lootlemon_urls (
+    game        VARCHAR(10) NOT NULL,    
+    item_type   VARCHAR(50) NOT NULL,   
+    url_stub    VARCHAR(255) PRIMARY KEY 
+);
+
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE EXTENSION IF NOT EXISTS timescaledb;

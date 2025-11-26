@@ -67,7 +67,7 @@ async def reserialize(session, component_string: str) -> dict:
             if response.status == 200:
                 return await response.json()
             return {"error": f"API returned status {response.status}"}
-
+        
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # ASYNC DATABASE FUNCTIONS
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -105,8 +105,7 @@ async def query_type(db_pool, id: int) -> list[str]:
     # Use 'with pool.acquire()' to get a connection
     async with db_pool.acquire() as conn:
         result = await conn.fetchrow(query, id)
-    item_type = result.get('item_type').replace('riffle','rifle')
-    return item_type, result.get('manufacturer') if result else None
+    return result.get('item_type'), result.get('manufacturer') if result else None
 
 async def query_element_id(db_pool, primary: str, secondary: str, Maliwan: bool) -> str:
     """
@@ -165,7 +164,7 @@ async def query_part_list(db_pool, Manufacturer: str, Weapon_Type: str, part_lis
         Manufacturer (str): Weapon Manufacturer
         Weapon_Type (str): Weapon Type
     """
-    Weapon_Type = Weapon_Type.lower().replace('riffle', 'rifle')
+    print(Weapon_Type)
     query = f"""
     SELECT
         part_string, 
@@ -191,7 +190,6 @@ async def query_part_by_string(db_pool, manufacturer: str, weapon_type: str, par
     Args:
         db_pool: The bot's asyncpg.Pool
     """
-    weapon_type = weapon_type.lower().replace('riffle', 'rifle')
     query = """
     SELECT
         id,
@@ -445,6 +443,85 @@ async def query_unique_repkit(db_pool, manufacturer: str, perk_id: int) -> list:
         results = await conn.fetch(query, manufacturer, perk_id)
     return results
 
+async def search_lootlemon(db_pool, name: str, game: str, item_type: str = None) -> str | None:
+    """
+    Searches the lootlemon_urls table for a matching item and reconstructs the URL.
+    
+    Args:
+        db_pool: The asyncpg connection pool.
+        name: The user's search term (e.g. "Quincunx Stellium").
+        game: The game code (e.g. "bl4", "wl").
+        item_type: Optional filter (e.g. "class-mod").
+    
+    Returns:
+        The full URL string if found, otherwise None.
+    """
+    
+    # 1. Clean and slugify the input name
+    # "Quincunx Stellium" -> "quincunx-stellium"
+    clean_name = name.strip().lower()
+    slug = re.sub(r'[^a-z0-9]+', '-', clean_name).strip('-')
+    
+    if not slug:
+        return None
+
+    # 2. Define the Base Query
+    # We select the shortest match first. If I search "Monarch", 
+    # I want "monarch-bl3", not "blood-starved-monarch-bl3".
+    # We use ILIKE for case-insensitive matching.
+    query = """
+    SELECT game, item_type, url_stub 
+    FROM lootlemon_urls 
+    WHERE game = $1 
+    AND url_stub ILIKE $2
+    """
+    
+    # Add optional item_type filter
+    args = [game]
+    if item_type:
+        query += " AND item_type = $3"
+        args.append(item_type)
+        
+    # Order by length of url_stub to find the most concise match (exact matches usually shorter)
+    query += " ORDER BY length(url_stub) ASC LIMIT 1"
+
+    async with db_pool.acquire() as conn:
+        # --- ATTEMPT 1: Search for the full slug ---
+        # matches anything containing "quincunx-stellium"
+        search_pattern_1 = f"%{slug}%" 
+        
+        # We have to handle the dynamic argument list for item_type
+        # If item_type exists, args is [game, type]. Pattern is separate.
+        # If item_type is None, args is [game].
+        
+        # Let's construct the execute args dynamically
+        query_args_1 = [game, search_pattern_1]
+        if item_type:
+            query_args_1.append(item_type)
+            
+        result = await conn.fetchrow(query, *query_args_1)
+
+        # --- ATTEMPT 2: Fallback (Last Word) ---
+        # If no result, and the name has multiple words, try the last word.
+        # e.g., User searched "Quincunx Stellium", we failed, now try "Stellium".
+        if not result and '-' in slug:
+            last_word = slug.split('-')[-1]
+            search_pattern_2 = f"%{last_word}%"
+            
+            query_args_2 = [game, search_pattern_2]
+            if item_type:
+                query_args_2.append(item_type)
+                
+            result = await conn.fetchrow(query, *query_args_2)
+
+    # 3. Reconstruct the Link
+    if result:
+        # Base URL + item_type + url_stub
+        # e.g. https://www.lootlemon.com/bonus-item/x-y-combo-bl4
+        return f"https://www.lootlemon.com/{result['item_type']}/{result['url_stub']}"
+    
+    return None
+
 async def query_clanker_response(db_pool) -> str:
     """Fetches a random response from the clanker_responses table."""
     query = "SELECT response FROM clanker_responses ORDER BY RANDOM() LIMIT 1"
@@ -643,6 +720,7 @@ async def get_button_dict(db_pool: str, session, item_serial: str) -> dict:
     # TODO FINISH THIS FUNC
     return part_dict
     
+
 async def compile_part_list(db_pool, item_code: str) -> str:
     """
     Compiles a part list, calling async DB functions.
@@ -706,6 +784,7 @@ async def part_list_driver(session, db_pool, item_code: str) -> str:
     
     # This function is now async
     part_list_str = await compile_part_list(db_pool, item_code)
+    
     
     item_name = "Unknown Item" # A safe default
     additional_data = deserial_data.get('additional_data')

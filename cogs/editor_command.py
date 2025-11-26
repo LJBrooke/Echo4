@@ -451,6 +451,7 @@ class EditorCommands(commands.Cog):
             description=part_list_string,
             color=item_color
         )
+        embed.url = await item_parser.search_lootlemon(self.bot.db_pool, item_name, "bl4")
         
         current_serial = await item_object.get_serial()
         try:
