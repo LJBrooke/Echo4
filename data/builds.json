@@ -10,6 +10,15 @@
             "youtube": "https://youtu.be/MlxaryL95Co"
         },
         {
+            "name": "Stormbringer",
+            "author": "[AncientRune](<https://youtube.com/@ancient_rune>)",
+            "tree": "Green",
+            "com": ["Furnace"],
+            "description": "This build is about spamming Crucible and your Forgeskill as much as possible for amazing melee damage. This is all built around maximizing your damage of  Raging Infernowhich was fixed in the 10/23 patch. There will be a mix of Hour Of The Hammer and Blade Tempest. This is the successor to my Wonderlands Stormbringer Build.",
+            "moba": "https://mobalytics.gg/borderlands-4/builds/hammer-time-amon",
+            "youtube": "https://youtu.be/Axmge72hna0?si=LpGzpoL8CZGEfI_9"
+        },
+        {
             "name": "A.M.O.K",
             "author": "[Girthquake](<https://www.youtube.com/@girthquake1707>)",
             "tree": "Blue",
@@ -62,9 +71,27 @@
             "description": "This build aims to maximize damage through the use of Bloodshot and amp on repkits, leading to the ability to annihilate anything you point your crosshairs at. If you're a fan of classic sniper builds and popping heads, this is the build for you.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/aim-on-amon",
             "youtube": "https://youtu.be/gZfvnf0O-Hc?si=X2huKDC0b8MiVM8M"
+        },
+        {
+            "name": "Fisticuffs",
+            "author": "[AncientRune](<https://youtube.com/@ancient_rune>)",
+            "tree": "Red",
+            "com": ["Furnace"],
+            "description": "This build is all about using Onslaughter for damage and it's multiple augments w/ Raging Infernoto ONE PUNCH enemies and melt bosses in a singular Onslaughter activation. Bossing is based around Thermal Diffusion and mobbing is very flexible.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ancientrune/builds/fisticuffs",
+            "youtube": "https://youtu.be/_COuaHN7Shg?si=dxINCanKpw2ZhnHn"
         }
     ],
     "Harlowe":[
+        {
+            "name": "Newtron Capture",
+            "author": "Nepta",
+            "tree": "Red",
+            "com": ["Reactor"],
+            "description": "After the nerf to Neutron Capture a couple of patches ago, The skill has become a sort of amp for guns similar to Blood Shot and Gamma Ray Burst. It's a nerf overall but does open to some interesting synergy (with the Wombo Combo for example)",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/nepta/builds/newtron-capture-jakob-pistol-tech",
+            "youtube": "https://www.youtube.com/watch?v=FSTncQGNWkA&t=28s"
+        },
         {
             "name": "Nepta GRB",
             "author": "[Nepta](<https://www.youtube.com/@NeptaLeijon>)",
@@ -91,17 +118,26 @@
             "description": "Ever thought to yourself: \"Tediore guns are cool, and Harlowe is cool. What if I could use them together?\"\nWell, thanks to our innovative buildcrafters at PhyrexianGrace Inc, I am pleased to bring you Quantum Toss, your one stop shop for all things Tediore Harlowe!",
             "moba": "https://mobalytics.gg/borderlands-4/profile/776a0631-194e-4d00-91fd-6fc22e7378a4/builds/6a06842a-2fbd-4325-809b-3bc7a7a1aaef",
             "youtube": "https://www.youtube.com/watch?v=H411qJfEH2k"
+        },
+        {
+            "name": "Stellar Shock",
+            "author": "[AncientRune](<https://youtube.com/@ancient_rune>)",
+            "tree": "Green",
+            "com": ["Scientist"],
+            "description": "This build is all around maximizing the damage of Status Effects which is a meta build archetype. Using the Stellium with the Energy Disc underbarrel for some massive DoT damage. Or just the base Stellium and doing just fine.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/ancientrune/builds/stellar-shock-dot-harlowe",
+            "youtube": "https://youtu.be/sm2lMVs5wlo?si=qh4Swa-mrn6ZeKNW"
         }
     ],
     "Rafa":[
         {
-            "name": "EL Tediore Primo Rafa",
+            "name": "El Tediore Primo Rafa",
             "author": "[JoeForLong](<https://www.youtube.com/@JoeForLong>)",
             "tree": "Blue",
             "com": ["Grenazerker"],
-            "description": "A Grenazerker Rafa setup that primarily utilizes Tediore reloads but also can utilize a wide variety of Ordnances and the APOPHIS: Lance Action skill for utility and damage. Excels in both mobbing and bossing encounters.",
+            "description": "An all-purpose Tediore Rafa build with a wide arsenal of usable weaponry to throw at your enemies. The build excels in mobbing and bossing and is able to use multiple Action Skills on the fly with plenty of gear and firmware options available. An alternative bossing-focused setup is also available for bosses where getting kill skills is not the fastest or most feasible.",
             "moba": "https://mobalytics.gg/borderlands-4/builds/overdrive-soltado-tediore-primo-rafa-joeforlong",
-            "youtube": "https://youtu.be/6OCoowHY2RI?si=bKsO5uBIWSdmbr1Z"
+            "youtube": "https://youtu.be/TEOw8dNlagU"
         },
         {
             "name": "Deadshot",
@@ -187,6 +223,15 @@
             "youtube": "https://www.youtube.com/watch?v=Y2TTEBE2KlI"
         },
         {
+            "name": "Clone's Gambit",
+            "author": "[Nepta](<https://www.youtube.com/@NeptaLeijon>)",
+            "tree": "Blue",
+            "com": ["Illusionist", "Hunter"],
+            "description": "Maximizes the unique effect of the King's Gambit pistol by using the Heirloom Specter capstone alongside high pellet counts",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/nepta/builds/clone-s-gambit-best-specter-heirloom-build",
+            "youtube": "https://youtu.be/OB011PvI-EA"
+        },
+        {
             "name": "Blue Blood",
             "author": "Katchenz",
             "tree": "Blue",
@@ -195,6 +240,7 @@
             "moba": "https://mobalytics.gg/borderlands-4/profile/b454eeca-0164-4d9c-bc58-34846a9b3645/builds/398b17e4-5c75-4516-8a38-72b66e99d106",
             "youtube": null
         },
+        
         {
             "name": "Wattlock Vex",
             "author": "[Ratore](<https://www.youtube.com/@Ratore>)",
