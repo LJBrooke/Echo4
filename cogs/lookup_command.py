@@ -226,14 +226,24 @@ class LookupCommand(commands.Cog):
         async with self.db_pool.acquire() as conn:
             # 1. Main Entity Search
             search_term = f"%{name}%"
-            query = """
-                SELECT e.*, c.name as char_name, st.name as tree_name
-                FROM entities e
-                LEFT JOIN characters c ON e.character_id = c.id
-                LEFT JOIN skill_trees st ON e.tree_id = st.id
-                WHERE e.name ILIKE $1 and lower(e.source_category) = lower($2)
-                LIMIT 5;
-            """
+            if type != '%':
+                query = """
+                    SELECT e.*, c.name as char_name, st.name as tree_name
+                    FROM entities e
+                    LEFT JOIN characters c ON e.character_id = c.id
+                    LEFT JOIN skill_trees st ON e.tree_id = st.id
+                    WHERE e.name ILIKE $1 and lower(e.source_category) = lower($2)
+                    LIMIT 5;
+                """
+            else:
+                query = """
+                    SELECT e.*, c.name as char_name, st.name as tree_name
+                    FROM entities e
+                    LEFT JOIN characters c ON e.character_id = c.id
+                    LEFT JOIN skill_trees st ON e.tree_id = st.id
+                    WHERE e.name ILIKE $1
+                    LIMIT 5;
+                """
             results = await conn.fetch(query, search_term, type)
 
             # 2. Optional COM Search (Finding COMs that boost the searched skill)
