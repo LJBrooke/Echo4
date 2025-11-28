@@ -208,7 +208,7 @@
             "character": "Harlowe",
             "rarity": "Legendary",
             "name": "Generator",
-            "red_text": "Whenever Harlowe activates her Flux Generator, she decreases her remainin Action Skill Duration by 50% and gains 200% Action Skill Power.",
+            "red_text": "Whenever Harlowe activates redeploys her Flux Generator, she decreases her remainin Action Skill Duration by 50% and gains 200% Action Skill Power.",
             "skills": ["Neutron Decay", "Resonance Cascade", "Runaway Reaction", "Control Group"],
             "skill_notes": null,
             "passive_count": 2,

@@ -341,7 +341,7 @@ values
 (7, 'Siphon 10%', 'Perk', 'Energy', 2),
 (8, 'Trigger Happy 20%/20%', 'Perk', 'Energy', 1),
 (9, 'Trigger Happy 28%/28%', 'Perk', 'Energy', 2),
-(10, 'Nova', 'Perk', 'Energy', 1),
+(10, 'Nova  ', 'Perk', 'Energy', 1),
 (11, 'Nova', 'Perk', 'Energy', 2),
 (12, 'Fleeting 20%', 'Perk', 'Energy', 1),
 (13, 'Fleeting 28%', 'Perk', 'Energy', 2),

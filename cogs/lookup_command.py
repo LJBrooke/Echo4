@@ -1,69 +1,25 @@
-import json
 import discord
 import asyncpg
-from helpers.helper_methods import _process_lookup, get_coms_by_name
-from cogs.builds_command import BuildView
+import json
 from discord import app_commands
 from discord.ext import commands
 
-# --- Load Data and Prepare Choices ---
-try:
-    with open('data/Type Database.json', 'r', encoding='utf-8') as f:
-        SKILL_DATA = json.load(f)
-except (FileNotFoundError, json.JSONDecodeError) as e:
-    print(f"Error loading data/data.json for LookupCommand cog: {e}")
-    SKILL_DATA = {}
-
-try:
-    with open('data/Gear.json', 'r', encoding='utf-8') as f:
-        COM_DATA = json.load(f)
-except (FileNotFoundError, json.JSONDecodeError) as e:
-    print(f"Error loading data/Gear.json for Class Mod information: {e}")
-    COM_DATA = {}
-
-# --- Prepare Autocomplete Choices for all skill names ---
-UNIQUE_SKILL_NAMES = sorted(list(set(
-    item['name'].strip()
-    for items in SKILL_DATA.values()
-    for item in items if item.get('name')
-)))
-
-
-# --- Define the Cog Class ---
 class LookupCommand(commands.Cog):
-    def __init__(self, bot: commands.Bot,  db_pool: asyncpg.Pool):
+    def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
         self.bot = bot
         self.db_pool = db_pool
 
-    # --- Autocomplete Function for the 'name' option ---
-    async def com_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-        return [
-            app_commands.Choice(name=com.get("name"), value=com.get("name"))
-            for com in COM_DATA.get("class mods") if current.lower() in com.get("name").lower()
-        ][:25]
-        
-    async def lookup_autocomplete(
-        self,
-        interaction: discord.Interaction,
-        current: str
-    ) -> list[app_commands.Choice[str]]:
-        """Autocompletes the 'name' argument for the /lookup command."""
-        
-        # Don't query on an empty string, just return no results
+    async def lookup_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        """Autocompletes the 'name' argument."""
         if not current:
             return []
-
-        # Use a more efficient query for autocomplete:
-        # - ILIKE for case-insensitive matching
-        # - `current%` (instead of `%current%`) for "starts-with" matching, which is much faster
-        #   and more intuitive for autocomplete.
-        # - LIMIT 25 is the max Discord allows.
+        
         search_term = f"{current}%"
+        # We query for names that start with the input
         query = "SELECT DISTINCT name FROM entities WHERE name ILIKE $1 LIMIT 25;"
         
         choices = []
         try:
-            # We don't need a full transaction, just a single connection
             async with self.db_pool.acquire() as conn:
                 results = await conn.fetch(query, search_term)
                 choices = [
@@ -71,207 +27,238 @@ class LookupCommand(commands.Cog):
                     for record in results
                 ]
         except Exception as e:
-            # Log the error, but don't crash the autocomplete
             print(f"Autocomplete error: {e}")
             
         return choices
-       
-    def _format_entity_embed(self, record: asyncpg.Record, tree_id: int | None) -> discord.Embed:
-        """
-        Takes a single database record and formats it into a rich Discord embed.
-        """
-        
-        # The 'attributes' column is auto-decoded from JSONB into a Python dict
-        attributes_raw = record['attributes']
 
-        # asyncpg might return the JSONB as a string instead of auto-decoding.
-        # We'll manually parse it if it's a string.
-        if isinstance(attributes_raw, str):
-            try:
-                attributes = json.loads(attributes_raw)
-            except json.JSONDecodeError:
-                # Fallback for corrupted data
-                attributes = {"name": "Error: Corrupted Data"}
-        else:
-            attributes = attributes_raw
-        
-        # --- 1. Set Color based on Tree ID ---
-        colour = discord.Color.blurple() # Default
-        if tree_id is not None:
-            # All VH skill trees are stored in the same colour order
-            # Hence id % 3 provides the right mapping for all 3 VH.
-            match tree_id % 3:
-                case 1: # 1, 4, 7, 10
-                    colour = discord.Color.green()
-                case 2: # 2, 5, 8, 11
-                    colour = discord.Color.blue()
-                case 0: # 3, 6, 9, 12
-                    colour = discord.Color.orange()
-        elif record.get('source_category')=='Enhancement':
-            # colour= discord.Color.fuchsia()
-            colour= discord.Color.yellow()
-        
-        # Create the base embed with the entity's name
+    # --- FORMATTER 1: CLASS MODS ---
+    def _format_class_mod_embed(self, record: asyncpg.Record, attributes: dict) -> discord.Embed:
+        """
+        Specialized embed formatting for Class Mods.
+        Handles: Rarity colors, Red Text, Boosted Skills, and Drop Info.
+        """
+        # 1. Determine Color based on Rarity (Defaulting to Orange if unknown)
+        rarity = attributes.get('rarity', 'Common')
+        color_map = {
+            'Legendary': discord.Color.orange(),
+            'Epic': discord.Color.purple(),
+            'Purple': discord.Color.purple(),
+            'Rare': discord.Color.blue(),
+            'Uncommon': discord.Color.green(),
+            'Common': discord.Color.light_grey()
+        }
+        color = color_map.get(rarity, discord.Color.orange())
+
+        # 2. Build Base Embed
         embed = discord.Embed(
             title=record['name'],
-            color=colour
+            color=color,
+            url=attributes.get('lootlemon') # Link title to Lootlemon if available
         )
         
-        if tree_id is not None or record.get('source_category')=='Enhancement':
-            embed.set_footer( text= "Description Courtesy: Lootlemon.com",
-                icon_url="https://cdn.discordapp.com/icons/605010218241228805/a_1b8ff501394eb114a63bf58a0a578748.png?size=64"
-            )
 
-        # 1. Set Description
-        if attributes.get('description'):
-            # Use the .replace() from our ingestion script to restore newlines
-            embed.description = attributes['description'].replace('.\\n', '.\n')
-        elif record.get('source_category')=='Enhancement':
-            embed.description = attributes.get('effect')
+        # 3. Author: "Class Mod • Character Name"
+        char_name = record.get('char_name')
+        author_text = "Class Mod"
+        if char_name:
+            author_text += f" • {char_name.title()}"
+        embed.set_author(name=author_text)
 
-        # 2. Set Author (to show source)
-        source_text=''
-        source_url = None
-        if record['char_name']:
-            source_text = f"{record['char_name'].title()}"
-            source_url=f"https://www.lootlemon.com/skill/{record['char_name']}-{record['name'].lower().replace(' ','-')}"
-        if record['tree_name']:
-            source_text += f" - {record['tree_name']}: "
-        source_text += record['source_category'].title()
+        thumbnail_url='https://cdn.prod.website-files.com/5ff36780a1084987868ce198/68e22a55c2e072fddfb3b422_Harlowe.avif'
+        if char_name.title()=='Amon':
+            thumbnail_url='https://cdn.prod.website-files.com/5ff36780a1084987868ce198/68e22a5db725b2d289f4f526_Amon.avif'
+        elif char_name.title()=='Rafa':
+            thumbnail_url='https://cdn.prod.website-files.com/5ff36780a1084987868ce198/68e22a4d705bce252742b8a9_Rafa.avif'
+        elif char_name.title()=='Vex':
+            thumbnail_url='https://cdn.prod.website-files.com/5ff36780a1084987868ce198/68e22a40a94f8477fe7d1c2e_Vex.avif'
+        embed.set_thumbnail(url=thumbnail_url)
         
+        # 4. Description: Red Text (in italics for flavor)
+        if attributes.get('red_text'):
+            embed.description = f"*{attributes['red_text']}*"
+
+        # 5. Skills List (Formatted as bullet points)
+        if attributes.get('skills'):
+            skills = attributes['skills']
+            if isinstance(skills, list):
+                value = "\n".join([f"• {s}" for s in skills])
+                embed.add_field(name="Skills Boosted", value=value, inline=False)
+
+        # 6. Specific Class Mod Stats
+        if attributes.get('fixed_stat'):
+            embed.add_field(name="Fixed Stat", value=attributes['fixed_stat'], inline=True)
+
+        if attributes.get('passive_count'):
+            embed.add_field(name="Passives", value=str(attributes['passive_count']), inline=True)
+
+        if attributes.get('drop_location'):
+            embed.add_field(name="Drop Source", value=attributes['drop_location'], inline=True)
+
+        # 7. Notes
+        if attributes.get('skill_notes'):
+            embed.add_field(name="Notes", value=attributes['skill_notes'], inline=False)
+            
+        return embed
+
+    # --- FORMATTER 2: SKILLS & GENERAL ENTITIES ---
+    def _format_skill_embed(self, record: asyncpg.Record, tree_id: int | None, attributes: dict) -> discord.Embed:
+        """
+        Standard formatting for Skills, Enhancements, and generic items.
+        """
+        # 1. Set Color based on Tree ID (Modulo logic)
+        color = discord.Color.dark_grey()
+        if tree_id is not None:
+            match tree_id % 3:
+                case 1: color = discord.Color.green()
+                case 2: color = discord.Color.blue()
+                case 0: color = discord.Color.red()
+        
+        embed = discord.Embed(title=record['name'], color=color)
+
+        # 2. Description
+        if attributes.get('description'):
+            embed.description = attributes['description'].replace('.\\n', '.\n')
+
+        # 3. Author (Source Category + Character/Tree)
+        source_text = record['source_category'].upper()
+        if record['char_name']:
+            source_text += f" ({record['char_name'].title()})"
+        if record['tree_name']:
+            source_text += f" - {record['tree_name']}"
         embed.set_author(name=source_text)
-        if source_url is not None:
-            embed.url = source_url
 
-        # 3. Set Thumbnail (the "top right bit")
-        # This is where we use the extracted icon URL
-        icon_url = attributes.get('icon_url')
-        if icon_url:
-            embed.set_thumbnail(url=icon_url)
+        # 4. Thumbnail
+        if attributes.get('icon_url'):
+            embed.set_thumbnail(url=attributes['icon_url'])
 
-        # 4. Add all other attributes as fields
-        # These are keys we've already handled in the main embed parts
-        RESERVED_KEYS = {'description', 'icon_url', 'damage_effects', 'name', 'condition', 'sub_branch', 'lootlemon_char', 'effect'}
+        # 5. Dynamic Attributes Loop
+        # Keys to exclude from the generic field loop because they are handled elsewhere
+        RESERVED_KEYS = {'description', 'icon_url', 'damage_effects', 'name', 'condition', 'sub_branch'}
         
         for key, value in attributes.items():
             if key in RESERVED_KEYS or value is None:
                 continue
             
-            # Format key (e.g., "max_points" -> "Max Points")
             field_name = key.replace('_', ' ').title()
             
-            # --- APPLY TIER BRACKETING (Rule 3) ---
-            field_value = str(value) # Default
+            # Logic for formatted Tiers
+            field_value = str(value)
             if key == 'tier':
                 try:
-                    # Get 0-based tier and context
                     original_tier = int(value)
                     sub_branch = attributes.get('sub_branch')
-                    
-                    # Rule 1: +1 to all tiers
                     display_tier = original_tier + 1
-                    
-                    # Rule 2: +3 for side branches
                     if sub_branch in ('left', 'middle', 'right'):
                         display_tier += 3
-                        
-                    # Rule 3: Bracketing
-                    field_value = f"{display_tier}: {sub_branch.title()}"
+                    field_value = f"[{display_tier}]"
                 except (ValueError, TypeError):
-                    field_value = f"[{value}]" # Fallback if tier isn't a number
-            # --- END TIER BRACKETING ---
+                    field_value = f"[{value}]"
             
             embed.add_field(name=field_name, value=field_value, inline=True)
 
-        # 5. Handle the nested 'damage_effects' (for skills like Decoherence)
+        # 6. Damage Effects (for complex skills)
         if 'damage_effects' in attributes:
             effects_list = attributes['damage_effects']
             effects_text = []
             
             for effect in effects_list:
-                # Use the 'condition' (e.g., "Effect 1") as the name if it exists
                 name = effect.get('condition') or effect.get('name', 'Effect')
-                dtype = effect.get('damage type', 'N/A')
-                dcat = effect.get('damage category', 'N/A')
-                if dcat != 'N/A':
-                    effects_text.append(f"**{name}**: {dtype} ({dcat})")
-                else:
-                    effects_text.append(f"**{name}**: {dtype}")
+                
+                # Build details string (e.g., "Gun Damage, Soup")
+                details_parts = []
+                if effect.get('damage type'): details_parts.append(effect['damage type'])
+                if effect.get('damage category'): details_parts.append(effect['damage category'])
+                
+                details_str = f" ({', '.join(details_parts)})" if details_parts else ""
+                effects_text.append(f"**{name}**{details_str}")
             
-            embed.add_field(
-                name="Damage Effects", 
-                value="\n".join(effects_text), 
-                inline=False
-            )
+            embed.add_field(name="Damage Effects", value="\n".join(effects_text), inline=False)
             
         return embed
-    
-    # --- The Slash Command ---
-    @app_commands.command(name="com", description="Search Class Mods")
-    @app_commands.describe(name="Which Class Mod do you want information on?")
-    @app_commands.autocomplete(name=com_name_autocomplete)
-    async def com_search(self, interaction: discord.Interaction, name: str):
-        response, vault_hunter, show = get_coms_by_name(name, COM_DATA)
-        view = BuildView(self, vault_hunter, name)
 
-        await interaction.response.send_message(response, view=view, ephemeral=show)
-       
-    # --- The Slash Command ---
-    # Choices does not support bool, hence the use of an int.
+    # --- MAIN DISPATCHER ---
+    def _format_entity_embed(self, record: asyncpg.Record, tree_id: int | None) -> discord.Embed:
+        """
+        Routes the record to the correct formatter based on source_category.
+        """
+        # 1. Safe JSON Parsing
+        attributes_raw = record['attributes']
+        if isinstance(attributes_raw, str):
+            try:
+                attributes = json.loads(attributes_raw)
+            except json.JSONDecodeError:
+                attributes = {"name": "Error: Corrupted Data"}
+        else:
+            attributes = attributes_raw
+
+        # 2. Dispatch Logic
+        source = record['source_category']
+        
+        # You can add more 'if' blocks here if you add new types (like 'Shield' or 'Gun')
+        if source == 'Class Mod':
+            return self._format_class_mod_embed(record, attributes)
+        else:
+            # Fallback for Skills, Action Skills, Augments, Enhancements, etc.
+            return self._format_skill_embed(record, tree_id, attributes)
+
     @app_commands.command(name="lookup", description="Search for any skill, item, or enhancement.")
-    @app_commands.autocomplete(name=lookup_autocomplete)
     @app_commands.describe(
         name="The name of the item to search for.",
-        find_coms="Set to True to also find COMs that boost this skill."
+        type="[Optional] Restrict search types",
+        find_coms="[Skills only] Set to True to also find COMs that boost this skill."
     )
-    async def lookup(self, interaction: discord.Interaction, name: str, find_coms: bool = False):
-        """
-        The main slash command logic.
-        """
-        # Defer response as database queries can take a moment
+    @app_commands.autocomplete(name=lookup_autocomplete)
+    @app_commands.choices(
+        type=[
+            app_commands.Choice(name="Action Skill", value="Action Skill"),
+            app_commands.Choice(name="Augment", value="Augment"),
+            app_commands.Choice(name="Capstone", value="Capstone"),
+            app_commands.Choice(name="Class Mod", value="Class Mod"),
+            app_commands.Choice(name="Enhacnement", value="Enhacnement"),
+            app_commands.Choice(name="Firmware", value="Firmware"),
+            app_commands.Choice(name="Skill", value="Skill"),
+        ]
+    )
+    async def lookup(self, interaction: discord.Interaction, name: str, type:str ='%', find_coms: bool = False):
         await interaction.response.defer(ephemeral=False)
         
         embeds = []
         async with self.db_pool.acquire() as conn:
-            # --- 1. Main Entity Search ---
-            # This query uses ILIKE for case-insensitive partial matching
-            # and joins to get character/tree names.
+            # 1. Main Entity Search
             search_term = f"%{name}%"
             query = """
                 SELECT e.*, c.name as char_name, st.name as tree_name
                 FROM entities e
                 LEFT JOIN characters c ON e.character_id = c.id
                 LEFT JOIN skill_trees st ON e.tree_id = st.id
-                WHERE e.name ILIKE $1
+                WHERE e.name ILIKE $1 and lower(e.source_category) = lower($2)
                 LIMIT 5;
             """
-            results = await conn.fetch(query, search_term)
+            results = await conn.fetch(query, search_term, type)
 
-            # --- 2. (Optional) COM Search ---
+            # 2. Optional COM Search (Finding COMs that boost the searched skill)
             com_results = []
             if find_coms:
-                # *** ASSUMPTION ***
-                # This query assumes your COM entities will have a JSONB attribute
-                # named 'boosts' that is an *array of skill names*.
-                # e.g., "attributes": {"boosts": ["Decoherence", "A-causality"]}
                 com_query = """
                     SELECT name, attributes
                     FROM entities
-                    WHERE source_category = 'COM'
-                    AND attributes->'boosts' ? $1;
+                    WHERE source_category = 'Class Mod'
+                    AND attributes->'skills' ? $1;
                 """
-                # We use the *exact name* for this, not the partial search_term
                 com_results = await conn.fetch(com_query, name)
 
-            # --- 3. Format the Results ---
+            # 3. Return Results
             if not results and not com_results:
-                await interaction.followup.send(
-                    f"Could not find any information for `{name}`.", 
-                    ephemeral=True
-                )
+                await interaction.followup.send(f"Could not find any information for `{name}`.", ephemeral=True)
                 return
+            
+            # Display Main Results using the Dispatcher
+            for record in results:
+                tree_id = record['tree_id']
+                embed = self._format_entity_embed(record, tree_id)
+                embeds.append(embed)
 
-            # Add COM embed first if it exists
+            # Display COMs first (if any)
             if com_results:
                 com_lines = [f"• **{com['name']}**" for com in com_results]
                 com_embed = discord.Embed(
@@ -280,17 +267,12 @@ class LookupCommand(commands.Cog):
                     color=discord.Color.orange()
                 )
                 embeds.append(com_embed)
-            
-            # Add all main results
-            for record in results:
-                tree_id = record['tree_id']
-                embed = self._format_entity_embed(record, tree_id)
-                embeds.append(embed)
 
-        # Send all found embeds (up to 10, Discord's limit)
         await interaction.followup.send(embeds=embeds[:10])
 
-# --- Setup Function ---
+# Helper for loading the cog
 async def setup(bot: commands.Bot):
+    if not hasattr(bot, 'db_pool'):
+        print("Error: bot.db_pool not found.")
+        return
     await bot.add_cog(LookupCommand(bot, bot.db_pool))
-    print("✅ Cog 'LookupCommand' loaded.")
