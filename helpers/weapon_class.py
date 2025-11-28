@@ -338,8 +338,8 @@ class Weapon:
         # --- LOGIC CORRECTION ---
         # Original was: not self.manufacturer.lower() == 'maliwan'
         # This set the flag to False for Maliwan, which seems incorrect.
-        is_maliwan_flag = self.manufacturer.lower() == 'maliwan'
-        log.debug("Manufacturer is '%s'. Setting Maliwan flag to: %s", self.manufacturer, is_maliwan_flag)
+        is_not_maliwan_flag = not (self.manufacturer.lower() == 'maliwan')
+        log.debug("Manufacturer is '%s'. Setting Maliwan flag to: %s", self.manufacturer, is_not_maliwan_flag)
 
         # 2. Lookup the token for the PRIMARY ELEMENT SLOT (Base element token)
         # This token is always (Primary, Secondary=null, Maliwan=False)
@@ -358,19 +358,19 @@ class Weapon:
         # 3. Handle the SECONDARY ELEMENT SLOT (Dual-element token)
         secondary_token = None
         if new_secondary_name and new_secondary_name.lower() != 'none':
-            log.debug("Querying dual-element token for: %s + %s (Maliwan=%s)", new_primary_name, new_secondary_name, is_maliwan_flag)
+            log.debug("Querying dual-element token for: %s + %s (Maliwan=%s)", new_primary_name, new_secondary_name, is_not_maliwan_flag)
             
             # The dual-element token queries (Primary, Secondary, Maliwan)
             secondary_token = await item_parser.query_element_id(
                 self.db_pool, 
                 new_primary_name, 
                 new_secondary_name, 
-                is_maliwan_flag
+                is_not_maliwan_flag
             )
             
             if not secondary_token:
-                log.error("Could not find dual-element ID for %s + %s (Maliwan=%s)", new_primary_name, new_secondary_name, is_maliwan_flag)
-                raise ValueError(f"Could not find dual-element ID for {new_primary_name} + {new_secondary_name} (Maliwan={is_maliwan_flag}).")
+                log.error("Could not find dual-element ID for %s + %s (Maliwan=%s)", new_primary_name, new_secondary_name, is_not_maliwan_flag)
+                raise ValueError(f"Could not find dual-element ID for {new_primary_name} + {new_secondary_name} (Maliwan={is_not_maliwan_flag}).")
         
         self.primary_element_name = new_primary_name
         self.secondary_element_name = new_secondary_name
