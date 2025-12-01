@@ -561,7 +561,7 @@
             "skill_notes": "Does not proc Battery Subscription Service augment if Charges aren't consumed.",
             "passive_count": 2,
             "fixed_stat": "Skill Damage",
-            "drop_location": "Origo",
+            "drop_location": "Primordial Guardian Origo",
             "lootlemon": "https://www.lootlemon.com/class-mod/buster-rafa-bl4"
         },
         {
@@ -570,7 +570,7 @@
             "name": "Dancer",
             "red_text": "Overdrive bonuses are increased by +100%. Overdrive ends whenever Rafa's Action Skill ends.",
             "skills": ["Sustainable Energy", "The Thrill", "Temerario", "Soltado"],
-            "skill_notes": "Actually doubles all Overdrive bonuses. 2/1 Soltado currently does nothing. Sustainable Energy is practically useless with this COM.",
+            "skill_notes": "Actually doubles all Overdrive bonuses after Soltado and Jaque, which are additive with each other.",
             "passive_count": 2,
             "fixed_stat": "Action Skill Cooldown Rate",
             "drop_location": "Idolator Sol",
@@ -582,7 +582,7 @@
             "name": "Esgrimidor",
             "red_text": "Rafa's Melee Attacks gain +10% Crit Chance. Critical Hits with Melee Attacks restore 5% Action Skill Duration.",
             "skills": ["Dial In", "Booming Business", "Empuje", "Cruel Accrual"],
-            "skill_notes": "Booming Business breaks above 5 total invested points between Skill Tree and COM.",
+            "skill_notes": null,
             "passive_count": 2,
             "fixed_stat": "Melee Damage",
             "drop_location": "Callis, the Ripper Queen",
@@ -594,10 +594,10 @@
             "name": "Filántropo",
             "red_text": "Whenever Rafa retriggers his Action Skill, he spawns a free Grenade. If he has a Grenade equipped, he spawns one based on that. This Skill has a 4 second cooldown.",
             "skills": ["Hemolitions", "Booming Business", "Arriba", "Barrage"],
-            "skill_notes": "Booming Business breaks above 5 total invested points between Skill Tree and COM.",
+            "skill_notes": "Retriggers count as using Blade Fury with Arc-Knives, using any of the Peacebreaker Cannons augment abilities, or shooting Apophis Lance",
             "passive_count": 2,
             "fixed_stat": "Ordnance Damage",
-            "drop_location": "Inceptus",
+            "drop_location": "Primordial Guardian Inceptus",
             "lootlemon": "https://www.lootlemon.com/class-mod/filantropo-rafa-bl4"
         },
         {
@@ -606,10 +606,10 @@
             "name": "Grenazerker",
             "red_text": "Whenever Rafa throws a Grenade or Tediore Gun, he throws an additional one.",
             "skills": ["Sinergia", "Arriba", "Abajo", "Confeti"],
-            "skill_notes": "Point in Arriba is required for the COM to roll points in Abajo.",
+            "skill_notes": null,
             "passive_count": 2,
             "fixed_stat": "Gun Damage",
-            "drop_location": "Radix",
+            "drop_location": "Primordial Guardian Radix",
             "lootlemon": "https://www.lootlemon.com/class-mod/grenazerker-rafa-bl4"
         },
         {
@@ -623,6 +623,126 @@
             "fixed_stat": "Action Skill Duration",
             "drop_location": "Vile Lictor",
             "lootlemon": "https://www.lootlemon.com/class-mod/instigator-rafa-bl4"
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Gearhead",
+            "red_text": null,
+            "skills": ["Everdrive", "Resilencia", "La Garza", "Las Jaras"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Agente",
+            "red_text": null,
+            "skills": ["Errant Spark", "Asymmetric Warfare", "Rolling Stone", "Deft Hands"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Trooper",
+            "red_text": null,
+            "skills": ["Debtonation", "Artilleria", "Ardid", "Booming Business"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Practioner",
+            "red_text": null,
+            "skills": ["Field Repairs, El Corazon", "Pa Dentro", "Shield Barriest"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Soldado",
+            "red_text": null,
+            "skills": ["Conductivo", "El Catrin", "Al Centro", "Brain Dump"],
+            "skill_notes": "Named Soldado, doesn't boost 'El Soldado.' Is Gearbox stupid?",
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Demolitionist",
+            "red_text": null,
+            "skills": ["Arriba", "Drone Defense", "The Right Tools", "Abajo"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Tecnico",
+            "red_text": null,
+            "skills": ["Blowout", "El Borracho", "Expedite", "Midnight Oil"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Tanker",
+            "red_text": null,
+            "skills": ["Diamond Hands", "Rinse", "The Thrill", "Sitiar"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Genio",
+            "red_text": null,
+            "skills": ["Concentrated Build Up", "Vitriol", "Maestro", "Pain Reaction"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
+        },
+        {
+            "character": "Rafa",
+            "rarity": "Purple",
+            "name": "Mercenario",
+            "red_text": null,
+            "skills": ["Sustainable Energy", "Empuje", "Handshake Deal", "Collaborate Ignition"],
+            "skill_notes": null,
+            "passive_count": 3,
+            "fixed_stat": null,
+            "drop_location": "World Drop",
+            "lootlemon": null
         }
     ]
 }
