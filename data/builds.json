@@ -43,7 +43,7 @@
             "com": ["Furnace"],
             "description": "Using High Cal Tech you can 1 Shot anyone you come across",
             "moba": "https://mobalytics.gg/borderlands-4/builds/dotshot-amon-girthquake",
-            "youtube": "https://youtu.be/8Xj1A9Yd_Kk?si=aTuNdtpdeDd-UI4o"
+            "youtube": "https://youtu.be/c5TdKjeeCeY"
         },
         {
             "name": "Slip N' Dip Amon",
@@ -149,13 +149,22 @@
             "youtube": "https://www.youtube.com/watch?v=cAnrDWcpzsg"
         },
         {
+            "name": "Alchemical Agent",
+            "author": "[Rezur](<https://www.youtube.com/@rezurwttic>)",
+            "tree": "Red",
+            "com": ["Dancer", "Agante"],
+            "description": "This build exploits Vitriol's skill damage tagging attribute along with a couple other bonus element skills to produce DoTs strong enough to wipe anything regardless of element matching. By guaranteeing DoTs with the 'Primed Potency' Enhancement effect, we are able to pump this damage out consistently in all situations.",
+            "moba": "https://mobalytics.gg/borderlands-4/profile/9741fa52-b4d1-4d0b-a92c-06278f363b38/builds/dd792ea8-b88c-4136-80ad-8dceaa908c4a",
+            "youtube": "https://youtu.be/4Nf39ApE_2c"
+        },
+        {
             "name": "Slippery Soldier",
             "author": "[Rezur](<https://www.youtube.com/@rezurwttic>)",
             "tree": "Red",
             "com": ["Grenazerker"],
             "description": "This build takes advantage of the Slippy grenades Melee/Ordnance attributes by frontloading all of Rafa's skill points into a heavy This Year's Gimmick spec.",
             "moba": "https://mobalytics.gg/borderlands-4/profile/9741fa52-b4d1-4d0b-a92c-06278f363b38/builds/1fa04a0c-9001-442d-a1c7-d2c032321083",
-            "youtube": "https://youtu.be/cHtRF5yHI6k?si=ZWJCXjAQOF2lR54u"
+            "youtube": "https://youtu.be/cHtRF5yHI6k"
         },
         {
             "name": "Drone Striker",

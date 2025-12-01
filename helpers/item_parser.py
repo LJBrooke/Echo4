@@ -105,7 +105,7 @@ async def query_type(db_pool, id: int) -> list[str]:
     # Use 'with pool.acquire()' to get a connection
     async with db_pool.acquire() as conn:
         result = await conn.fetchrow(query, id)
-    return result.get('item_type'), result.get('manufacturer') if result else None
+    return result.get('item_type').replace('riffle', 'rifle'), result.get('manufacturer') if result else None
 
 async def query_element_id(db_pool, primary: str, secondary: str, Maliwan: bool) -> str:
     """

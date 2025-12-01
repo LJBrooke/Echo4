@@ -113,16 +113,24 @@ class LookupCommand(commands.Cog):
                 case 2: color = discord.Color.blue()
                 case 0: color = discord.Color.red()
         
-        embed = discord.Embed(title=record['name'], color=color)
+        embed = discord.Embed(
+            title=record['name'], 
+            color=color,
+        )
 
+        source_text = record['source_category'].title()
+        
+        if 'Skill' in source_text or 'Augment' in source_text:
+            url="https://www.lootlemon.com/skill/"+ record['char_name'].lower + '-' + record['name'].replace(' ', '-').lower()
+            embed.url = url
+            
         # 2. Description
         if attributes.get('description'):
             embed.description = attributes['description'].replace('.\\n', '.\n')
 
         # 3. Author (Source Category + Character/Tree)
-        source_text = record['source_category'].upper()
         if record['char_name']:
-            source_text += f" ({record['char_name'].title()})"
+            source_text += f" • {record['char_name'].title()}"
         if record['tree_name']:
             source_text += f" - {record['tree_name']}"
         embed.set_author(name=source_text)
