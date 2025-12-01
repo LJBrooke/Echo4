@@ -121,7 +121,7 @@ class LookupCommand(commands.Cog):
         source_text = record['source_category'].title()
         
         if 'Skill' in source_text or 'Augment' in source_text:
-            url="https://www.lootlemon.com/skill/"+ record['char_name'].lower + '-' + record['name'].replace(' ', '-').lower()
+            url="https://www.lootlemon.com/skill/"+ str(record['char_name'].lower()) + '-' + str(record['name'].replace(' ', '-').lower())
             embed.url = url
             
         # 2. Description
