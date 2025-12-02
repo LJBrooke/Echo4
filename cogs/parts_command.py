@@ -44,7 +44,7 @@ class PartCommand(commands.Cog):
         async with self.db_pool.acquire() as conn:
             if current_type_filter:
                 query = """
-                    SELECT part_name 
+                    SELECT DISTINCT part_name 
                     FROM weapon_parts 
                     WHERE part_name ILIKE $1 AND part_type ILIKE $2
                     ORDER BY part_name ASC
@@ -53,7 +53,7 @@ class PartCommand(commands.Cog):
                 results = await conn.fetch(query, f"%{current}%", f"%{current_type_filter}%")
             else:
                 query = """
-                    SELECT part_name 
+                    SELECT DISTINCT part_name 
                     FROM weapon_parts 
                     WHERE part_name ILIKE $1
                     ORDER BY part_name ASC
