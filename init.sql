@@ -126,6 +126,13 @@ CREATE TABLE lootlemon_urls (
     url_stub    VARCHAR(255) PRIMARY KEY 
 );
 
+CREATE TABLE IF NOT EXISTS weapon_parts (
+    part_number INTEGER PRIMARY KEY,
+    part_name TEXT NOT NULL,
+    part_type TEXT,
+    stats JSONB NOT NULL
+);
+
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE EXTENSION IF NOT EXISTS timescaledb;

@@ -585,7 +585,7 @@ class EditorCommands(commands.Cog):
             # Scan the last 5 messages (newest to oldest)
             async for message in interaction.channel.history(limit=10):
                 # Find the user's most recent "clanker" message
-                if not user_clank_message and message.author.id == interaction.user.id and "clanker" in message.content.lower():
+                if not user_clank_message and message.author.id == interaction.user.id and "clanker" in message.content.lower().replace(" ", ''):
                     user_clank_message = message
                 
                 # Find the bot's most recent "clanker" response.
