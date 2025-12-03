@@ -129,7 +129,8 @@ class PartCommand(commands.Cog):
         # Initialize the first embed
         current_embed = discord.Embed(
             title=record['part_name'],
-            color=discord.Color.fuchsia()
+            color=discord.Color.fuchsia(),
+            url='https://borderlands.be/complete_parts_viewer.html'
         )
         
         p_type = record['part_type'] if record['part_type'] else "General"
