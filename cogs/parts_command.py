@@ -1,9 +1,60 @@
 import discord
 import asyncpg
-import json  # <--- FIXED: Added missing import
+import json
 from discord import app_commands
 from discord.ext import commands
 
+class PaginationView(discord.ui.View):
+    def __init__(self, pages: list[list[discord.Embed]], interaction: discord.Interaction):
+        super().__init__(timeout=180)
+        self.pages = pages
+        self.interaction = interaction
+        self.current_page = 0
+        self.total_pages = len(pages)
+        self.update_buttons()
+
+    def update_buttons(self):
+        self.prev_button.disabled = (self.current_page == 0)
+        self.next_button.disabled = (self.current_page == self.total_pages - 1)
+
+    @discord.ui.button(label="Previous", style=discord.ButtonStyle.gray, emoji="⬅️")
+    async def prev_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.current_page -= 1
+        self.update_buttons()
+        await self.update_message(interaction)
+
+    @discord.ui.button(label="Next", style=discord.ButtonStyle.gray, emoji="➡️")
+    async def next_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.current_page += 1
+        self.update_buttons()
+        await self.update_message(interaction)
+
+    async def update_message(self, interaction: discord.Interaction):
+        # Get the list of embeds for the current page
+        current_embeds = self.pages[self.current_page]
+        
+        # Update the footer of the LAST embed in the group to show page info
+        # We clone it so we don't permanently modify the stored embed if we go back/forth
+        last_embed = current_embeds[-1]
+        
+        # We can't actually copy() and modify easily without reconstructing, 
+        # so we just modify the footer text directly. 
+        # (It's a visual state, so overwriting is usually fine).
+        existing_footer = last_embed.footer.text or ""
+        if "Page" not in existing_footer: 
+            # Simple check to prevent duplicate "Page X/Y" strings
+            last_embed.set_footer(text=f"{existing_footer} | Page {self.current_page + 1}/{self.total_pages}".strip(" |"))
+
+        await interaction.response.edit_message(embeds=current_embeds, view=self)
+
+    async def on_timeout(self):
+        for child in self.children:
+            child.disabled = True
+        try:
+            await self.interaction.edit_original_response(view=self)
+        except:
+            pass
+        
 class PartCommand(commands.Cog):
     def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
         self.bot = bot
@@ -67,26 +118,43 @@ class PartCommand(commands.Cog):
             for r in results if r['part_name']
         ]
 
-    def _format_entity_embed(self, record):
+    def _format_entity_embed(self, record) -> list[discord.Embed]:
         stats = record['stats']
-        # JSON handling now works because import json is present
         if isinstance(stats, str):
             stats = json.loads(stats)
 
-        embed = discord.Embed(
+        # List to hold the split embeds
+        generated_embeds = []
+
+        # Initialize the first embed
+        current_embed = discord.Embed(
             title=record['part_name'],
-            color=discord.Color.fuchsia() 
+            color=discord.Color.fuchsia()
         )
         
-        p_type = record['part_type'].split(" ")[0] if record['part_type'] else "General"
-        embed.set_author(name=p_type)
+        p_type = record['part_type'] if record['part_type'] else "General"
+        current_embed.set_author(name=p_type)
 
         field_count = 0
-        for key, value in stats.items():
-            if field_count >= 25:
-                embed.set_footer(text="...more stats hidden (Discord limit reached)")
-                break
+        
+        # Helper to push current embed and start a new one
+        def start_new_embed():
+            nonlocal current_embed, field_count
+            generated_embeds.append(current_embed)
+            current_embed = discord.Embed(
+                title=f"{record['part_name']} (Cont.)",
+                color=discord.Color.fuchsia(),
+                url='https://borderlands.be/complete_parts_viewer.html'
+            )
+            current_embed.set_author(name=p_type)
+            field_count = 0
 
+        for key, value in stats.items():
+            # Max 25 fields per embed (Discord Limit)
+            if field_count >= 25:
+                start_new_embed()
+
+            # --- Formatting Logic ---
             if isinstance(value, dict):
                 sub_stats = []
                 for sub_k, sub_v in value.items():
@@ -95,16 +163,24 @@ class PartCommand(commands.Cog):
                 content_str = "\n".join(sub_stats)
                 if len(content_str) > 1024:
                     content_str = content_str[:1020] + "..."
-                if not content_str: 
-                    content_str = "None"
+                if not content_str: content_str = "None"
 
-                embed.add_field(name=key, value=content_str, inline=False)
+                current_embed.add_field(name=key, value=content_str, inline=False)
             else:
-                embed.add_field(name=key, value=str(value), inline=True)
+                current_embed.add_field(name=key, value=str(value), inline=True)
             
             field_count += 1
 
-        return embed
+            # --- Splitting Logic ---
+            # User Rule: Cut off after the first item that takes us past 1500 chars
+            if len(current_embed) > 1500:
+                start_new_embed()
+
+        # Append the final embed (if it has fields or is the only one)
+        if len(current_embed.fields) > 0 or len(generated_embeds) == 0:
+            generated_embeds.append(current_embed)
+
+        return generated_embeds
 
     @app_commands.command(name="examine", description="View base component vectors.")
     @app_commands.describe(
@@ -152,11 +228,52 @@ class PartCommand(commands.Cog):
                 )
                 return
 
+            # 1. Generate ALL embeds first
+            all_embeds = []
             for record in results:
-                embed = self._format_entity_embed(record)
-                embeds.append(embed)
+                # _format_entity_embed now returns a LIST of embeds
+                embed_parts = self._format_entity_embed(record)
+                all_embeds.extend(embed_parts)
 
-        await interaction.followup.send(embeds=embeds[:10])
+            # 2. Smart Chunking Logic
+            pages = []
+            current_page_embeds = []
+            current_char_count = 0
+            
+            SOFT_LIMIT = 1000  # User preference
+            HARD_LIMIT = 5800  # Discord limit (6000), leaving buffer for metadata
+            MAX_EMBEDS = 10    # Discord limit per message
+
+            for embed in all_embeds:
+                embed_len = len(embed)
+                
+                is_over_soft = (current_char_count + embed_len > SOFT_LIMIT) and len(current_page_embeds) > 0
+                is_over_hard = (current_char_count + embed_len > HARD_LIMIT)
+                is_max_count = len(current_page_embeds) >= MAX_EMBEDS
+
+                if is_over_soft or is_over_hard or is_max_count:
+                    pages.append(current_page_embeds)
+                    current_page_embeds = []
+                    current_char_count = 0
+                
+                current_page_embeds.append(embed)
+                current_char_count += embed_len
+
+            if current_page_embeds:
+                pages.append(current_page_embeds)
+
+            # 3. Send Logic
+            if len(pages) == 1:
+                await interaction.followup.send(embeds=pages[0])
+            else:
+                view = PaginationView(pages, interaction)
+                # Initialize footer for page 1
+                first_page_embeds = pages[0]
+                last_embed = first_page_embeds[-1]
+                existing = last_embed.footer.text or ""
+                last_embed.set_footer(text=f"{existing} | Page 1/{len(pages)}".strip(" |"))
+                
+                await interaction.followup.send(embeds=first_page_embeds, view=view)
 
 async def setup(bot: commands.Bot):
     if not hasattr(bot, 'db_pool'):
