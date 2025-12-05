@@ -1,8 +1,9 @@
 import os
+import asyncpg
 import discord
 from discord import app_commands
 from discord.ext import commands
-from helpers import sync_parts
+from helpers import sync_parts, load_part_stats
 
 # Load your specific user ID from the .env file.
 OWNER_ID = int(os.getenv("OWNER_ID", 0))
@@ -11,8 +12,9 @@ ADMIN_SERVER_ID = int(os.getenv("ADMIN_SERVER_ID", 0))
 
 
 class SystemCommands(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
         self.bot = bot
+        self.db_pool = db_pool
         
     @app_commands.command(name="sync_sheet", description="[Owner Only] Force-sync the Google Sheet with the database.")
     @commands.is_owner()
@@ -60,6 +62,32 @@ class SystemCommands(commands.Cog):
             
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {e}", ephemeral=True)
+
+    @app_commands.command(name="sync_parts", description="[Owner Only] Force-sync weapon parts from the source website.")
+    @commands.is_owner()
+    async def sync_weapon_parts(self, interaction: discord.Interaction):
+        """
+        Runs the weapon parts sync process.
+        """
+        try:
+            # Failsafe for commands.is_owner()
+            if interaction.user.id != OWNER_ID:
+                await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+                return
+
+            # Defer the response, as this is a long-running web/DB operation
+            await interaction.response.defer(ephemeral=True, thinking="Fetching and processing part data...")
+            
+            status_message = await load_part_stats.sync_parts(
+                session=self.bot.session,
+                db_pool=self.db_pool # Use the asyncpg pool
+            )
+            
+            await interaction.followup.send(status_message, ephemeral=True)
+            
+        except Exception as e:
+            # Send the error to the user via followup
+            await interaction.followup.send(f"❌ An error occurred during sync: {e}", ephemeral=True)
 
     @sync_part_sheet.error
     async def on_sync_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
@@ -136,8 +164,12 @@ class SystemCommands(commands.Cog):
 
 async def setup(bot: commands.Bot):
     # This check ensures the commands are only added if the ID is set
+    if not hasattr(bot, 'db_pool'):
+        print("Error: bot.db_pool not found.")
+        return
+    
     if ADMIN_SERVER_ID != 0:
-        await bot.add_cog(SystemCommands(bot))
+        await bot.add_cog(SystemCommands(bot, bot.db_pool))
         print("✅ Cog 'SystemCommands' loaded and restricted to the admin server.")
     else:
         print("⚠️ Cog 'SystemCommands' not loaded: ADMIN_SERVER_ID is not set in .env file.")

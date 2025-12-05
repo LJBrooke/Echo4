@@ -61,58 +61,125 @@ class PartCommand(commands.Cog):
         self.db_pool = db_pool
 
     async def type_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        # Retrieve the state of other fields
         current_name_filter = interaction.namespace.data_name
-        
-        async with self.db_pool.acquire() as conn:
-            if current_name_filter:
-                query = """
-                    SELECT DISTINCT part_type 
-                    FROM weapon_parts 
-                    WHERE part_type ILIKE $1 AND part_name ILIKE $2
-                    ORDER BY part_type ASC
-                    LIMIT 25
-                """
-                results = await conn.fetch(query, f"%{current}%", f"%{current_name_filter}%")
-            else:
-                query = """
-                    SELECT DISTINCT part_type 
-                    FROM weapon_parts 
-                    WHERE part_type ILIKE $1
-                    ORDER BY part_type ASC
-                    LIMIT 25
-                """
-                results = await conn.fetch(query, f"%{current}%")
+        is_deep = interaction.namespace.deep_search  # check if the flag is enabled
 
-        # FIXED: Slice name and value to 100 chars to meet Discord API limits
+        async with self.db_pool.acquire() as conn:
+            # 1. DEEP SEARCH LOGIC
+            if is_deep:
+                # If filtering by name, we need types of parts that match the name OR contain the key
+                if current_name_filter:
+                    query = """
+                        SELECT DISTINCT part_type 
+                        FROM weapon_parts 
+                        WHERE part_type ILIKE $1 
+                        AND (
+                            part_name ILIKE $2
+                            OR EXISTS (
+                                SELECT 1 FROM jsonb_each(stats) 
+                                WHERE key ILIKE $2 AND jsonb_typeof(value) = 'object'
+                            )
+                        )
+                        ORDER BY part_type ASC
+                        LIMIT 25
+                    """
+                    results = await conn.fetch(query, f"%{current}%", f"%{current_name_filter}%")
+                else:
+                    # No name filter, just standard types
+                    query = """
+                        SELECT DISTINCT part_type 
+                        FROM weapon_parts 
+                        WHERE part_type ILIKE $1
+                        ORDER BY part_type ASC
+                        LIMIT 25
+                    """
+                    results = await conn.fetch(query, f"%{current}%")
+
+            # 2. STANDARD LOGIC (Default)
+            else:
+                if current_name_filter:
+                    query = """
+                        SELECT DISTINCT part_type 
+                        FROM weapon_parts 
+                        WHERE part_type ILIKE $1 AND part_name ILIKE $2
+                        ORDER BY part_type ASC
+                        LIMIT 25
+                    """
+                    results = await conn.fetch(query, f"%{current}%", f"%{current_name_filter}%")
+                else:
+                    query = """
+                        SELECT DISTINCT part_type 
+                        FROM weapon_parts 
+                        WHERE part_type ILIKE $1
+                        ORDER BY part_type ASC
+                        LIMIT 25
+                    """
+                    results = await conn.fetch(query, f"%{current}%")
+
         return [
-            app_commands.Choice(name=r['part_type'].split(" ")[0][:100], value=r['part_type'][:100]) 
+            app_commands.Choice(name=r['part_type'][:100], value=r['part_type'][:100]) 
             for r in results if r['part_type']
         ]
 
     async def name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
         current_type_filter = interaction.namespace.data_type
+        is_deep = interaction.namespace.deep_search
 
         async with self.db_pool.acquire() as conn:
-            if current_type_filter:
-                query = """
-                    SELECT DISTINCT part_name 
-                    FROM weapon_parts 
-                    WHERE part_name ILIKE $1 AND part_type ILIKE $2
-                    ORDER BY part_name ASC
-                    LIMIT 25
-                """
-                results = await conn.fetch(query, f"%{current}%", f"%{current_type_filter}%")
-            else:
-                query = """
-                    SELECT DISTINCT part_name 
-                    FROM weapon_parts 
-                    WHERE part_name ILIKE $1
-                    ORDER BY part_name ASC
-                    LIMIT 25
-                """
-                results = await conn.fetch(query, f"%{current}%")
+            # 1. DEEP SEARCH LOGIC
+            if is_deep:
+                # We use a UNION to combine Main Part Names + Nested Keys
+                # We use specific LIMITs on the subqueries to ensure we get a mix of results
+                
+                type_clause = "AND part_type ILIKE $2" if current_type_filter else ""
+                args = [f"%{current}%"]
+                if current_type_filter:
+                    args.append(f"%{current_type_filter}%")
 
-        # FIXED: Slice name and value to 100 chars to meet Discord API limits
+                query = f"""
+                    (
+                        -- Standard Part Names
+                        SELECT part_name 
+                        FROM weapon_parts 
+                        WHERE part_name ILIKE $1 {type_clause}
+                        LIMIT 15
+                    )
+                    UNION
+                    (
+                        -- Nested Keys (Only Objects)
+                        SELECT DISTINCT key as part_name
+                        FROM weapon_parts, jsonb_each(stats)
+                        WHERE key ILIKE $1 
+                        AND jsonb_typeof(value) = 'object'
+                        {type_clause}
+                        LIMIT 10
+                    )
+                    LIMIT 25
+                """
+                results = await conn.fetch(query, *args)
+
+            # 2. STANDARD LOGIC (Default)
+            else:
+                if current_type_filter:
+                    query = """
+                        SELECT part_name 
+                        FROM weapon_parts 
+                        WHERE part_name ILIKE $1 AND part_type ILIKE $2
+                        ORDER BY part_name ASC
+                        LIMIT 25
+                    """
+                    results = await conn.fetch(query, f"%{current}%", f"%{current_type_filter}%")
+                else:
+                    query = """
+                        SELECT part_name 
+                        FROM weapon_parts 
+                        WHERE part_name ILIKE $1
+                        ORDER BY part_name ASC
+                        LIMIT 25
+                    """
+                    results = await conn.fetch(query, f"%{current}%")
+
         return [
             app_commands.Choice(name=r['part_name'][:100], value=r['part_name'][:100]) 
             for r in results if r['part_name']
@@ -134,7 +201,8 @@ class PartCommand(commands.Cog):
         )
         
         p_type = record['part_type'] if record['part_type'] else "General"
-        current_embed.set_author(name=p_type)
+        if len(p_type)>256: current_embed.set_author(name=p_type[:250]+'...')
+        else: current_embed.set_author(name=p_type)
 
         field_count = 0
         
@@ -183,67 +251,100 @@ class PartCommand(commands.Cog):
 
         return generated_embeds
 
+    # --- Main Command ---
     @app_commands.command(name="examine", description="View base component vectors.")
     @app_commands.describe(
         data_name="The name of the item to search for.",
-        data_type="[Optional] Restrict search types"
+        data_type="[Optional] Restrict search types",
+        deep_search="[Optional] Search inside nested JSON objects (Default: False)"
     )
     @app_commands.autocomplete(data_name=name_autocomplete)
     @app_commands.autocomplete(data_type=type_autocomplete)
-    async def examine(self, interaction: discord.Interaction, data_name: str, data_type: str = None):
+    async def examine(self, interaction: discord.Interaction, data_name: str, data_type: str = None, deep_search: bool = False):
         await interaction.response.defer(ephemeral=False)
         
-        embeds = []
         async with self.db_pool.acquire() as conn:
-            # We wrap inputs in % to allow for partial matching and to match
-            # the behavior of the autocomplete functions.
             name_param = f"%{data_name}%"
+            type_param = f"%{data_type}%" if data_type else None
 
-            if data_type:
-                type_param = f"%{data_type}%"
-                query = """
-                    SELECT part_name, part_type, stats
+            # --- Query Construction ---
+            if deep_search:
+                # UNION Query: Get standard matches AND nested matches
+                # We rename columns in the second half to make them look like standard parts
+                
+                # Base WHERE clause for type filtering
+                type_filter_sql = "AND part_type ILIKE $2" if data_type else ""
+                
+                query = f"""
+                    -- 1. Standard Top-Level Matches
+                    SELECT part_name, part_type, stats, 1 as match_priority
                     FROM weapon_parts
-                    WHERE part_name ILIKE $1 AND part_type ILIKE $2
-                    LIMIT 10;
+                    WHERE part_name ILIKE $1 {type_filter_sql}
+
+                    UNION ALL
+
+                    -- 2. Nested Key Matches (Deep Search)
+                    SELECT 
+                        key as part_name, 
+                        -- Contextualize: "ParentName (ParentType)"
+                        part_name || ' (' || part_type || ')' as part_type, 
+                        value as stats,
+                        2 as match_priority
+                    FROM weapon_parts, jsonb_each(stats)
+                    WHERE key ILIKE $1 
+                    {type_filter_sql}
+                    -- Only treat nested OBJECTS as searchable parts (avoids "Damage: 10" becoming a part)
+                    AND jsonb_typeof(value) = 'object' 
+
+                    ORDER BY match_priority, part_name
+                    LIMIT 50;
                 """
-                results = await conn.fetch(query, name_param, type_param)
+                
+                args = [name_param]
+                if data_type:
+                    args.append(type_param)
+                
+                results = await conn.fetch(query, *args)
+                
             else:
-                query = """
-                    SELECT part_name, part_type, stats
-                    FROM weapon_parts
-                    WHERE part_name ILIKE $1
-                    LIMIT 10;
-                """
-                results = await conn.fetch(query, name_param)
+                # Standard Search Only
+                if data_type:
+                    query = """
+                        SELECT part_name, part_type, stats
+                        FROM weapon_parts
+                        WHERE part_name ILIKE $1 AND part_type ILIKE $2
+                        LIMIT 50;
+                    """
+                    results = await conn.fetch(query, name_param, type_param)
+                else:
+                    query = """
+                        SELECT part_name, part_type, stats
+                        FROM weapon_parts
+                        WHERE part_name ILIKE $1
+                        LIMIT 50;
+                    """
+                    results = await conn.fetch(query, name_param)
 
             if not results:
-                # Add a helpful error message showing what we searched for
-                search_context = f"Name: `{data_name}`"
-                if data_type:
-                    search_context += f", Type: `{data_type}`"
-                
-                await interaction.followup.send(
-                    f"No results found for {search_context}. \n*Try selecting an option from the autocomplete list explicitly.*", 
-                    ephemeral=True
-                )
+                msg = f"No results found for **{data_name}**."
+                if deep_search:
+                    msg += " (Deep search was active)"
+                await interaction.followup.send(msg, ephemeral=True)
                 return
 
-            # 1. Generate ALL embeds first
+            # --- Embed Generation & Chunking ---
             all_embeds = []
             for record in results:
-                # _format_entity_embed now returns a LIST of embeds
                 embed_parts = self._format_entity_embed(record)
                 all_embeds.extend(embed_parts)
 
-            # 2. Smart Chunking Logic
             pages = []
             current_page_embeds = []
             current_char_count = 0
             
-            SOFT_LIMIT = 1000  # User preference
-            HARD_LIMIT = 5800  # Discord limit (6000), leaving buffer for metadata
-            MAX_EMBEDS = 10    # Discord limit per message
+            SOFT_LIMIT = 1000 
+            HARD_LIMIT = 5800
+            MAX_EMBEDS = 10
 
             for embed in all_embeds:
                 embed_len = len(embed)
@@ -263,12 +364,10 @@ class PartCommand(commands.Cog):
             if current_page_embeds:
                 pages.append(current_page_embeds)
 
-            # 3. Send Logic
             if len(pages) == 1:
                 await interaction.followup.send(embeds=pages[0])
             else:
                 view = PaginationView(pages, interaction)
-                # Initialize footer for page 1
                 first_page_embeds = pages[0]
                 last_embed = first_page_embeds[-1]
                 existing = last_embed.footer.text or ""

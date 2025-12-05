@@ -32,14 +32,14 @@ class Weapon:
         "Body Accessory": (1, 4),
         "Primary Element": (1, 1),
         "Barrel": (1, 1),
-        "Barrel Accessory": (1, 3),
+        "Barrel Accessory": (1, 4),
         "Magazine": (1, 2),
         "Scope": (1, 1),
         "Scope Accessory": (1, 2),
         "Grip": (1, 1),
         "Underbarrel": (0, 2),
         "Foregrip": (0, 1),
-        "Stat Modifier": (0, 3),
+        "Stat Modifier": (0, 2),
         "Secondary Element": (0, 1)
         # Rarity not included yet, may include it +Legendary select later.
     }
