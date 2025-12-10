@@ -325,7 +325,7 @@ class MainWeaponEditorView(BaseEditorView):
         
         # --- 4. Manually create and add Dynamic Part Buttons ---
         for part_type in self.weapon.PART_ORDER:
-            if part_type in self.weapon.parts and (self.weapon.parts[part_type] or part_type=="Underbarrel" or part_type=="Stat Modifier"):
+            if (part_type in self.weapon.parts or part_type.replace(" Accessory", '') in self.weapon.parts) and (self.weapon.parts[part_type] or part_type=="Underbarrel" or part_type=="Stat Modifier"):
                 if part_type in ["Rarity", "Primary Element", "Secondary Element", "Body"]:
                     continue
                 
