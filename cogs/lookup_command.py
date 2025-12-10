@@ -152,13 +152,14 @@ class LookupCommand(commands.Cog):
             # Logic for formatted Tiers
             field_value = str(value)
             if key == 'tier':
+                field_name='Skil Tree Location'
                 try:
                     original_tier = int(value)
                     sub_branch = attributes.get('sub_branch')
                     display_tier = original_tier + 1
                     if sub_branch in ('left', 'middle', 'right'):
                         display_tier += 3
-                    field_value = f"[{display_tier}]"
+                    field_value = f"{sub_branch.title()}: {display_tier}"
                 except (ValueError, TypeError):
                     field_value = f"[{value}]"
             
@@ -178,7 +179,11 @@ class LookupCommand(commands.Cog):
                 if effect.get('damage category'): details_parts.append(effect['damage category'])
                 
                 details_str = f" ({', '.join(details_parts)})" if details_parts else ""
-                effects_text.append(f"**{name}**{details_str}")
+                
+                field_str = f"**{name}**{details_str}"
+                if effect.get('note'): field_str += f"\n  - Note: {effect['note']}"
+                
+                effects_text.append(field_str)
             
             embed.add_field(name="Damage Effects", value="\n".join(effects_text), inline=False)
             
