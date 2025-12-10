@@ -159,7 +159,7 @@ class LookupCommand(commands.Cog):
                     display_tier = original_tier + 1
                     if sub_branch in ('left', 'middle', 'right'):
                         display_tier += 3
-                    field_value = f"{sub_branch.title()}: {display_tier}"
+                    field_value = f"{sub_branch.title()}: Tier {display_tier}"
                 except (ValueError, TypeError):
                     field_value = f"[{value}]"
             
