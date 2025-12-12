@@ -141,7 +141,7 @@ class LookupCommand(commands.Cog):
 
         # 5. Dynamic Attributes Loop
         # Keys to exclude from the generic field loop because they are handled elsewhere
-        RESERVED_KEYS = {'description', 'icon_url', 'damage_effects', 'name', 'condition', 'sub_branch'}
+        RESERVED_KEYS = {'description', 'icon_url', 'damage_effects', 'name', 'condition', 'sub_branch', 'lootlemon_char'}
         
         for key, value in attributes.items():
             if key in RESERVED_KEYS or value is None:
