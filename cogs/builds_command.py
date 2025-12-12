@@ -77,6 +77,7 @@ class CreatorView(discord.ui.View):
         response=f"# {build.get('name')}\n**Author(s):** {build.get('author')}\n{build.get('description')}\n"
         if build.get('moba') is not None: response = response+f"\n- [Mobalytics Written Guide](<{build.get('moba')}>)"
         if build.get('youtube') is not None: response = response+f"\n- [Youtube Video]({build.get('youtube')})"
+        if build.get('highlight') is not None: response = response+f"\n- [Highlight Reel](<{build.get('highlight')}>)"
         
         # Creates a fresh view object on button click. Refreshing an old one causes issues at time out.
         new_view = CreatorView(self.cog, self.creator)
