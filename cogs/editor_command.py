@@ -96,7 +96,7 @@ class EditorCommands(commands.Cog):
                 self.bot.repkit_perk_lookup[unique_value] = record_dict
                 
                 # --- Categorize Perks ---
-                if 1 <= perk_id <= 20:
+                if record_dict['perk_type'] == 'Firmware':
                     firmware_perks.append(record_dict)
                 elif perk_id in TYPE_PERK_IDS:
                     type_perks.append(record_dict)

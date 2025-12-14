@@ -63,7 +63,7 @@ class RepkitFirmwareEditorView(BaseEditorView):
 
             perk_name = perk_data.get('name')
 
-            if 1 <= pid <= 20:
+            if 1 <= pid <= 20 or pid==113: # TODO Refactor to a proper generic check.
                 selections["Firmware"] = pid_str
             elif pid in TYPE_PERK_IDS:
                 selections["Type"] = pid_str
