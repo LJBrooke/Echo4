@@ -77,7 +77,7 @@ class TimeTrialsCommand(commands.Cog):
         # This allows us to pass 'None' to the query and have it automatically ignore that filter.
         query = """
             SELECT * FROM (
-                SELECT DISTINCT ON (runner, action_skill)
+                SELECT DISTINCT ON (LOWER(runner), action_skill)
                     runner,
                     run_time,
                     vault_hunter,
