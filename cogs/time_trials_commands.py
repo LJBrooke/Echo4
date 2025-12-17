@@ -5,22 +5,37 @@ from datetime import timedelta
 from discord import app_commands
 from discord.ext import commands
 
-class TimeTrialsCommand(commands.Cog):
-    def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
-        self.bot = bot
-        self.db_pool = db_pool
+# --- CONFIGURATION / CONSTANTS ---
+# Single source of truth for game data
+VAULT_HUNTERS = ["Amon", "Harlowe", "Rafa", "Vex"]
 
-    # --- Helper: Time Parser ---
-    def parse_time_input(self, time_str: str) -> timedelta:
+ACTION_SKILLS = [
+    "Crucible", "Scourge", "Onslaughter", "Flux Generator", "Zero-Point", 
+    "CHROMA Accelerator", "Arc-Knives", "APOPHIS Lance", 
+    "Peacebreaker Cannons", "Incarnate", "Dead Ringer", "Phase Phamiliar"
+]
+
+# UVH Levels 6 down to 0
+UVH_LEVELS = list(range(6, -1, -1))
+
+# Pre-compiled Choice lists for Discord Decorators
+VH_CHOICES = [app_commands.Choice(name=vh, value=vh) for vh in VAULT_HUNTERS]
+AS_CHOICES = [app_commands.Choice(name=askill, value=askill) for askill in ACTION_SKILLS]
+UVH_CHOICES = [app_commands.Choice(name=str(lvl), value=lvl) for lvl in UVH_LEVELS]
+
+
+# --- UTILITIES ---
+class TimeTrialsUtils:
+    """Static helpers so both the View and Cog can share logic."""
+    
+    @staticmethod
+    def parse_time_input(time_str: str) -> timedelta:
         """
-        Parses a string input into a timedelta.
-        Supported formats:
-        - "39.6" -> 39.6 seconds
-        - "120" -> 120 seconds
-        - "1:30" -> 1 minute, 30 seconds
-        - "1m 30s" -> 1 minute, 30 seconds
+        Parses a string input (e.g. '1:30', '90.5') into a timedelta.
         """
-        # Remove whitespace
+        if not time_str:
+            raise ValueError("Empty time string")
+            
         time_str = time_str.strip()
 
         # Regex for MM:SS or HH:MM:SS
@@ -39,10 +54,217 @@ class TimeTrialsCommand(commands.Cog):
         try:
             return timedelta(seconds=float(time_str))
         except ValueError:
-            pass
+            raise ValueError("Invalid time format")
 
-        # Fallback error (caught in the main command)
-        raise ValueError("Invalid time format")
+    @staticmethod
+    def format_timedelta(td: timedelta) -> str:
+        """Standardizes how we display time in the UI."""
+        total_seconds = int(td.total_seconds())
+        minutes = total_seconds // 60
+        seconds = td.total_seconds() % 60
+        return f"{minutes}:{seconds:05.2f}"
+
+
+# --- UI CLASSES ---
+
+class RunEditModal(discord.ui.Modal, title="Edit Run Details"):
+    def __init__(self, view):
+        super().__init__()
+        self.view_ref = view
+
+        # Pre-fill inputs
+        self.runner_input = discord.ui.TextInput(
+            label="Runner Name", default=view.data['runner'], required=True
+        )
+        self.time_input = discord.ui.TextInput(
+            label="Run Time", default=view.data['run_time_str'], 
+            placeholder="e.g. 1:30 or 90.5", required=True
+        )
+        self.url_input = discord.ui.TextInput(
+            label="Video URL", default=view.data['url'], required=True
+        )
+        self.notes_input = discord.ui.TextInput(
+            label="Notes", default=view.data['notes'], 
+            style=discord.TextStyle.paragraph, required=False
+        )
+
+        self.add_item(self.runner_input)
+        self.add_item(self.time_input)
+        self.add_item(self.url_input)
+        self.add_item(self.notes_input)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        self.view_ref.data['runner'] = self.runner_input.value
+        self.view_ref.data['run_time_str'] = self.time_input.value
+        self.view_ref.data['url'] = self.url_input.value
+        self.view_ref.data['notes'] = self.notes_input.value
+        
+        await self.view_ref.update_display(interaction)
+
+class RunEditView(discord.ui.View):
+    def __init__(self, bot, record, db_pool):
+        super().__init__(timeout=300)
+        self.bot = bot
+        self.db_pool = db_pool
+        self.record_id = record['id']
+        
+        # 1. Load Data
+        self.data = {
+            'runner': record['runner'],
+            'vault_hunter': record['vault_hunter'],
+            'action_skill': record['action_skill'],
+            'uvh_level': record['uvh_level'],
+            'true_mode': record['true_mode'],
+            'url': record['url'],
+            'notes': record['notes'] or "",
+            'run_time_str': TimeTrialsUtils.format_timedelta(record['run_time'])
+        }
+
+        # 2. Build Components dynamically from Constants
+        
+        # Vault Hunter Select
+        vh_options = [discord.SelectOption(label=name) for name in VAULT_HUNTERS]
+        self.vh_select = discord.ui.Select(placeholder="Select Vault Hunter", options=vh_options, row=1)
+        self.vh_select.callback = self.vh_callback
+        self.add_item(self.vh_select)
+
+        # Action Skill Select
+        as_options = [discord.SelectOption(label=s) for s in ACTION_SKILLS]
+        self.as_select = discord.ui.Select(placeholder="Select Action Skill", options=as_options, row=2)
+        self.as_select.callback = self.as_callback
+        self.add_item(self.as_select)
+
+        # UVH Select
+        uvh_options = [discord.SelectOption(label=str(i), value=str(i)) for i in UVH_LEVELS]
+        self.uvh_select = discord.ui.Select(placeholder="UVH Level", options=uvh_options, row=3)
+        self.uvh_select.callback = self.uvh_callback
+        self.add_item(self.uvh_select)
+
+        # True Mode Button
+        self.tm_button_obj = discord.ui.Button(label="True Mode", row=0)
+        self.tm_button_obj.callback = self.tm_callback
+        self.add_item(self.tm_button_obj)
+
+        # Static Buttons
+        edit_btn = discord.ui.Button(label="📝 Edit Text Details", style=discord.ButtonStyle.primary, row=0)
+        edit_btn.callback = self.edit_text_callback
+        self.add_item(edit_btn)
+
+        save_btn = discord.ui.Button(label="Save Changes", style=discord.ButtonStyle.success, row=4)
+        save_btn.callback = self.save_callback
+        self.add_item(save_btn)
+
+        del_btn = discord.ui.Button(label="Delete Run", style=discord.ButtonStyle.danger, row=4)
+        del_btn.callback = self.delete_callback
+        self.add_item(del_btn)
+
+        disc_btn = discord.ui.Button(label="Discard Changes", style=discord.ButtonStyle.secondary, row=4)
+        disc_btn.callback = self.discard_callback
+        self.add_item(disc_btn)
+
+        # 3. Apply Defaults
+        self._refresh_components()
+
+    def _refresh_components(self):
+        # Update Defaults for Selects
+        for opt in self.vh_select.options:
+            opt.default = (opt.label == self.data['vault_hunter'])
+            
+        for opt in self.as_select.options:
+            opt.default = (opt.label == self.data['action_skill'])
+            
+        for opt in self.uvh_select.options:
+            opt.default = (opt.value == str(self.data['uvh_level']))
+
+        # Update True Mode Button Style
+        state = self.data['true_mode']
+        self.tm_button_obj.label = "True Mode: ON" if state else "True Mode: OFF"
+        self.tm_button_obj.style = discord.ButtonStyle.green if state else discord.ButtonStyle.grey
+
+    def get_embed(self):
+        desc = (
+            f"**Runner:** {self.data['runner']}\n"
+            f"**Time:** {self.data['run_time_str']}\n"
+            f"**Class:** {self.data['vault_hunter']} / {self.data['action_skill']}\n"
+            f"**Difficulty:** UVH {self.data['uvh_level']} | {'True Mode' if self.data['true_mode'] else 'Standard'}\n"
+            f"**URL:** {self.data['url']}\n"
+            f"**Notes:** {self.data['notes']}"
+        )
+        return discord.Embed(title=f"Editing Run #{self.record_id}", description=desc, color=discord.Color.blue())
+
+    async def update_display(self, interaction: discord.Interaction):
+        self._refresh_components()
+        await interaction.response.edit_message(embed=self.get_embed(), view=self)
+
+    # --- Callbacks ---
+    async def vh_callback(self, interaction: discord.Interaction):
+        self.data['vault_hunter'] = self.vh_select.values[0]
+        await self.update_display(interaction)
+
+    async def as_callback(self, interaction: discord.Interaction):
+        self.data['action_skill'] = self.as_select.values[0]
+        await self.update_display(interaction)
+
+    async def uvh_callback(self, interaction: discord.Interaction):
+        self.data['uvh_level'] = int(self.uvh_select.values[0])
+        await self.update_display(interaction)
+
+    async def tm_callback(self, interaction: discord.Interaction):
+        self.data['true_mode'] = not self.data['true_mode']
+        await self.update_display(interaction)
+
+    async def edit_text_callback(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(RunEditModal(self))
+
+    async def save_callback(self, interaction: discord.Interaction):
+        # Use the SHARED utility to parse
+        try:
+            val = TimeTrialsUtils.parse_time_input(self.data['run_time_str'])
+        except ValueError:
+             await interaction.response.send_message("❌ Invalid Time Format.", ephemeral=True)
+             return
+
+        async with self.db_pool.acquire() as conn:
+            await conn.execute("""
+                UPDATE time_trials SET
+                    runner = $1, vault_hunter = $2, action_skill = $3,
+                    uvh_level = $4, true_mode = $5, url = $6, notes = $7, run_time = $8
+                WHERE id = $9
+            """, 
+            self.data['runner'], self.data['vault_hunter'], self.data['action_skill'],
+            self.data['uvh_level'], self.data['true_mode'], self.data['url'], 
+            self.data['notes'], val, self.record_id)
+            
+        for item in self.children:
+            item.disabled = True
+        
+        await interaction.response.edit_message(content="✅ **Run Updated Successfully!**", embed=self.get_embed(), view=self)
+
+    async def delete_callback(self, interaction: discord.Interaction):
+        async with self.db_pool.acquire() as conn:
+            await conn.execute("DELETE FROM time_trials WHERE id = $1", self.record_id)
+        await interaction.response.edit_message(content="🗑️ **Run Deleted.**", embed=None, view=None)
+
+    async def discard_callback(self, interaction: discord.Interaction):
+        await interaction.response.edit_message(content="❌ **Edit Cancelled.**", embed=None, view=None)
+
+
+# --- MAIN COG ---
+
+class TimeTrialsCommand(commands.Cog):
+    def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
+        self.bot = bot
+        self.db_pool = db_pool
+
+    # --- Helper: Permissions ---
+    async def check_admin(self, interaction: discord.Interaction) -> bool:
+        """Centralized admin permission check."""
+        async with self.db_pool.acquire() as conn:
+            admin_check = await conn.fetchval(
+                "SELECT 1 FROM time_trials_admin WHERE user_id = $1", 
+                interaction.user.id
+            )
+        return admin_check is not None
 
     # --- Main Command: Check Leaderboard ---
     @app_commands.command(name="time_trials", description="View the top 5 runs for Bloomreaper.")
@@ -51,15 +273,9 @@ class TimeTrialsCommand(commands.Cog):
         uvh_level="[Optional] Filter by UVH Level (Default: 6)",
         true_mode="[Optional] Filter by True Mode (Default: True)"
     )
-    @app_commands.choices(vault_hunter=[
-        app_commands.Choice(name="Amon", value="Amon"),
-        app_commands.Choice(name="Harlowe", value="Harlowe"),
-        app_commands.Choice(name="Rafa", value="Rafa"),
-        app_commands.Choice(name="Vex", value="Vex")
-    ])
-    @app_commands.choices(uvh_level=[
-        app_commands.Choice(name=str(i), value=i) for i in range(6, -1, -1)
-    ])
+    # Use constants for choices
+    @app_commands.choices(vault_hunter=VH_CHOICES)
+    @app_commands.choices(uvh_level=UVH_CHOICES)
     async def time_trials(
         self,
         interaction: discord.Interaction,
@@ -69,12 +285,9 @@ class TimeTrialsCommand(commands.Cog):
     ):
         await interaction.response.defer()
 
-        # Set Defaults if not provided
         target_uvh = uvh_level.value if uvh_level else 6
         target_vh = vault_hunter.value if vault_hunter else None
         
-        # We use a clever SQL trick here: ($3::text IS NULL OR vault_hunter = $3::text)
-        # This allows us to pass 'None' to the query and have it automatically ignore that filter.
         query = """
             SELECT * FROM (
                 SELECT DISTINCT ON (LOWER(runner), action_skill)
@@ -101,37 +314,22 @@ class TimeTrialsCommand(commands.Cog):
             await interaction.followup.send("No runs found for these settings.")
             return
 
-        # --- Formatting the Message ---
-        
-        # Title logic
+        # Formatting
         vh_text = f" ({target_vh})" if target_vh else ""
         tm_text = "True Mode" if true_mode else "Standard Mode"
         title = f"🏆 Bloomreaper Leaderboard{vh_text}\n*UVH {target_uvh} | {tm_text}*"
 
         description = []
         for rank, row in enumerate(results, start=1):
-            # Format time (remove simple microseconds for cleaner look if desired)
-            # row['run_time'] is a timedelta
-            total_seconds = row['run_time'].total_seconds()
-            minutes = int(total_seconds // 60)
-            seconds = total_seconds % 60
-            time_str = f"{minutes}:{seconds:05.2f}" # e.g., 1:39.60
-
-            # Emoji medals for top 3
+            time_str = TimeTrialsUtils.format_timedelta(row['run_time'])
             medal = {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, f"**{rank}.**")
-
             line = (
                 f"{medal} **{time_str}** - {row['runner']}\n"
                 f"└ *{row['vault_hunter']} ({row['action_skill']})* • [Link]({row['url']})"
             )
             description.append(line)
 
-        embed = discord.Embed(
-            title=title,
-            description="\n\n".join(description),
-            color=discord.Color.gold()
-        )
-
+        embed = discord.Embed(title=title, description="\n\n".join(description), color=discord.Color.gold())
         await interaction.followup.send(embed=embed)
         
     # --- Main Command: Add Time ---
@@ -146,32 +344,10 @@ class TimeTrialsCommand(commands.Cog):
         url="Link to the video proof",
         notes="[Optional] Any additional details"
     )
-    # Vault Hunter Choices
-    @app_commands.choices(vault_hunter=[
-        app_commands.Choice(name="Amon", value="Amon"),
-        app_commands.Choice(name="Harlowe", value="Harlowe"),
-        app_commands.Choice(name="Rafa", value="Rafa"),
-        app_commands.Choice(name="Vex", value="Vex")
-    ])
-    # Action Skill Choices (In the order you requested)
-    @app_commands.choices(action_skill=[
-        app_commands.Choice(name="Crucible", value="Crucible"),
-        app_commands.Choice(name="Scourge", value="Scourge"),
-        app_commands.Choice(name="Onslaughter", value="Onslaughter"),
-        app_commands.Choice(name="Flux Generator", value="Flux Generator"),
-        app_commands.Choice(name="Zero-Point", value="Zero-Point"),
-        app_commands.Choice(name="CHROMA Accelerator", value="CHROMA Accelerator"),
-        app_commands.Choice(name="Arc-Knives", value="Arc-Knives"),
-        app_commands.Choice(name="APOPHIS Lance", value="APOPHIS Lance"),
-        app_commands.Choice(name="Peacebreaker Cannons", value="Peacebreaker Cannons"),
-        app_commands.Choice(name="Incarnate", value="Incarnate"),
-        app_commands.Choice(name="Dead Ringer", value="Dead Ringer"),
-        app_commands.Choice(name="Phase Phamiliar", value="Phase Phamiliar")
-    ])
-    # UVH Choices (6 to 0)
-    @app_commands.choices(uvh_level=[
-        app_commands.Choice(name=str(i), value=i) for i in range(6, -1, -1)
-    ])
+    # Use constants for choices
+    @app_commands.choices(vault_hunter=VH_CHOICES)
+    @app_commands.choices(action_skill=AS_CHOICES)
+    @app_commands.choices(uvh_level=UVH_CHOICES)
     async def add_time(
         self, 
         interaction: discord.Interaction, 
@@ -186,27 +362,20 @@ class TimeTrialsCommand(commands.Cog):
     ):
         await interaction.response.defer(ephemeral=True)
 
+        # 1. Permission Check (Refactored)
+        if not await self.check_admin(interaction):
+            await interaction.followup.send("⛔ You do not have permission to add times. Please ping Girth.")
+            return
+
+        # 2. Parse Time (Refactored)
+        try:
+            duration_obj = TimeTrialsUtils.parse_time_input(run_time)
+        except ValueError:
+            await interaction.followup.send(f"⚠️ Could not understand time format: `{run_time}`")
+            return
+
+        # 3. Insert Data
         async with self.db_pool.acquire() as conn:
-            # 1. Permission Check
-            admin_check = await conn.fetchval(
-                "SELECT 1 FROM time_trials_admin WHERE user_id = $1", 
-                interaction.user.id
-            )
-
-            if not admin_check:
-                await interaction.followup.send(
-                    "⛔ You do not have permission to add times. Please ping Girth."
-                )
-                return
-
-            # 2. Parse Time
-            try:
-                duration_obj = self.parse_time_input(run_time)
-            except ValueError:
-                await interaction.followup.send(f"⚠️ Could not understand time format: `{run_time}`")
-                return
-
-            # 3. Insert Data
             try:
                 record_id = await conn.fetchval(
                     """
@@ -215,29 +384,93 @@ class TimeTrialsCommand(commands.Cog):
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                     RETURNING id
                     """,
-                    'Bloomreaper',              # $1 Activity
-                    vault_hunter.value,         # $2 Vault Hunter
-                    action_skill.value,         # $3 Action Skill
-                    duration_obj,               # $4 Run Time
-                    uvh_level.value,            # $5 UVH Level
-                    true_mode,                  # $6 True Mode
-                    url,                        # $7 URL
-                    runner,                     # $8 Runner (Manual Input)
-                    notes                       # $9 Notes
+                    'Bloomreaper', 
+                    vault_hunter.value, 
+                    action_skill.value, 
+                    duration_obj, 
+                    uvh_level.value, 
+                    true_mode, 
+                    url, 
+                    runner, 
+                    notes
                 )
 
-                # 4. Success Response
                 await interaction.followup.send(
                     f"✅ **Run Added!** (ID: {record_id})\n"
                     f"**Runner:** {runner}\n"
                     f"**Time:** {duration_obj}\n"
                     f"**Build:** {vault_hunter.name} / {action_skill.name} (UVH {uvh_level.value})"
                 )
-
             except Exception as e:
                 await interaction.followup.send(f"💥 Database Error: {e}")
 
-# Helper for loading the cog
+    # --- Autocomplete Logic ---
+    async def run_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        runner = interaction.namespace.runner
+        vault_hunter = interaction.namespace.vault_hunter
+
+        if not runner or not vault_hunter:
+            return []
+
+        async with self.db_pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT id, run_time, action_skill, submit_date 
+                FROM time_trials 
+                WHERE runner ILIKE $1 AND vault_hunter = $2
+                ORDER BY submit_date DESC
+                LIMIT 25
+            """, f"%{runner}%", vault_hunter)
+
+        choices = []
+        for r in rows:
+            time_str = TimeTrialsUtils.format_timedelta(r['run_time'])
+            date_str = r['submit_date'].strftime('%d/%m/%Y')
+            display = f"{time_str} - {r['action_skill']} - {date_str}"
+            choices.append(app_commands.Choice(name=display, value=str(r['id'])))
+        
+        return choices
+
+    # --- Edit Command ---
+    @app_commands.command(name="edit_time", description="Edit or delete an existing run.")
+    @app_commands.describe(
+        runner="The name of the runner to search for",
+        vault_hunter="The Vault Hunter they used",
+        run_selection="Select the specific run to edit"
+    )
+    # Use constants for choices
+    @app_commands.choices(vault_hunter=VH_CHOICES)
+    @app_commands.autocomplete(run_selection=run_autocomplete)
+    async def edit_time(
+        self, 
+        interaction: discord.Interaction, 
+        runner: str, 
+        vault_hunter: app_commands.Choice[str],
+        run_selection: str
+    ):
+        await interaction.response.defer(ephemeral=True)
+
+        # 1. Permission Check (Refactored)
+        if not await self.check_admin(interaction):
+            await interaction.followup.send("⛔ Permission Denied.")
+            return
+
+        # 2. Fetch Data
+        async with self.db_pool.acquire() as conn:
+            try:
+                run_id = int(run_selection)
+                record = await conn.fetchrow("SELECT * FROM time_trials WHERE id = $1", run_id)
+            except ValueError:
+                await interaction.followup.send("❌ Invalid selection. Please use the autocomplete list.")
+                return
+
+            if not record:
+                await interaction.followup.send("❌ Run not found.")
+                return
+
+        # 3. Launch View
+        view = RunEditView(self.bot, record, self.db_pool)
+        await interaction.followup.send(embed=view.get_embed(), view=view)
+
 async def setup(bot: commands.Bot):
     if not hasattr(bot, 'db_pool'):
         print("Error: bot.db_pool not found.")
