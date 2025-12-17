@@ -88,7 +88,7 @@ class TimeTrialsCommand(commands.Cog):
                   AND uvh_level = $1
                   AND true_mode = $2
                   AND ($3::text IS NULL OR vault_hunter = $3::text)
-                ORDER BY runner, action_skill, run_time ASC
+                ORDER BY LOWER(runner), action_skill, run_time ASC
             ) sub_query
             ORDER BY run_time ASC
             LIMIT 5;
