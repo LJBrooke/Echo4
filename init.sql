@@ -133,6 +133,24 @@ CREATE TABLE IF NOT EXISTS weapon_parts (
     stats JSONB NOT NULL
 );
 
+CREATE TABLE time_trials (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    submit_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    activity VARCHAR(64) NOT NULL,
+    vault_hunter VARCHAR(32) NOT NULL,
+    run_time INTERVAL NOT NULL,
+    uvh_level INT,
+    true_mode BOOLEAN DEFAULT FALSE,
+    url VARCHAR(256),
+    runner VARCHAR(64) NOT NULL,
+    notes TEXT,
+    action_skill VARCHAR(32),
+    CONSTRAINT positive_time CHECK (run_time > INTERVAL '0 seconds')
+);
+CREATE INDEX idx_leaderboard ON time_trials (activity, run_time ASC);
+
+CREATE INDEX idx_runner_history ON time_trials (runner, activity);
+
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE EXTENSION IF NOT EXISTS timescaledb;
