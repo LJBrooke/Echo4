@@ -7,6 +7,9 @@ from discord.ext import commands
 
 # --- CONFIGURATION / CONSTANTS ---
 # Single source of truth for game data
+
+ACTIVITY_LIST = ["Bloomreaper", "Vault of Origo", "Vault of Inceptus", "Vault of Radix", "Vault Marathon"]
+
 VAULT_HUNTERS = ["Amon", "Harlowe", "Rafa", "Vex"]
 
 ACTION_SKILLS = [
@@ -16,13 +19,14 @@ ACTION_SKILLS = [
 ]
 
 # UVH Levels 6 down to 0
-UVH_LEVELS = list(range(6, -1, -1))
+# UVH_LEVELS = list(range(6, -1, -1))
+UVH_LEVELS = [6]
 
 # Pre-compiled Choice lists for Discord Decorators
 VH_CHOICES = [app_commands.Choice(name=vh, value=vh) for vh in VAULT_HUNTERS]
 AS_CHOICES = [app_commands.Choice(name=askill, value=askill) for askill in ACTION_SKILLS]
 UVH_CHOICES = [app_commands.Choice(name=str(lvl), value=lvl) for lvl in UVH_LEVELS]
-
+ACTIVITY_CHOICES = [app_commands.Choice(name=activity, value=activity) for activity in ACTIVITY_LIST]
 
 # --- UTILITIES ---
 class TimeTrialsUtils:
@@ -84,7 +88,7 @@ class RunEditModal(discord.ui.Modal, title="Edit Run Details"):
             label="Video URL", default=view.data['url'], required=True
         )
         self.notes_input = discord.ui.TextInput(
-            label="Notes", default=view.data['notes'], 
+            label="Gear/Equipment", default=view.data['notes'], 
             style=discord.TextStyle.paragraph, required=False
         )
 
@@ -116,7 +120,7 @@ class RunEditView(discord.ui.View):
             'uvh_level': record['uvh_level'],
             'true_mode': record['true_mode'],
             'url': record['url'],
-            'notes': record['notes'] or "",
+            'Build/Gear': record['notes'] or "",
             'run_time_str': TimeTrialsUtils.format_timedelta(record['run_time'])
         }
 
@@ -188,7 +192,7 @@ class RunEditView(discord.ui.View):
             f"**Class:** {self.data['vault_hunter']} / {self.data['action_skill']}\n"
             f"**Difficulty:** UVH {self.data['uvh_level']} | {'True Mode' if self.data['true_mode'] else 'Standard'}\n"
             f"**URL:** {self.data['url']}\n"
-            f"**Notes:** {self.data['notes']}"
+            f"**Build/Gear:** {self.data['notes']}"
         )
         return discord.Embed(title=f"Editing Run #{self.record_id}", description=desc, color=discord.Color.blue())
 
@@ -267,18 +271,21 @@ class TimeTrialsCommand(commands.Cog):
         return admin_check is not None
 
     # --- Main Command: Check Leaderboard ---
-    @app_commands.command(name="time_trials", description="View the top 5 runs for Bloomreaper.")
+    @app_commands.command(name="time_trials", description="View the top 5 runs for a chosen Activity.")
     @app_commands.describe(
+        activity="Choose the activity to view",
         vault_hunter="[Optional] Filter by a specific Vault Hunter",
         uvh_level="[Optional] Filter by UVH Level (Default: 6)",
         true_mode="[Optional] Filter by True Mode (Default: True)"
     )
     # Use constants for choices
+    @app_commands.choices(activity=ACTIVITY_CHOICES)
     @app_commands.choices(vault_hunter=VH_CHOICES)
     @app_commands.choices(uvh_level=UVH_CHOICES)
     async def time_trials(
         self,
         interaction: discord.Interaction,
+        activity: app_commands.Choice[str],
         vault_hunter: app_commands.Choice[str] = None,
         uvh_level: app_commands.Choice[int] = None,
         true_mode: bool = True
@@ -290,14 +297,15 @@ class TimeTrialsCommand(commands.Cog):
         
         query = """
             SELECT * FROM (
-                SELECT DISTINCT ON (LOWER(runner), action_skill)
+                SELECT DISTINCT ON (LOWER(runner))
                     runner,
                     run_time,
                     vault_hunter,
                     action_skill,
-                    url
+                    url,
+                    notes
                 FROM time_trials
-                WHERE activity = 'Bloomreaper'
+                WHERE activity = $4
                   AND uvh_level = $1
                   AND true_mode = $2
                   AND ($3::text IS NULL OR vault_hunter = $3::text)
@@ -308,7 +316,7 @@ class TimeTrialsCommand(commands.Cog):
         """
 
         async with self.db_pool.acquire() as conn:
-            results = await conn.fetch(query, target_uvh, true_mode, target_vh)
+            results = await conn.fetch(query, target_uvh, true_mode, target_vh, activity.value)
 
         if not results:
             await interaction.followup.send("No runs found for these settings.")
@@ -317,15 +325,15 @@ class TimeTrialsCommand(commands.Cog):
         # Formatting
         vh_text = f" ({target_vh})" if target_vh else ""
         tm_text = "True Mode" if true_mode else "Standard Mode"
-        title = f"🏆 Bloomreaper Leaderboard{vh_text}\n*UVH {target_uvh} | {tm_text}*"
+        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*UVH {target_uvh} | {tm_text}*"
 
         description = []
         for rank, row in enumerate(results, start=1):
             time_str = TimeTrialsUtils.format_timedelta(row['run_time'])
             medal = {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, f"**{rank}.**")
             line = (
-                f"{medal} **{time_str}** - {row['runner']}\n"
-                f"└ *{row['vault_hunter']} ({row['action_skill']})* • [Link]({row['url']})"
+                f"{medal} **{time_str}** - [{row['runner']}]({row['url']})\n"
+                f"└ *{row['vault_hunter']} ({row['action_skill']})* • {row['notes']}"
             )
             description.append(line)
 
@@ -333,35 +341,38 @@ class TimeTrialsCommand(commands.Cog):
         await interaction.followup.send(embed=embed)
         
     # --- Main Command: Add Time ---
-    @app_commands.command(name="add_time", description="[TT Admin Only] Submit a time trial run for Bloomreaper.")
+    @app_commands.command(name="add_time", description="[TT Admin Only] Submit a time trial run.")
     @app_commands.describe(
+        activity="Activity of the run.",
         run_time="Time achieved (e.g., '39.6', '120', '1:30')",
         runner="Name of the player who did the run",
         vault_hunter="The character used",
         action_skill="The Action Skill used",
-        uvh_level="The UVH Level (0-6)",
+        # uvh_level="The UVH Level (0-6)",
         true_mode="Was True Mode enabled?",
         url="Link to the video proof",
-        notes="[Optional] Any additional details"
+        gear="[Optional] A brief description of the Build/Gear used"
     )
     # Use constants for choices
+    @app_commands.choices(activity=ACTIVITY_CHOICES)
     @app_commands.choices(vault_hunter=VH_CHOICES)
     @app_commands.choices(action_skill=AS_CHOICES)
-    @app_commands.choices(uvh_level=UVH_CHOICES)
+    # @app_commands.choices(uvh_level=UVH_CHOICES)
     async def add_time(
         self, 
         interaction: discord.Interaction, 
+        activity: app_commands.Choice[str],
         run_time: str, 
         runner: str, 
         vault_hunter: app_commands.Choice[str], 
         action_skill: app_commands.Choice[str],
-        uvh_level: app_commands.Choice[int], 
+        # uvh_level: app_commands.Choice[int], 
         true_mode: bool, 
         url: str, 
-        notes: str = None
+        gear: str = None
     ):
         await interaction.response.defer(ephemeral=True)
-
+        
         # 1. Permission Check (Refactored)
         if not await self.check_admin(interaction):
             await interaction.followup.send("⛔ You do not have permission to add times. Please ping Girth.")
@@ -384,22 +395,23 @@ class TimeTrialsCommand(commands.Cog):
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                     RETURNING id
                     """,
-                    'Bloomreaper', 
+                    activity.value, 
                     vault_hunter.value, 
                     action_skill.value, 
                     duration_obj, 
-                    uvh_level.value, 
+                    6,
+                    # uvh_level.value, 
                     true_mode, 
                     url, 
                     runner, 
-                    notes
+                    gear
                 )
 
                 await interaction.followup.send(
                     f"✅ **Run Added!** (ID: {record_id})\n"
                     f"**Runner:** {runner}\n"
                     f"**Time:** {duration_obj}\n"
-                    f"**Build:** {vault_hunter.name} / {action_skill.name} (UVH {uvh_level.value})"
+                    f"**Build:** {vault_hunter.name} / {action_skill.name} (UVH 6)"
                 )
             except Exception as e:
                 await interaction.followup.send(f"💥 Database Error: {e}")
