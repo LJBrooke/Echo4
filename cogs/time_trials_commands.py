@@ -333,7 +333,7 @@ class TimeTrialsCommand(commands.Cog):
         await interaction.followup.send(embed=embed)
         
     # --- Main Command: Add Time ---
-    @app_commands.command(name="add_time", description="Submit a time trial run for Bloomreaper.")
+    @app_commands.command(name="add_time", description="[TT Admin Only] Submit a time trial run for Bloomreaper.")
     @app_commands.describe(
         run_time="Time achieved (e.g., '39.6', '120', '1:30')",
         runner="Name of the player who did the run",
@@ -431,7 +431,7 @@ class TimeTrialsCommand(commands.Cog):
         return choices
 
     # --- Edit Command ---
-    @app_commands.command(name="edit_time", description="Edit or delete an existing run.")
+    @app_commands.command(name="edit_time", description="[TT Admin Only] Edit or delete an existing run.")
     @app_commands.describe(
         runner="The name of the runner to search for",
         vault_hunter="The Vault Hunter they used",
