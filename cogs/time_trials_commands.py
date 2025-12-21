@@ -13,9 +13,10 @@ ACTIVITY_LIST = ["Bloomreaper", "Vault of Origo", "Vault of Inceptus", "Vault of
 VAULT_HUNTERS = ["Amon", "Harlowe", "Rafa", "Vex"]
 
 ACTION_SKILLS = [
-    "Crucible", "Scourge", "Onslaughter", "Flux Generator", "Zero-Point", 
-    "CHROMA Accelerator", "Arc-Knives", "APOPHIS Lance", 
-    "Peacebreaker Cannons", "Incarnate", "Dead Ringer", "Phase Phamiliar"
+    "Crucible", "Scourge", "Onslaughter", 
+    "Flux Generator", "Zero-Point", "CHROMA Accelerator", 
+    "Arc-Knives", "APOPHIS Lance", "Peacebreaker Cannons", 
+    "Incarnate", "Dead Ringer", "Phase Phamiliar"
 ]
 
 # UVH Levels 6 down to 0
@@ -120,7 +121,7 @@ class RunEditView(discord.ui.View):
             'uvh_level': record['uvh_level'],
             'true_mode': record['true_mode'],
             'url': record['url'],
-            'Build/Gear': record['notes'] or "",
+            'notes': record['notes'] or "",
             'run_time_str': TimeTrialsUtils.format_timedelta(record['run_time'])
         }
 
