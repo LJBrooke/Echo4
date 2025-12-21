@@ -296,23 +296,14 @@ class TimeTrialsCommand(commands.Cog):
         target_vh = vault_hunter.value if vault_hunter else None
         
         query = """
-            SELECT * FROM (
-                SELECT DISTINCT ON (LOWER(runner))
-                    runner,
-                    run_time,
-                    vault_hunter,
-                    action_skill,
-                    url,
-                    notes
+            with records as (
+                SELECT DISTINCT ON (LOWER(runner), true_mode)
+                    runner, run_time, vault_hunter, action_skill, true_mode, notes, url
                 FROM time_trials
-                WHERE activity = $4
-                  AND uvh_level = $1
-                  AND true_mode = $2
-                  AND ($3::text IS NULL OR vault_hunter = $3::text)
-                ORDER BY LOWER(runner), action_skill, run_time ASC
-            ) sub_query
-            ORDER BY run_time ASC
-            LIMIT 5;
+                WHERE activity = $4 AND uvh_level = $1 and true_mode=$2 AND ($3::text IS NULL OR vault_hunter = $3::text)
+                ORDER BY LOWER(runner), true_mode, run_time ASC )
+            select * from records order by run_time
+            limit 5
         """
 
         async with self.db_pool.acquire() as conn:
