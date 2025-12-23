@@ -7,7 +7,7 @@ from datetime import timedelta
 from functools import lru_cache
 
 # Configuration
-SPREADSHEET_ID = "1_8ZrXN8rQ717QujeMGUST78wYCPJ-qfK6bUMxkjcjSA" 
+SPREADSHEET_ID = "1i8vUUNKiIjoqlKnT1EpEzxjrl90988fVfTzR2d-44HY" 
 JSON_CREDENTIALS = "g_account_access.json"
 
 class TimeTrialsSheets:
