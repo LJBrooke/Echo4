@@ -284,6 +284,12 @@ class TimeTrialsCommand(commands.Cog):
             )
         return admin_check is not None
 
+    def trigger_sheet_update(self, activity_name: str):
+        """Fire-and-forget background task to update the Google Sheet."""
+        if not activity_name:
+            return
+        asyncio.create_task(self.sheets_mgr.update_leaderboard(activity_name))
+        
     # --- Main Command: Check Leaderboard ---
     @app_commands.command(name="time_trials", description="View the top 5 runs for a chosen Activity.")
     @app_commands.describe(
