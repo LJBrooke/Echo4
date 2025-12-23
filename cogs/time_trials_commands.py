@@ -2,7 +2,7 @@ import discord
 import asyncpg
 import re
 import asyncio
-from helpers.sheets_manager import TimeTrialsSheets
+from helpers.sheet_manager import TimeTrialsSheets
 from datetime import timedelta
 from discord import app_commands
 from discord.ext import commands
