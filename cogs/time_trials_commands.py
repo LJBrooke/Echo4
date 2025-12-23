@@ -1,6 +1,8 @@
 import discord
 import asyncpg
 import re
+import asyncio
+from helpers.sheets_manager import TimeTrialsSheets
 from datetime import timedelta
 from discord import app_commands
 from discord.ext import commands
@@ -107,11 +109,13 @@ class RunEditModal(discord.ui.Modal, title="Edit Run Details"):
         await self.view_ref.update_display(interaction)
 
 class RunEditView(discord.ui.View):
-    def __init__(self, bot, record, db_pool):
+    def __init__(self, bot, record, db_pool, sheet_callback=None):
         super().__init__(timeout=300)
         self.bot = bot
         self.db_pool = db_pool
         self.record_id = record['id']
+        self.activity_name = record['activity']
+        self.sheet_callback = sheet_callback
         
         # 1. Load Data
         self.data = {
@@ -240,6 +244,10 @@ class RunEditView(discord.ui.View):
             self.data['uvh_level'], self.data['true_mode'], self.data['url'], 
             self.data['notes'], val, self.record_id)
             
+        # Trigger Sheet Update
+        if self.sheet_callback and self.activity_name:
+            self.sheet_callback(self.activity_name)
+            
         for item in self.children:
             item.disabled = True
         
@@ -248,6 +256,11 @@ class RunEditView(discord.ui.View):
     async def delete_callback(self, interaction: discord.Interaction):
         async with self.db_pool.acquire() as conn:
             await conn.execute("DELETE FROM time_trials WHERE id = $1", self.record_id)
+        
+        # Trigger Sheet Update
+        if self.sheet_callback and self.activity_name:
+            self.sheet_callback(self.activity_name)
+        
         await interaction.response.edit_message(content="🗑️ **Run Deleted.**", embed=None, view=None)
 
     async def discard_callback(self, interaction: discord.Interaction):
@@ -472,7 +485,7 @@ class TimeTrialsCommand(commands.Cog):
                 return
 
         # 3. Launch View
-        view = RunEditView(self.bot, record, self.db_pool)
+        view = RunEditView(self.bot, record, self.db_pool, sheet_callback=self.trigger_sheet_update)
         await interaction.followup.send(embed=view.get_embed(), view=view)
 
 async def setup(bot: commands.Bot):

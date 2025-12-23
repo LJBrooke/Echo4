@@ -64,6 +64,7 @@ services:
       OWNER_ID: ${OWNER_ID}
       ADMIN_SERVER_ID: ${ADMIN_SERVER_ID}
       GQ_SERVER_ID: ${GQ_SERVER_ID}
+      GOOGLE_CREDS_JSON: ${GOOGLE_CREDS_JSON}
 
     # Add this service to our custom network
     networks:

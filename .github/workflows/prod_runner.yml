@@ -32,6 +32,7 @@ jobs:
           echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> .env
           echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> .env
           echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo GOOGLE_CREDS_JSON="${{ secrets.GOOGLE_CREDS_JSON }}" >> .env
 
       # 3: Create Back up
       - name: Tag existing image as backup 🏷️
