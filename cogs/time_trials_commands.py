@@ -277,18 +277,25 @@ class TimeTrialsCommand(commands.Cog):
 
     # --- Helper: Permissions ---
     async def check_admin(self, interaction: discord.Interaction) -> bool:
-        """Centralized admin check for user ID or any assigned role IDs."""
-        # 1. Collect user's ID and all their role IDs into a single list
-        # interaction.user.roles is a list of Role objects
-        ids_to_check = [interaction.user.id] + [role.id for role in interaction.user.roles]
+        """Centralized admin check. Works in both Servers (Guilds) and DMs."""
+        
+        # 1. Start with just the user's ID
+        ids_to_check = [interaction.user.id]
+
+        # 2. Safely add role IDs if they exist (only for discord.Member)
+        # The 'getattr' method returns an empty list [] if 'roles' doesn't exist
+        roles = getattr(interaction.user, 'roles', [])
+        ids_to_check.extend([role.id for role in roles])
 
         async with self.db_pool.acquire() as conn:
-            # 2. Check if ANY of these IDs exist in the admin table
+            # 3. Check if ANY of these IDs (User or Roles) are in the admin table
             admin_check = await conn.fetchval(
                 "SELECT 1 FROM time_trials_admin WHERE user_id = ANY($1)", 
                 ids_to_check
             )
+        
         return admin_check is not None
+
 
 
     def trigger_sheet_update(self, activity_name: str):
