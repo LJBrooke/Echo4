@@ -15,7 +15,7 @@ from xml.etree import ElementTree
 # The Google Sheet URL for the CSV export
 LEMON_URL = "https://www.lootlemon.com/sitemap.xml"
 LEMON_TABLE = "lootlemon_urls"
-CSV_URL = "https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/export?format=csv&gid=1178633367"
+CSV_URL = "https://docs.google.com/spreadsheets/d/11TmXyGmIVoDFn4IFNJN1s2HuijSnn_nPZqN3LkDd5TA/export?format=csv&gid=1178633367"
 TABLE_NAME = "part_list"
 
 GAME_CODES = {'bl1', 'bl2', 'bl3', 'bl4', 'wl', 'tps'} 
