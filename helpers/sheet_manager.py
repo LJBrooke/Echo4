@@ -218,26 +218,26 @@ class TimeTrialsSheets:
         ])
 
     def _apply_category_formatting(self, worksheet: gspread.worksheet, initial_row: int, format_choice: int):
-        header_base = {"textFormat": textFormat(bold=True, fontSize=11), "horizontalAlignment": 'CENTER'}
-        char_header_base = {"textFormat": textFormat(bold=True, fontSize=13), "horizontalAlignment": 'CENTER'}
-        content_base = {"textFormat": textFormat(bold=False, fontSize=11), "horizontalAlignment": 'CENTER', "wrapStrategy": 'WRAP'}
+        header_base = {"textFormat": textFormat(bold=True, fontSize=11), "horizontalAlignment": 'CENTER'} # type: ignore
+        char_header_base = {"textFormat": textFormat(bold=True, fontSize=13), "horizontalAlignment": 'CENTER'} # type: ignore
+        content_base = {"textFormat": textFormat(bold=False, fontSize=11), "horizontalAlignment": 'CENTER', "wrapStrategy": 'WRAP'} # type: ignore
 
         header_hexes = ["#85200c", "#990000", "#b45f06", "#bf9000", "#38761d", "#134f5c", "#1155cc", "#0b5394", "#351c75", "#741b47"]
         content_hexes = ["#cc4125", "#e06666", "#f5b26b", "#ffd966", "#95c47d", "#76a5af", "#6d9eeb", "#6fa8dc", "#8e7cc3", "#c27ba0"]
 
         idx = format_choice % len(header_hexes)
-        header_fmt = cellFormat(backgroundColor=self.hex_to_color(header_hexes[idx]), **header_base)
-        char_header_fmt = cellFormat(backgroundColor=self.hex_to_color(header_hexes[idx]), **char_header_base)
-        content_fmt = cellFormat(backgroundColor=self.hex_to_color(content_hexes[idx]), **content_base)
+        header_fmt = cellFormat(backgroundColor=self.hex_to_color(header_hexes[idx]), **header_base) # type: ignore
+        char_header_fmt = cellFormat(backgroundColor=self.hex_to_color(header_hexes[idx]), **char_header_base) # type: ignore
+        content_fmt = cellFormat(backgroundColor=self.hex_to_color(content_hexes[idx]), **content_base) # type: ignore
         
-        rank_fmt = cellFormat(
+        rank_fmt = cellFormat( # type: ignore
             backgroundColor=self.hex_to_color("#999999"), 
-            textFormat=textFormat(bold=True, foregroundColor=Color(1, 1, 1)),
+            textFormat=textFormat(bold=True, foregroundColor=Color(1, 1, 1)), # type: ignore
             horizontalAlignment='CENTER'
         )
-        activity_header = cellFormat(backgroundColor=self.hex_to_color(header_hexes[idx]), textFormat=textFormat(bold=True, fontSize=14), horizontalAlignment='CENTER')
-        divider_fmt = cellFormat(backgroundColor=self.hex_to_color("#00000041"))
-        center_fmt = cellFormat(horizontalAlignment='CENTER')
+        activity_header = cellFormat(backgroundColor=self.hex_to_color(header_hexes[idx]), textFormat=textFormat(bold=True, fontSize=14), horizontalAlignment='CENTER') # type: ignore
+        divider_fmt = cellFormat(backgroundColor=self.hex_to_color("#00000041")) # type: ignore
+        center_fmt = cellFormat(horizontalAlignment='CENTER') # type: ignore
 
         format_cell_ranges(worksheet, [
             (f'A{initial_row+0}:T{initial_row+0}', activity_header),

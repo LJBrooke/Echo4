@@ -151,7 +151,7 @@ class SystemCommands(commands.Cog):
 
 **Information Sources**
 - [Serialization tool by Nicnl and InflamedSebi](<https://borderlands4-deserializer.nicnl.com/>)
-- [Everything to do with Item parts and associated effects.](<https://docs.google.com/spreadsheets/d/17LHzPR7BltqgzbJZplr-APhORgT2PTIsV08n4RD3tMw/edit?gid=1385091622#gid=1385091622>)
+- [Everything to do with Item parts and associated effects.](<https://docs.google.com/spreadsheets/d/11TmXyGmIVoDFn4IFNJN1s2HuijSnn_nPZqN3LkDd5TA/edit?gid=1385091622#gid=1385091622>)
         '''
         await interaction.response.send_message(credits)
 
