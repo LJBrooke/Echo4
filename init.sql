@@ -157,6 +157,19 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 CREATE INDEX idx_entities_name_trgm ON entities USING GIN (name gin_trgm_ops);
 
+CREATE TABLE IF NOT EXISTS endgame_builds (
+    id SERIAL PRIMARY KEY,
+    vault_hunter TEXT NOT NULL,
+    name TEXT NOT NULL,
+    author TEXT NOT NULL,
+    tree TEXT,
+    class_mods TEXT[],
+    description TEXT,
+    moba_url TEXT,
+    youtube_url TEXT,
+    highlight_url TEXT
+);
+
 insert into element_list 
 (id, primary_element, secondary_element, underbarrel)
 values 
