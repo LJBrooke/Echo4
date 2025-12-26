@@ -440,6 +440,11 @@ class TimeTrialsCommand(commands.Cog):
                 )
             except Exception as e:
                 await interaction.followup.send(f"💥 Database Error: {e}")
+                
+            try:
+                self.trigger_sheet_update(activity.value)
+            except Exception as e:
+                print(f"Failed to sync Sheet: {e}")
 
     # --- Autocomplete Logic ---
     async def run_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
