@@ -291,97 +291,131 @@ class PartCommand(commands.Cog):
             return
 
         row = item_results[0]
-        
-        # 2. Extract Basic Values
         entry_key = row.get('entry_key', item_name)
+        
+        name_lower = entry_key.lower()
+        if "legendary" in name_lower:
+            embed_color = discord.Color.orange() # Gold/Orange
+        elif "epic" in name_lower:
+            embed_color = discord.Color.purple()
+        elif "rare" in name_lower:
+            embed_color = discord.Color.blue()
+        elif "uncommon" in name_lower:
+            embed_color = discord.Color.green()
+        else:
+            # Fallback/Common
+            embed_color = discord.Color.default()
+
+        # 3. Create Embed
+        embed = discord.Embed(
+            title=f"Balance Info: {entry_key}",
+            color=embed_color
+        )
+
+        # --- DESCRIPTION (Prefixes/Suffixes) ---
+        description_lines = []
         max_prefixes = row.get('maxnumprefixes')
         max_suffixes = row.get('maxnumsuffixes')
-        
-        # 3. Start Building the Message
-        lines = []
-        lines.append(f"# Balance info for {entry_key}:")
-        lines.append("") 
 
         if max_prefixes is not None:
-            lines.append(f"**maxnumprefixes:** {max_prefixes}")
-        
+            description_lines.append(f"**Max Prefixes:** {max_prefixes}")
         if max_suffixes is not None:
-            lines.append(f"**maxnumsuffixes:** {max_suffixes}")
+            description_lines.append(f"**Max Suffixes:** {max_suffixes}")
         
-        lines.append("")
+        if description_lines:
+            embed.description = "\n".join(description_lines)
 
-        # 4. Helper to format lists/JSON
-        def format_section(title, data):
-            if not data or data == 'null':
-                return
-            
-            # Ensure we have a python object
+        # --- HELPER: Parse JSON safely ---
+        def parse_json(data):
+            if not data or data == 'null': return None
             if isinstance(data, str):
-                try:
-                    data = json.loads(data)
-                except json.JSONDecodeError:
-                    return 
-            
-            lines.append(f"## {title}")
-            
-            # CASE A: List
-            if isinstance(data, list):
-                for item in data:
-                    if isinstance(item, dict):
-                        for v in item.values():
-                            lines.append(f"  - {v}")
-                    else:
-                        lines.append(f"  - {item}")
-            
-            # CASE B: Dictionary (The complex rules)
-            elif isinstance(data, dict):
-                if "pairs" in data:
-                    # Sort by the category name
-                    sorted_pairs = sorted(data["pairs"].values(), key=lambda x: x.get("key", ""))
-                    
-                    for pair_data in sorted_pairs:
-                        category = pair_data.get("key", "Unknown Category")
-                        val_obj = pair_data.get("value", {})
-                        
-                        # --- NEW LOGIC: Check for partcount ---
-                        part_count = val_obj.get("partcount")
-                        count_str = ""
-                        
-                        if part_count:
-                            # Default to '?' if min/max are missing in the JSON
-                            p_min = part_count.get("min", "0") # Usually defaults to 0 if missing
-                            p_max = part_count.get("max", "?")
-                            count_str = f" [{p_min}-{p_max}]"
-                        
-                        lines.append(f"  - **{category}{count_str}**:")
-                        
-                        # Drill down to parts
-                        parts_list = val_obj.get("parts", [])
-                        if parts_list:
-                            for part_obj in parts_list:
-                                part_name = part_obj.get("part", "Unknown Part")
-                                lines.append(f"    - `{part_name}`")
-                        else:
-                            lines.append("    - (No parts listed)")
+                try: return json.loads(data)
+                except json.JSONDecodeError: return None
+            return data
 
+        # --- SECTION 1: Basetags (Standard Logic) ---
+        basetags_data = parse_json(row.get('basetags'))
+        if basetags_data:
+            lines = []
+            for item in basetags_data:
+                if isinstance(item, dict):
+                    for v in item.values(): lines.append(f"- {v}")
                 else:
-                    for k, v in data.items():
-                        lines.append(f"  - **{k}:** {v}")
-            
-            lines.append("")
+                    lines.append(f"- {item}")
+            if lines:
+                embed.add_field(name="Basetags", value="\n".join(lines), inline=False)
 
-        # 5. Add Sections
-        format_section("Basetags", row.get('basetags'))
-        format_section("Possible Part Types", row.get('parttypes'))
-        format_section("Part Type Selection Rules", row.get('parttypeselectionrules'))
-        format_section("Part Tag Selection Rules", row.get('parttagselectionrules'))
+        # --- SECTION 2: COMBINED PART RULES (Custom Logic) ---
+        part_types = parse_json(row.get('parttypes'))
+        selection_rules = parse_json(row.get('parttypeselectionrules'))
+        
+        if part_types:
+            # Step A: Pre-process rules into a lookup dictionary: { "part_name": rule_data_object }
+            rules_lookup = {}
+            if selection_rules and "pairs" in selection_rules:
+                for pair in selection_rules["pairs"].values():
+                    key = pair.get("key")
+                    if key:
+                        rules_lookup[key] = pair.get("value", {})
 
-        # 6. Send
-        final_message = "\n".join(lines)
-        if len(final_message) > 2000:
-            final_message = final_message[:1990] + "\n... (truncated)"
+            # Step B: Iterate through Part Types and match
+            lines = []
+            # Sorting ensures the output is alphabetical and consistent
+            for p_type in sorted(part_types):
+                
+                # Check if this type has a rule
+                if p_type in rules_lookup:
+                    rule_data = rules_lookup[p_type]
+                    
+                    # 1. Get specific allowed parts
+                    parts_list = rule_data.get("parts", [])
+                    
+                    # 2. Get Min/Max
+                    part_count = rule_data.get("partcount")
+                    count_str = ""
+                    if part_count:
+                        p_min = part_count.get("min", "0")
+                        p_max = part_count.get("max", str(len(parts_list)) if parts_list else "?")
+                        count_str = f" [{p_min}-{p_max}]"
+                    
+                    lines.append(f"**{p_type}{count_str}**")
+                    
+                    # 3. Process allowed parts
+                    if parts_list:
+                        for part_obj in parts_list:
+                            part_name = part_obj.get("part", "Unknown Part")
+                            lines.append(f"> - `{part_name}`")
+                    else:
+                        lines.append("> - (No specific parts listed)")
+                
+                # No rule found -> "No restrictions"
+                else:
+                    lines.append(f"**{p_type}**")
+                    lines.append("> - No restrictions")
             
-        await interaction.followup.send(final_message)
+            # Add to Embed
+            full_text = "\n".join(lines)
+            if len(full_text) > 1024:
+                full_text = full_text[:1020] + "..."
+            
+            embed.add_field(name="Part Rules", value=full_text, inline=False)
+
+        # --- SECTION 3: Tag Selection Rules (Standard Logic) ---
+        tag_rules = parse_json(row.get('parttagselectionrules'))
+        if tag_rules:
+            lines = []
+            if isinstance(tag_rules, list):
+                for item in tag_rules:
+                    if isinstance(item, dict):
+                        for k, v in item.items(): lines.append(f"- **{k}:** {v}")
+                    else:
+                        lines.append(f"- {item}")
+            # Add fallback dict logic if needed here
+            
+            if lines:
+                embed.add_field(name="Part Tag Selection Rules", value="\n".join(lines), inline=False)
+
+        await interaction.followup.send(embed=embed)
     
     # --- Main Command ---
     @app_commands.command(name="examine", description="View base component vectors.")
