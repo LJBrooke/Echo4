@@ -3,6 +3,7 @@ import asyncpg
 import json
 from discord import app_commands
 from discord.ext import commands
+from helpers.item_parser import query_unique_balance_files, query_item_balance
 
 class PaginationView(discord.ui.View):
     def __init__(self, pages: list[list[discord.Embed]], interaction: discord.Interaction):
@@ -184,6 +185,28 @@ class PartCommand(commands.Cog):
             app_commands.Choice(name=r['part_name'][:100], value=r['part_name'][:100]) 
             for r in results if r['part_name']
         ]
+    
+    async def balance_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        async with self.db_pool.acquire() as conn:
+            query = """
+                SELECT DISTINCT
+                    regexp_replace(entry_key, '^comp_[0-9]+_[^_]+_', '') AS variant_name,
+                    entry_key
+                FROM inv_comp
+                WHERE 
+                    entry_key ~ '^comp_[0-9]+_[^_]+_' 
+                    AND entry_key ILIKE $1 
+                    AND substring(entry_key FROM '^comp_[0-9]+_[^_]+_(.*)$') ~ '[a-zA-Z]'
+                ORDER BY variant_name ASC
+                LIMIT 25;
+            """
+            # Add wildcards ONLY here in Python
+            results = await conn.fetch(query, f"%{current}%")
+
+        return [
+            app_commands.Choice(name=r['variant_name'][:100], value=r['entry_key'][:100]) 
+            for r in results if r['variant_name']
+        ]
 
     def _format_entity_embed(self, record) -> list[discord.Embed]:
         stats = record['stats']
@@ -251,6 +274,112 @@ class PartCommand(commands.Cog):
 
         return generated_embeds
 
+    # --- Main Command ---
+    @app_commands.command(name="balance", description="View item part rules.")
+    @app_commands.describe(
+        item_name="The name of the item to search for."
+    )
+    @app_commands.autocomplete(item_name=balance_autocomplete)
+    async def balance(self, interaction: discord.Interaction, item_name: str):
+        await interaction.response.defer(ephemeral=False)
+        
+        # 1. Fetch Data
+        item_results = await query_item_balance(self.db_pool, item_name)
+        
+        if not item_results:
+            await interaction.followup.send(f"No balance data found for `{item_name}`.")
+            return
+
+        row = item_results[0]
+        
+        # 2. Extract Basic Values
+        entry_key = row.get('entry_key', item_name)
+        max_prefixes = row.get('maxnumprefixes')
+        max_suffixes = row.get('maxnumsuffixes')
+        
+        # 3. Start Building the Message
+        lines = []
+        lines.append(f"# Balance info for {entry_key}:")
+        lines.append("") 
+
+        if max_prefixes is not None:
+            lines.append(f"**maxnumprefixes:** {max_prefixes}")
+        
+        if max_suffixes is not None:
+            lines.append(f"**maxnumsuffixes:** {max_suffixes}")
+        
+        lines.append("")
+
+        # 4. Helper to format lists/JSON
+        def format_section(title, data):
+            if not data or data == 'null':
+                return
+            
+            # Ensure we have a python object
+            if isinstance(data, str):
+                try:
+                    data = json.loads(data)
+                except json.JSONDecodeError:
+                    return # Skip if invalid json
+            
+            lines.append(f"## {title}")
+            
+            # CASE A: It is a simple List (e.g. basetags, parttypes)
+            if isinstance(data, list):
+                for item in data:
+                    if isinstance(item, dict):
+                        for v in item.values():
+                            lines.append(f"  - {v}")
+                    else:
+                        lines.append(f"  - {item}")
+            
+            # CASE B: It is a Dictionary (e.g. parttypeselectionrules)
+            elif isinstance(data, dict):
+                # 1. Check if it matches the "pairs" structure
+                if "pairs" in data:
+                    # Sort by the part category (key) for readability
+                    sorted_pairs = sorted(data["pairs"].values(), key=lambda x: x.get("key", ""))
+                    
+                    for pair_data in sorted_pairs:
+                        category = pair_data.get("key", "Unknown Category")
+                        lines.append(f"  - **{category}**:")
+                        
+                        # Drill down: value -> parts -> list of objects
+                        parts_list = pair_data.get("value", {}).get("parts", [])
+                        
+                        if parts_list:
+                            for part_obj in parts_list:
+                                part_name = part_obj.get("part", "Unknown Part")
+                                lines.append(f"    - `{part_name}`")
+                        else:
+                            lines.append("    - (No parts listed)")
+
+                # 2. Fallback for generic dictionaries
+                else:
+                    for k, v in data.items():
+                        lines.append(f"  - **{k}:** {v}")
+            
+            lines.append("") # Spacing after section
+
+        # 5. Add Sections
+        format_section("Basetags", row.get('basetags'))
+        format_section("Possible Part Types", row.get('parttypes'))
+        
+        # This will now use the new nested logic
+        format_section("Part Type Selection Rules", row.get('parttypeselectionrules'))
+        
+        # Assuming parttagselectionrules follows a similar structure, or falls back to list/dict logic
+        format_section("Part Tag Selection Rules", row.get('parttagselectionrules'))
+
+        # 6. Send
+        final_message = "\n".join(lines)
+        
+        # Truncate if too long for Discord
+        if len(final_message) > 2000:
+            final_message = final_message[:1990] + "\n... (truncated)"
+            
+        await interaction.followup.send(final_message)
+    
     # --- Main Command ---
     @app_commands.command(name="examine", description="View base component vectors.")
     @app_commands.describe(

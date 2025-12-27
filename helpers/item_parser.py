@@ -443,6 +443,70 @@ async def query_unique_repkit(db_pool, manufacturer: str, perk_id: int) -> list:
         results = await conn.fetch(query, manufacturer, perk_id)
     return results
 
+async def query_unique_balance_files(db_pool) -> list:
+    """
+    Fetches the unique repkit name and effect from the unique_repkits table.
+    """
+    query = f"""
+    SELECT DISTINCT
+        entry_key,
+        regexp_replace(entry_key, '^comp_[0-9]+_[^_]+_', '') AS variant_name
+    FROM inv_comp
+    WHERE 
+        entry_key ~ '^comp_[0-9]+_[^_]+_'
+        AND substring(entry_key FROM '^comp_[0-9]+_[^_]+_(.*)$') ~ '[a-zA-Z]'
+    ORDER BY variant_name ASC;
+    """
+    async with db_pool.acquire() as conn:
+        results = await conn.fetch(query)
+    return results
+
+async def query_item_balance(db_pool, entry_key: str) -> list:
+    """
+    Fetches the unique repkit name and effect from the unique_repkits table.
+    """
+    if not entry_key:
+        return []
+    
+    query = f"""
+        WITH target_item AS (
+            -- 1. Get the specific "Child" Item
+            SELECT DISTINCT ON (entry_key) *
+            FROM inv_comp
+            WHERE entry_key = $1 
+            ORDER BY entry_key, internal_id DESC
+        ),
+        base_item AS (
+            -- 2. Get the "Parent" Base Item
+            -- We derive the parent key dynamically from the child key found above
+            SELECT DISTINCT ON (entry_key) *
+            FROM inv_comp
+            WHERE entry_key = (
+                SELECT 'base_' || substring(entry_key from '^(comp_[0-9]+_[^_]+)')
+                FROM target_item
+            )
+            ORDER BY entry_key, internal_id DESC
+        )
+        SELECT 
+            t.entry_key,
+            i.aspects,
+            i.parttypes,
+            i.serialindex ->> 'index' as serial_index,
+            i.maxnumprefixes,
+            i.maxnumsuffixes,
+            i.mingamestage,
+            COALESCE(t.basetags, b.basetags) AS basetags,
+            COALESCE(t.parttagselectionrules, b.parttagselectionrules) AS parttagselectionrules,
+            COALESCE(t.parttypeselectionrules, b.parttypeselectionrules) AS parttypeselectionrules
+        FROM target_item t
+        LEFT JOIN base_item b ON true
+        LEFT JOIN inv i ON (t.inv = i.entry_key AND i.basetype IS NOT NULL)
+        LIMIT 1;
+    """
+    async with db_pool.acquire() as conn:
+        results = await conn.fetch(query, entry_key)
+    return results
+
 async def search_lootlemon(db_pool, name: str, game: str, item_type: str = None) -> str | None:
     """
     Searches the lootlemon_urls table for a matching item and reconstructs the URL.
