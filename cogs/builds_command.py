@@ -253,7 +253,7 @@ class BuildCommands(commands.Cog):
             return
 
         msg = await interaction.followup.send(
-            f'''# Community {vault_hunter} Builds \n_Button Colour indicates the builds focus skill tree._ \n\nHeres a selection our community recommended builds. This assortment was co created by The Soup Kitchen's best!\n\nAll creators present on this list are members of this community. Dont hesitate to ask for help!\n\n-# This message times out after 5 minutes._ _'''  , 
+            f'''# Community {vault_hunter.value} Builds \n_Button Colour indicates the builds focus skill tree._ \n\nHeres a selection our community recommended builds. This assortment was co created by The Soup Kitchen's best!\n\nAll creators present on this list are members of this community. Dont hesitate to ask for help!\n\n-# This message times out after 5 minutes._ _'''  , 
             view=view
         )
         view.set_message(msg)
