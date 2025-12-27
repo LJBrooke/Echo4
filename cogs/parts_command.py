@@ -320,11 +320,11 @@ class PartCommand(commands.Cog):
                 try:
                     data = json.loads(data)
                 except json.JSONDecodeError:
-                    return # Skip if invalid json
+                    return 
             
             lines.append(f"## {title}")
             
-            # CASE A: It is a simple List (e.g. basetags, parttypes)
+            # CASE A: List
             if isinstance(data, list):
                 for item in data:
                     if isinstance(item, dict):
@@ -333,20 +333,30 @@ class PartCommand(commands.Cog):
                     else:
                         lines.append(f"  - {item}")
             
-            # CASE B: It is a Dictionary (e.g. parttypeselectionrules)
+            # CASE B: Dictionary (The complex rules)
             elif isinstance(data, dict):
-                # 1. Check if it matches the "pairs" structure
                 if "pairs" in data:
-                    # Sort by the part category (key) for readability
+                    # Sort by the category name
                     sorted_pairs = sorted(data["pairs"].values(), key=lambda x: x.get("key", ""))
                     
                     for pair_data in sorted_pairs:
                         category = pair_data.get("key", "Unknown Category")
-                        lines.append(f"  - **{category}**:")
+                        val_obj = pair_data.get("value", {})
                         
-                        # Drill down: value -> parts -> list of objects
-                        parts_list = pair_data.get("value", {}).get("parts", [])
+                        # --- NEW LOGIC: Check for partcount ---
+                        part_count = val_obj.get("partcount")
+                        count_str = ""
                         
+                        if part_count:
+                            # Default to '?' if min/max are missing in the JSON
+                            p_min = part_count.get("min", "0") # Usually defaults to 0 if missing
+                            p_max = part_count.get("max", "?")
+                            count_str = f" [{p_min}-{p_max}]"
+                        
+                        lines.append(f"  - **{category}{count_str}**:")
+                        
+                        # Drill down to parts
+                        parts_list = val_obj.get("parts", [])
                         if parts_list:
                             for part_obj in parts_list:
                                 part_name = part_obj.get("part", "Unknown Part")
@@ -354,27 +364,20 @@ class PartCommand(commands.Cog):
                         else:
                             lines.append("    - (No parts listed)")
 
-                # 2. Fallback for generic dictionaries
                 else:
                     for k, v in data.items():
                         lines.append(f"  - **{k}:** {v}")
             
-            lines.append("") # Spacing after section
+            lines.append("")
 
         # 5. Add Sections
         format_section("Basetags", row.get('basetags'))
         format_section("Possible Part Types", row.get('parttypes'))
-        
-        # This will now use the new nested logic
         format_section("Part Type Selection Rules", row.get('parttypeselectionrules'))
-        
-        # Assuming parttagselectionrules follows a similar structure, or falls back to list/dict logic
         format_section("Part Tag Selection Rules", row.get('parttagselectionrules'))
 
         # 6. Send
         final_message = "\n".join(lines)
-        
-        # Truncate if too long for Discord
         if len(final_message) > 2000:
             final_message = final_message[:1990] + "\n... (truncated)"
             
