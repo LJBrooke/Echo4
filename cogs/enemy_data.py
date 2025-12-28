@@ -4,99 +4,113 @@ from discord import app_commands
 from discord.ext import commands
 import math
 
-# --- SCALING LOGIC ---
+# --- CONFIGURATION ---
+RANK_MAPPING = {
+    "GbxActor.Character.Rank.Badass": "Badass",
+    "GbxActor.Character.Rank.Badass.Corrupt": "Badass",
+    "GbxActor.Character.Rank.Badass.Super": "Badass",
+    "GbxActor.Character.Rank.Boss": "Boss",
+    "GbxActor.Character.Rank.Boss.Mini": "Boss",
+    "GbxActor.Character.Rank.Boss.Vault": "Boss",
+    "GbxActor.Character.Rank.Chump": "Normal",
+    "GbxActor.Character.Rank.Elite": "Elite",
+    "GbxActor.Character.Rank.Loot": "Boss",
+    "GbxActor.Character.Rank.Normal": "Normal"
+}
 
 def calc_enemy_health(base: float, level: int, uvh_scale: float, player_scale: float) -> int:
-    """
-    Calculates final health. 
-    Formula: Base * 80 * PlayerScale * UVHScale * ((1.09 ^ Level) * (1 + 0.02*Level))
-    """
-    print(f"Calculating health with base={base}, level={level}, uvh_scale={uvh_scale}, player_scale={player_scale}")
-    # Scaling logic from your uploaded file
+    # Formula: Base * 80 * PlayerScale * UVHScale * ((1.09 ^ Level) * (1 + 0.02*Level))
     level_multiplier = (1.09 ** level) * (1 + (0.02 * level))
-    
     final_health = base * 80 * player_scale * uvh_scale * level_multiplier
     return int(final_health)
-
 
 class EnemyData(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    # --- AUTOCOMPLETE ---
-    
+    # --- OPTIMIZED AUTOCOMPLETE ---
     async def enemy_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-        # Access db_pool through self.bot
         async with self.bot.db_pool.acquire() as conn:
+            # LOGIC:
+            # 1. CTE 'raw_data':
+            #    - FROM gbxactor (aliased as 'ga')
+            #    - Explicitly references ga.attributes to avoid ambiguity.
+            #    - Extracts 'display_lookup_key' (e.g. "Name_BeastWhitehorn").
+            #    - Extracts 'balance_path' for the command payload.
+            # 2. Main Query:
+            #    - Joins 'display_data' (aliased as 'dd').
+            #    - Filters by user input.
+            
             query = """
-                WITH valid_tables AS (
-                    SELECT 
-                        entry_key as table_key,
-                        -- Extract ID: remove 'table_' (6 chars) and '_balance' (8 chars)
-                        substring(entry_key FROM 7 FOR length(entry_key) - 14) as enemy_id
-                    FROM gbx_ue_data_table
-                    WHERE entry_key LIKE 'table_%_balance'
+                WITH valid_actors AS (
+                    SELECT DISTINCT ON (entry_key)
+                        -- Extract lookup key: "display_data'Name_X'"
+                        substring(
+                            (attributes ->> 'uxdisplayname') 
+                            FROM 'display_data''([^'']+)'''
+                        ) as display_lookup_key,
+                        
+                        -- Clean balance path (Payload)
+                        lower(TRIM(BOTH '''' FROM REGEXP_REPLACE(
+                            (balance_data #>> '{balancetablerowhandle, datatable}'), 
+                            '^gbx_ue_data_table', 
+                            ''
+                        ))) AS balance_path,
+                        
+                        -- Rank (Payload)
+                        (attributes #>> '{tag_rank, tagname}') AS rank_key
+                    FROM gbxactor
+                    WHERE 
+                        (attributes #>> '{tag_rank, tagname}') LIKE 'GbxActor.Character.Rank.%' AND
+                        (balance_data #>> '{balancetablerowhandle, datatable}') LIKE 'gbx_ue_data_table%'
+                    ORDER BY entry_key, internal_id DESC
+                ),
+                unique_display AS (
+                    -- Ensure we only check the LATEST version of every display key
+                    SELECT DISTINCT ON (entry_key)
+                        entry_key,
+                        text
+                    FROM display_data
+                    ORDER BY entry_key, internal_id DESC
                 )
-                SELECT 
-                    vt.table_key,
-                    vt.enemy_id,
-                    -- Try to find a friendly name, fallback to NULL
-                    (SELECT substring(text FROM ',\s+([^,]+)$') 
-                     FROM display_data 
-                     WHERE entry_key = 'name_' || vt.enemy_id 
-                     LIMIT 1) as friendly_name
-                FROM valid_tables vt
+                SELECT DISTINCT
+                    va.balance_path,
+                    va.rank_key,
+                    -- Regex: ^.*, matches everything from start up to the LAST comma. 
+                    -- We replace that match with empty string '' to leave only the name.
+                    TRIM(REGEXP_REPLACE(ud.text, '^.*,', '')) as friendly_name,
+                    -- Fallback ID
+                    substring(va.balance_path FROM 7 FOR length(va.balance_path) - 14) as fallback_id
+                FROM valid_actors va
+                LEFT JOIN unique_display ud 
+                    ON lower(ud.entry_key) = lower(va.display_lookup_key)
                 WHERE 
-                    vt.enemy_id ILIKE $1 OR 
-                    vt.table_key ILIKE $1
+                    (ud.text ILIKE $1 OR va.balance_path ILIKE $1)
+                ORDER BY friendly_name ASC
                 LIMIT 25;
             """
             results = await conn.fetch(query, f"%{current}%")
 
         choices = []
         for r in results:
-            name = r['friendly_name']
-            eid = r['enemy_id']
-            full_key = r['table_key']
+            # Determine the name to show (Friendly Name -> Fallback ID)
+            name_text = r['friendly_name'] if r['friendly_name'] else r['fallback_id']
             
-            # Format: "Friendly Name (ID)" or just "ID"
-            display_str = f"{name} ({eid})" if name else eid
+            rank_raw = r['rank_key']
+            # Simple rank display: "GbxActor.Character.Rank.Badass" -> "Badass"
+            rank_display = rank_raw.split('.')[-1] if rank_raw else "Unknown"
             
-            # Discord choice limit is 100 chars
-            choices.append(app_commands.Choice(name=display_str[:100], value=full_key))
+            # Label: "Whitehorn [Badass]"
+            name_display = f"{name_text} [{rank_display}]"
+            
+            # Value: "table_beast_whitehorn_balance|GbxActor.Character.Rank.Badass"
+            packed_value = f"{r['balance_path']}|{rank_raw}"
+            
+            choices.append(app_commands.Choice(name=name_display[:100], value=packed_value[:100]))
         
         return choices
 
-    # async def enemy_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-    #     async with self.bot.db_pool.acquire() as conn:
-    #         # We use a CASE statement inside jsonb_array_elements to prevent 
-    #         # crashing on rows that aren't arrays (Scalars).
-    #         query = """
-    #             SELECT DISTINCT
-    #                 t.entry_key,
-    #                 r.value->>'row_name' as variant_name
-    #             FROM gbx_ue_data_table t
-    #             CROSS JOIN LATERAL jsonb_array_elements(
-    #                 CASE 
-    #                     WHEN jsonb_typeof(t.data) = 'array' THEN t.data 
-    #                     ELSE '[]'::jsonb 
-    #                 END
-    #             ) r
-    #             WHERE 
-    #                 t.entry_key LIKE 'table_%_balance' 
-    #                 AND r.value->>'row_name' ILIKE $1
-    #             ORDER BY variant_name ASC
-    #             LIMIT 25;
-    #         """
-    #         results = await conn.fetch(query, f"%{current}%")
-
-    #     return [
-    #         app_commands.Choice(name=r['variant_name'][:100], value=r['entry_key']) 
-    #         for r in results
-    #     ]
-
     # --- COMMAND ---
-
     @app_commands.command(name="enemy_health", description="Calculate enemy health stats.")
     @app_commands.describe(
         enemy_name="The enemy to check (search by name or ID).",
@@ -125,72 +139,46 @@ class EnemyData(commands.Cog):
         if not (1 <= player_count <= 4) or not (0 <= uvh <= 6):
             await interaction.followup.send("Player count must be between 1 and 4.")
             return
+        
+        # 1. UNPACK DATA (Speed Boost!)
+        # We don't need to query gbxactor because we passed the rank in the value string.
+        try:
+            balance_key, rank_raw = enemy_name.split('|')
+        except ValueError:
+            # Handle case where user types a raw string instead of clicking a choice
+            await interaction.followup.send("Please select a valid enemy from the autocomplete list.")
+            return
+
+        # Determine Complexity (Normal/Badass/Boss) from the packed rank
+        target_complexity = RANK_MAPPING.get(rank_raw, "Boss")
 
         async with self.bot.db_pool.acquire() as conn:
-            # 1. FETCH BASE MULTIPLIERS
-            enemy_query = """
-                SELECT data
-                FROM gbx_ue_data_table
-                WHERE entry_key = $1
-            """
-            enemy_data = await conn.fetchval(enemy_query, enemy_name)
+            # 2. FETCH BASE MULTIPLIERS
+            bal_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = $1"
+            bal_data = await conn.fetchval(bal_query, balance_key)
             
-            if not enemy_data:
-                await interaction.followup.send(f"Could not find data for `{enemy_name}`.")
+            if not bal_data:
+                await interaction.followup.send(f"Could not find balance data for `{balance_key}`.")
                 return
-                
-            # 2. DETERMINE RANK/COMPLEXITY ---
-            # Extract ID from 'table_ID_balance' -> 'ID'
-            # Example: table_catunique_balance -> catunique
-            clean_id = enemy_name.replace("table_", "").replace("_balance", "")
-            char_key = f"char_{clean_id}"
 
-            rank_query = """
-                SELECT attributes ->> 'tag_rank' 
-                FROM gbxactor 
-                WHERE entry_key = $1 
-                LIMIT 1
-            """
-            tag_rank_raw = await conn.fetchval(rank_query, char_key)
-            
-            if not tag_rank_raw or 'Normal' in tag_rank_raw:
-                target_complexity = "Normal"  # Default
-            else: 
-                tag_rank_raw = tag_rank_raw.lower()
-                # Map the tag (e.g. Tag_Rank_Badass) to complexity (e.g. Badass)
-                # Default to "Boss" if tag is missing or unknown, as per previous request
-                if 'elite' in tag_rank_raw: target_complexity = "Elite"
-                elif 'badass' in tag_rank_raw: target_complexity = "Badass"
-                elif 'boss' in tag_rank_raw: target_complexity = "Boss"
-            
             # 3. FETCH UVH SCALE
             uvh_scale = 1.0
             if uvh > 0:
-                uvh_query = """
-                    SELECT data 
-                    FROM gbx_ue_data_table 
-                    WHERE entry_key = 'table_difficulty_uvh'
-                """
+                uvh_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'table_difficulty_uvh'"
                 uvh_json = await conn.fetchval(uvh_query)
                 if uvh_json:
                     uvh_data = json.loads(uvh_json) if isinstance(uvh_json, str) else uvh_json
                     target_row = f"UVH{uvh}"
-                    
                     for row in uvh_data:
                         if row.get('row_name') == target_row:
-                            # FIXED: Changed 'EnemyData' back to 'enemyhealth'
                             val_str = row.get('row_value', {}).get('enemyhealth', "1.0")
                             uvh_scale = float(val_str)
                             break
             
-            # 4. FETCH PLAYER SCALE
+            # 4. FETCH PLAYER SCALE (Using the unpacked complexity)
             player_scale = 1.0
             if player_count > 1:
-                player_query = """
-                    SELECT data 
-                    FROM gbx_ue_data_table 
-                    WHERE entry_key = 'enemy_health_scalars_by_player_count'
-                """
+                player_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'enemy_health_scalars_by_player_count'"
                 player_json = await conn.fetchval(player_query)
                 if player_json:
                     p_data = json.loads(player_json) if isinstance(player_json, str) else player_json
@@ -205,13 +193,15 @@ class EnemyData(commands.Cog):
                             player_scale = float(val_str)
                             break
 
-        # --- PROCESSING ---
+        # --- OUTPUT ---
+        enemy_rows = json.loads(bal_data) if isinstance(bal_data, str) else bal_data
         
-        enemy_rows = json.loads(enemy_data) if isinstance(enemy_data, str) else enemy_data
-        
+        # Display the Friendly ID (e.g. catunique) for reference
+        clean_id = balance_key.replace("table_", "").replace("_balance", "")
+
         embed = discord.Embed(
-            title=f"Health Stats: {enemy_name.replace('table_', '').replace('_balance', '')}",
-            description=f"**Level:** {level} | **Players:** {player_count} | **UVH:** {uvh}",
+            title=f"Health Stats: {clean_id}",
+            description=f"**Level:** {level} | **Players:** {player_count} | **UVH:** {uvh}\n**Rank:** {target_complexity}",
             color=discord.Color.fuchsia()
         )
 
@@ -223,27 +213,30 @@ class EnemyData(commands.Cog):
             
             multipliers = {k: v for k, v in values.items() if k.startswith("healthmultiplier")}
             
-            if not multipliers:
-                continue
+            # LOGIC CHANGE: Check if Bar 1 exists. If not, default it to 1.0.
+            # This ensures the loop always runs and calculates at least the base health.
+            if "healthmultiplier_01" not in multipliers:
+                multipliers["healthmultiplier_01"] = "1.0"
+
+            # (Removed the 'if not multipliers: continue' line since multipliers is guaranteed to have data now)
 
             found_multipliers = True
             lines = []
             
             for m_key in sorted(multipliers.keys()):
                 base_val = float(multipliers[m_key])
-                
                 final_hp = calc_enemy_health(base_val, level, uvh_scale, player_scale)
                 
-                bar_num = m_key.split('_')[1] 
+                bar_num = m_key.split('_')[-1] 
                 lines.append(f"**Bar {bar_num}:** {final_hp:,.0f}")
                 
             embed.add_field(name=row_name, value="\n".join(lines), inline=False)
 
         if not found_multipliers:
-             await interaction.followup.send(f"Found data for `{enemy_name}`, but it contained no health multipliers.")
+             await interaction.followup.send(f"Found data for `{clean_id}`, but it contained no health multipliers.")
         else:
             await interaction.followup.send(embed=embed)
-            
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(EnemyData(bot))
     print("✅ Cog 'EnemyData Commands' loaded.")
