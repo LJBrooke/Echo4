@@ -282,3 +282,4 @@ async def setup(bot: commands.Bot):
         log.error("Error: bot.db_pool not found. Ensure Database is connected in main.py")
         return
     await bot.add_cog(BuildCommands(bot, bot.db_pool))
+    print("✅ Cog 'BuildCommands' loaded.")
