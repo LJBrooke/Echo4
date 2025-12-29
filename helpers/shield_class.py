@@ -137,10 +137,10 @@ class Shield:
                 shield.item_name = manufacturer.title() + " Shield"
             else:
                 response = await item_parser.query_unique_shield(db_pool, shield.manufacturer, int(shield.parts["Rarity"][1][1:-1]))
-                if response[0]:
+                try:
                     shield.item_name = response[0].get('shield_name', 'Unknown Shield')
                     shield.unique_perk = response[0].get('unique_perk', 'Unknown Perk')
-                else:
+                except Exception as e:
                     shield.item_name = "Unknown Shield"
                     shield.unique_perk = "Unknown Perk"
                 
