@@ -87,7 +87,7 @@ class TimeTrialsSheets:
                     SELECT DISTINCT ON (LOWER(runner), true_mode)
                         runner, run_time, vault_hunter, action_skill, true_mode, notes, url
                     FROM time_trials
-                    WHERE activity = $1 AND uvh_level = 6
+                    WHERE activity = $1 AND uvh_level = 6 and mark_as_deleted is not true
                     ORDER BY LOWER(runner), true_mode, run_time ASC )
                 select * from records order by run_time
             """)
