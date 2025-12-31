@@ -335,7 +335,7 @@ class TimeTrialsCommand(commands.Cog):
                 SELECT DISTINCT ON (LOWER(runner), true_mode)
                     runner, run_time, vault_hunter, action_skill, true_mode, notes, url
                 FROM time_trials
-                WHERE activity = $4 AND uvh_level = $1 and true_mode=$2 AND ($3::text IS NULL OR vault_hunter = $3::text) and mark_as_deleted != true
+                WHERE activity = $4 AND uvh_level = $1 and true_mode=$2 AND ($3::text IS NULL OR vault_hunter = $3::text) and mark_as_deleted is not true
                 ORDER BY LOWER(runner), true_mode, run_time ASC )
             select * from records order by run_time
             limit 5
@@ -459,7 +459,7 @@ class TimeTrialsCommand(commands.Cog):
             rows = await conn.fetch("""
                 SELECT id, run_time, action_skill, submit_date 
                 FROM time_trials 
-                WHERE runner ILIKE $1 AND vault_hunter = $2 and mark_as_deleted != true
+                WHERE runner ILIKE $1 AND vault_hunter = $2 and mark_as_deleted is not true
                 ORDER BY submit_date DESC
                 LIMIT 25
             """, f"%{runner}%", vault_hunter)
