@@ -145,6 +145,7 @@ CREATE TABLE time_trials (
     runner VARCHAR(64) NOT NULL,
     notes TEXT,
     action_skill VARCHAR(32),
+    mark_as_deleted BOOLEAN DEFAULT FALSE,
     CONSTRAINT positive_time CHECK (run_time > INTERVAL '0 seconds')
 );
 CREATE INDEX idx_leaderboard ON time_trials (activity, run_time ASC);
