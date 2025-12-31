@@ -229,7 +229,7 @@ class LookupCommand(commands.Cog):
             app_commands.Choice(name="Augment", value="Augment"),
             app_commands.Choice(name="Capstone", value="Capstone"),
             app_commands.Choice(name="Class Mod", value="Class Mod"),
-            app_commands.Choice(name="Enhacnement", value="Enhacnement"),
+            app_commands.Choice(name="Enhancement", value="Enhancement"),
             app_commands.Choice(name="Firmware", value="Firmware"),
             app_commands.Choice(name="Skill", value="Skill"),
         ]
