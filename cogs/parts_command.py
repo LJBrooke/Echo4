@@ -386,7 +386,7 @@ class PartCommand(commands.Cog):
                             part_name = part_obj.get("part", "Unknown Part")
                             lines.append(f"> - `{part_name}`")
                     else:
-                        lines.append("> - (No specific parts listed)")
+                        lines.append("> - No restrictions")
                 
                 # No rule found -> "No restrictions"
                 else:

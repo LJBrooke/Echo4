@@ -468,7 +468,7 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
     if not entry_key:
         return []
     
-    query = f"""
+    query = """
         WITH target_item AS (
             -- 1. Get the specific "Child" Item
             SELECT DISTINCT ON (entry_key) *
@@ -490,15 +490,23 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
         )
         SELECT 
             t.entry_key,
-            COALESCE(i.aspects, bi.aspects) as aspects,
-            COALESCE(i.parttypes, bi.parttypes) as parttypes,
+            
+            -- Recursive Merge: Base Item is arg 1, Child Item is arg 2
+            public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
+            public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
+            
             i.serialindex ->> 'index' as serial_index,
-            COALESCE(i.maxnumprefixes, bi.maxnumprefixes) as maxnumprefixes,
-            COALESCE(i.maxnumsuffixes, bi.maxnumsuffixes) as maxnumsuffixes,
-            COALESCE(i.mingamestage, bi.mingamestage) as mingamestage,
-            COALESCE(t.basetags, b.basetags) AS basetags,
-            COALESCE(t.parttagselectionrules, b.parttagselectionrules) AS parttagselectionrules,
-            COALESCE(t.parttypeselectionrules, b.parttypeselectionrules) AS parttypeselectionrules
+            
+            -- Assuming these are simple objects or values, we treat them all with the recursive merger
+            -- to handle edge cases where they might be objects {"min": 1, "max": 10}
+            COALESCE(bi.maxnumprefixes, i.maxnumprefixes) as maxnumprefixes,
+            COALESCE(bi.maxnumsuffixes, i.maxnumsuffixes) as maxnumsuffixes,
+            public.jsonb_merge_recursive(bi.mingamestage, i.mingamestage) as mingamestage,
+            
+            public.jsonb_merge_recursive(b.basetags, t.basetags) AS basetags,
+            public.jsonb_merge_recursive(b.parttagselectionrules, t.parttagselectionrules) AS parttagselectionrules,
+            public.jsonb_merge_recursive(b.parttypeselectionrules, t.parttypeselectionrules) AS parttypeselectionrules
+
         FROM target_item t
         LEFT JOIN base_item b ON true
         LEFT JOIN inv i ON (t.inv = i.entry_key AND i.serialindex ->> 'index' is not null)
