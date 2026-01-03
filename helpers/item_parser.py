@@ -473,7 +473,7 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
             -- 1. Get the specific "Child" Item
             SELECT DISTINCT ON (entry_key) *
             FROM inv_comp
-            WHERE entry_key = $1 
+            WHERE entry_key = $1
             ORDER BY entry_key, internal_id DESC
         ),
         base_item AS (
@@ -482,25 +482,27 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
             SELECT DISTINCT ON (entry_key) *
             FROM inv_comp
             WHERE entry_key = (
-                SELECT 'base_' || substring(entry_key from '^(comp_[0-9]+_[^_]+)')
+                select substring(basecomposition from '(base_comp_[0-9]+_[^\''_]+)')
                 FROM target_item
             )
+            and rarity is not null
             ORDER BY entry_key, internal_id DESC
         )
         SELECT 
             t.entry_key,
-            i.aspects,
-            i.parttypes,
+            COALESCE(i.aspects, bi.aspects) as aspects,
+            COALESCE(i.parttypes, bi.parttypes) as parttypes,
             i.serialindex ->> 'index' as serial_index,
-            i.maxnumprefixes,
-            i.maxnumsuffixes,
-            i.mingamestage,
+            COALESCE(i.maxnumprefixes, bi.maxnumprefixes) as maxnumprefixes,
+            COALESCE(i.maxnumsuffixes, bi.maxnumsuffixes) as maxnumsuffixes,
+            COALESCE(i.mingamestage, bi.mingamestage) as mingamestage,
             COALESCE(t.basetags, b.basetags) AS basetags,
             COALESCE(t.parttagselectionrules, b.parttagselectionrules) AS parttagselectionrules,
             COALESCE(t.parttypeselectionrules, b.parttypeselectionrules) AS parttypeselectionrules
         FROM target_item t
         LEFT JOIN base_item b ON true
-        LEFT JOIN inv i ON (t.inv = i.entry_key AND i.basetype IS NOT NULL)
+        LEFT JOIN inv i ON (t.inv = i.entry_key AND i.serialindex ->> 'index' is not null)
+        LEFT JOIN inv bi ON (b.inv = bi.entry_key AND bi.serialindex ->> 'index' is not null)
         LIMIT 1;
     """
     async with db_pool.acquire() as conn:
