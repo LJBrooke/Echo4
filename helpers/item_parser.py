@@ -496,6 +496,7 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
             public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
             
             i.serialindex ->> 'index' as serial_index,
+            t.serialindex ->> 'index' as base_part,
             
             -- Assuming these are simple objects or values, we treat them all with the recursive merger
             -- to handle edge cases where they might be objects {"min": 1, "max": 10}

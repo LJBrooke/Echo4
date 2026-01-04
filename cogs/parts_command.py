@@ -208,6 +208,54 @@ class PartCommand(commands.Cog):
             for r in results if r['variant_name']
         ]
 
+    # --- Autocomplete Helpers for part_inspect ---
+
+    async def inspect_inv_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        async with self.db_pool.acquire() as conn:
+            query = """
+                SELECT DISTINCT inv 
+                FROM all_parts 
+                WHERE inv ILIKE $1 
+                ORDER BY inv ASC 
+                LIMIT 25
+            """
+            results = await conn.fetch(query, f"%{current}%")
+        return [app_commands.Choice(name=r['inv'], value=r['inv']) for r in results if r['inv']]
+
+    async def inspect_type_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        # Retrieve the currently selected 'inv' if it exists
+        selected_inv = interaction.namespace.inv
+        
+        async with self.db_pool.acquire() as conn:
+            query = """
+                SELECT DISTINCT part_type 
+                FROM all_parts 
+                WHERE part_type ILIKE $1 
+                AND ($2::text IS NULL OR inv = $2)
+                ORDER BY part_type ASC 
+                LIMIT 25
+            """
+            results = await conn.fetch(query, f"%{current}%", selected_inv)
+        return [app_commands.Choice(name=r['part_type'], value=r['part_type']) for r in results if r['part_type']]
+
+    async def inspect_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        # Retrieve the currently selected 'inv' and 'part_type'
+        selected_inv = interaction.namespace.inv
+        selected_type = interaction.namespace.part_type
+
+        async with self.db_pool.acquire() as conn:
+            query = """
+                SELECT DISTINCT partname 
+                FROM all_parts 
+                WHERE partname ILIKE $1 
+                AND ($2::text IS NULL OR inv = $2)
+                AND ($3::text IS NULL OR part_type = $3)
+                ORDER BY partname ASC 
+                LIMIT 25
+            """
+            results = await conn.fetch(query, f"%{current}%", selected_inv, selected_type)
+        return [app_commands.Choice(name=r['partname'][:100], value=r['partname'][:100]) for r in results if r['partname']]
+
     def _format_entity_embed(self, record) -> list[discord.Embed]:
         stats = record['stats']
         if isinstance(stats, str):
@@ -311,6 +359,9 @@ class PartCommand(commands.Cog):
             title=f"Balance Info: {entry_key}",
             color=embed_color
         )
+        
+        # --- Add base part num ---
+        embed.add_field(name="Base Part ID: ", value=row.get('base_part', 'N/A'), inline=True)
 
         # --- DESCRIPTION (Prefixes/Suffixes) ---
         description_lines = []
@@ -541,6 +592,76 @@ class PartCommand(commands.Cog):
                 
                 await interaction.followup.send(embeds=first_page_embeds, view=view)
 
+    @app_commands.command(name="part_inspect", description="Inspect part details related to part tags. Please use /parts if you just want which part adds damage.")
+    @app_commands.describe(
+        inv="The Manufacturer/Item Type",
+        part_type="The type of the part",
+        partname="The specific name of the part"
+    )
+    @app_commands.autocomplete(
+        inv=inspect_inv_autocomplete,
+        part_type=inspect_type_autocomplete,
+        partname=inspect_name_autocomplete
+    )
+    async def part_inspect(self, interaction: discord.Interaction, inv: str, part_type: str, partname: str):
+        await interaction.response.defer(ephemeral=False)
+
+        async with self.db_pool.acquire() as conn:
+            # Changed from fetchrow to fetch to get ALL matching rows
+            query = """
+                SELECT * FROM all_parts 
+                WHERE inv = $1 AND part_type = $2 AND partname = $3
+            """
+            results = await conn.fetch(query, inv, part_type, partname)
+
+        if not results:
+            await interaction.followup.send(f"No part found for **{inv}** - **{part_type}**: `{partname}`", ephemeral=True)
+            return
+
+        embeds = []
+
+        # Helper function to format list columns
+        def format_list_column(data):
+            if not data: return None
+            if isinstance(data, str):
+                try: data = json.loads(data)
+                except json.JSONDecodeError: return data 
+            if isinstance(data, list):
+                if not data: return None
+                return ", ".join(map(str, data))
+            return str(data)
+
+        # Loop through all results and create an embed for each
+        for row in results:
+            embed = discord.Embed(
+                title=row['partname'],
+                color=discord.Color.fuchsia() 
+            )
+            embed.set_author(name=f"{row['inv']} - {row['part_type']}")
+
+            if row['serial_index']:
+                embed.add_field(name="Part Number", value=str(row['serial_index']), inline=False)
+
+            add_tags_val = format_list_column(row['addtags'])
+            if add_tags_val:
+                embed.add_field(name="Add Tags", value=add_tags_val, inline=False)
+
+            dep_tags_val = format_list_column(row['dependencytags'])
+            if dep_tags_val:
+                embed.add_field(name="Requires Tags", value=dep_tags_val, inline=False)
+
+            exc_tags_val = format_list_column(row['exclusiontags'])
+            if exc_tags_val:
+                embed.add_field(name="Exclusion Tags", value=exc_tags_val, inline=False)
+            
+            embeds.append(embed)
+
+        # Discord allows up to 10 embeds per message.
+        if len(embeds) > 10:
+            await interaction.followup.send(f"Found {len(embeds)} matches. Showing first 10.", embeds=embeds[:10])
+        else:
+            await interaction.followup.send(embeds=embeds)
+        
 async def setup(bot: commands.Bot):
     if not hasattr(bot, 'db_pool'):
         print("Error: bot.db_pool not found.")
