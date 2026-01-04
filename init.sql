@@ -146,9 +146,19 @@ CREATE TABLE time_trials (
     notes TEXT,
     action_skill VARCHAR(32),
     mark_as_deleted BOOLEAN DEFAULT FALSE,
+    tags JSONB DEFAULT '[]'::jsonb,
     CONSTRAINT positive_time CHECK (run_time > INTERVAL '0 seconds')
 );
+
+CREATE TABLE IF NOT EXISTS time_trials_tag_definitions (
+    tag_name TEXT PRIMARY KEY,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX idx_leaderboard ON time_trials (activity, run_time ASC);
+
+CREATE INDEX idx_time_trials_tags ON time_trials USING GIN (tags);
 
 CREATE INDEX idx_runner_history ON time_trials (runner, activity);
 

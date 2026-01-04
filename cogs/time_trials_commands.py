@@ -1,6 +1,7 @@
 import discord
 import asyncpg
 import re
+import json
 import asyncio
 from helpers.sheet_manager import TimeTrialsSheets
 from datetime import timedelta
@@ -109,14 +110,20 @@ class RunEditModal(discord.ui.Modal, title="Edit Run Details"):
         await self.view_ref.update_display(interaction)
 
 class RunEditView(discord.ui.View):
-    def __init__(self, bot, record, db_pool, sheet_callback=None):
+    def __init__(self, bot, record, db_pool, available_tags=[], sheet_callback=None):
         super().__init__(timeout=300)
         self.bot = bot
         self.db_pool = db_pool
         self.record_id = record['id']
         self.activity_name = record['activity']
         self.sheet_callback = sheet_callback
+        self.available_tags = available_tags
         
+        tags_raw = record.get('tags', '[]')
+        if isinstance(tags_raw, str):
+            current_tags = json.loads(tags_raw)
+        else:
+            current_tags = tags_raw or []
         # 1. Load Data
         self.data = {
             'runner': record['runner'],
@@ -126,7 +133,8 @@ class RunEditView(discord.ui.View):
             'true_mode': record['true_mode'],
             'url': record['url'],
             'notes': record['notes'] or "",
-            'run_time_str': TimeTrialsUtils.format_timedelta(record['run_time'])
+            'run_time_str': TimeTrialsUtils.format_timedelta(record['run_time']),
+            'tags': current_tags
         }
 
         # 2. Build Components dynamically from Constants
@@ -142,12 +150,30 @@ class RunEditView(discord.ui.View):
         self.as_select = discord.ui.Select(placeholder="Select Action Skill", options=as_options, row=2)
         self.as_select.callback = self.as_callback
         self.add_item(self.as_select)
+        
+        # Tag Select (Only if tags exist in DB)
+        if self.available_tags:
+            # Discord limits selects to 25 options. Slice if necessary.
+            tag_options = [
+                discord.SelectOption(label=t, value=t) 
+                for t in self.available_tags[:25]
+            ]
+            
+            self.tag_select = discord.ui.Select(
+                placeholder="Select Tags (Multi-select)",
+                options=tag_options,
+                min_values=0,
+                max_values=len(tag_options),
+                row=3
+            )
+            self.tag_select.callback = self.tag_callback
+            self.add_item(self.tag_select)
 
         # UVH Select
-        uvh_options = [discord.SelectOption(label=str(i), value=str(i)) for i in UVH_LEVELS]
-        self.uvh_select = discord.ui.Select(placeholder="UVH Level", options=uvh_options, row=3)
-        self.uvh_select.callback = self.uvh_callback
-        self.add_item(self.uvh_select)
+        # uvh_options = [discord.SelectOption(label=str(i), value=str(i)) for i in UVH_LEVELS]
+        # self.uvh_select = discord.ui.Select(placeholder="UVH Level", options=uvh_options, row=3)
+        # self.uvh_select.callback = self.uvh_callback
+        # self.add_item(self.uvh_select)
 
         # True Mode Button
         self.tm_button_obj = discord.ui.Button(label="True Mode", row=0)
@@ -182,8 +208,13 @@ class RunEditView(discord.ui.View):
         for opt in self.as_select.options:
             opt.default = (opt.label == self.data['action_skill'])
             
-        for opt in self.uvh_select.options:
-            opt.default = (opt.value == str(self.data['uvh_level']))
+        # Update Tag Select Defaults
+        if hasattr(self, 'tag_select'):
+            for opt in self.tag_select.options:
+                opt.default = (opt.value in self.data['tags'])
+            
+        # for opt in self.uvh_select.options:
+        #     opt.default = (opt.value == str(self.data['uvh_level']))
 
         # Update True Mode Button Style
         state = self.data['true_mode']
@@ -191,10 +222,12 @@ class RunEditView(discord.ui.View):
         self.tm_button_obj.style = discord.ButtonStyle.green if state else discord.ButtonStyle.grey
 
     def get_embed(self):
+        tags_str = ", ".join(self.data['tags']) if self.data['tags'] else "None"
         desc = (
             f"**Runner:** {self.data['runner']}\n"
             f"**Time:** {self.data['run_time_str']}\n"
             f"**Class:** {self.data['vault_hunter']} / {self.data['action_skill']}\n"
+            f"**Tags:** {tags_str}\n"
             f"**Difficulty:** UVH {self.data['uvh_level']} | {'True Mode' if self.data['true_mode'] else 'Standard'}\n"
             f"**URL:** {self.data['url']}\n"
             f"**Build/Gear:** {self.data['notes']}"
@@ -213,10 +246,15 @@ class RunEditView(discord.ui.View):
     async def as_callback(self, interaction: discord.Interaction):
         self.data['action_skill'] = self.as_select.values[0]
         await self.update_display(interaction)
-
-    async def uvh_callback(self, interaction: discord.Interaction):
-        self.data['uvh_level'] = int(self.uvh_select.values[0])
+        
+    async def tag_callback(self, interaction: discord.Interaction):
+        # The select menu returns a list of all currently selected values
+        self.data['tags'] = self.tag_select.values
         await self.update_display(interaction)
+
+    # async def uvh_callback(self, interaction: discord.Interaction):
+    #     self.data['uvh_level'] = int(self.uvh_select.values[0])
+    #     await self.update_display(interaction)
 
     async def tm_callback(self, interaction: discord.Interaction):
         self.data['true_mode'] = not self.data['true_mode']
@@ -232,17 +270,20 @@ class RunEditView(discord.ui.View):
         except ValueError:
              await interaction.response.send_message("❌ Invalid Time Format.", ephemeral=True)
              return
-
+         
+        tags_json = json.dumps(self.data['tags'])
+        
         async with self.db_pool.acquire() as conn:
             await conn.execute("""
                 UPDATE time_trials SET
                     runner = $1, vault_hunter = $2, action_skill = $3,
-                    uvh_level = $4, true_mode = $5, url = $6, notes = $7, run_time = $8
-                WHERE id = $9
+                    uvh_level = $4, true_mode = $5, url = $6, notes = $7, 
+                    run_time = $8, tags = $9::jsonb
+                WHERE id = $10
             """, 
             self.data['runner'], self.data['vault_hunter'], self.data['action_skill'],
             self.data['uvh_level'], self.data['true_mode'], self.data['url'], 
-            self.data['notes'], val, self.record_id)
+            self.data['notes'], val, tags_json, self.record_id)
             
         # Trigger Sheet Update
         if self.sheet_callback and self.activity_name:
@@ -297,7 +338,42 @@ class TimeTrialsCommand(commands.Cog):
         
         return admin_check is not None
 
+    # --- Autocomplete Logic ---
+    async def run_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        runner = interaction.namespace.runner
+        vault_hunter = interaction.namespace.vault_hunter
 
+        if not runner or not vault_hunter:
+            return []
+
+        async with self.db_pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT id, activity, run_time, action_skill, submit_date 
+                FROM time_trials 
+                WHERE runner ILIKE $1 AND vault_hunter = $2 and mark_as_deleted is not true
+                ORDER BY submit_date DESC
+                LIMIT 25
+            """, f"%{runner}%", vault_hunter)
+
+        choices = []
+        for r in rows:
+            time_str = TimeTrialsUtils.format_timedelta(r['run_time'])
+            date_str = r['submit_date'].strftime('%d/%m/%Y')
+            display = f"{r['activity']}: {time_str} - {date_str}"
+            # display = f"{r['activity']}: {time_str} - {r['action_skill']} - {date_str}"
+            choices.append(app_commands.Choice(name=display, value=str(r['id'])))
+        
+        return choices
+
+    async def tag_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        """Autocomplete for existing tags."""
+        async with self.db_pool.acquire() as conn:
+            records = await conn.fetch("""
+                SELECT tag_name FROM time_trials_tag_definitions
+                WHERE tag_name ILIKE $1
+                LIMIT 25
+            """, f"%{current}%")
+        return [app_commands.Choice(name=r['tag_name'], value=r['tag_name']) for r in records]
 
     def trigger_sheet_update(self, activity_name: str):
         """Fire-and-forget background task to update the Google Sheet."""
@@ -310,24 +386,28 @@ class TimeTrialsCommand(commands.Cog):
     @app_commands.describe(
         activity="Choose the activity to view",
         vault_hunter="[Optional] Filter by a specific Vault Hunter",
-        uvh_level="[Optional] Filter by UVH Level (Default: 6)",
-        true_mode="[Optional] Filter by True Mode (Default: True)"
+        # uvh_level="[Optional] Filter by UVH Level (Default: 6)",
+        true_mode="[Optional] Filter by True Mode (Default: True)",
+        tag="[Optional] Filter by a specific Tag (e.g. No Homing)"
     )
     # Use constants for choices
     @app_commands.choices(activity=ACTIVITY_CHOICES)
     @app_commands.choices(vault_hunter=VH_CHOICES)
-    @app_commands.choices(uvh_level=UVH_CHOICES)
+    @app_commands.autocomplete(tag=tag_autocomplete)
+    # @app_commands.choices(uvh_level=UVH_CHOICES)
     async def time_trials(
         self,
         interaction: discord.Interaction,
         activity: app_commands.Choice[str],
         vault_hunter: app_commands.Choice[str] = None,
-        uvh_level: app_commands.Choice[int] = None,
-        true_mode: bool = True
+        # uvh_level: app_commands.Choice[int] = None,
+        true_mode: bool = True,
+        tag: str = None
     ):
         await interaction.response.defer()
-
-        target_uvh = uvh_level.value if uvh_level else 6
+        # Time trial only supports one UVH level currently.
+        # target_uvh = uvh_level.value if uvh_level else 6
+        target_uvh = 6
         target_vh = vault_hunter.value if vault_hunter else None
         
         query = """
@@ -335,14 +415,20 @@ class TimeTrialsCommand(commands.Cog):
                 SELECT DISTINCT ON (LOWER(runner), true_mode)
                     runner, run_time, vault_hunter, action_skill, true_mode, notes, url
                 FROM time_trials
-                WHERE activity = $4 AND uvh_level = $1 and true_mode=$2 AND ($3::text IS NULL OR vault_hunter = $3::text) and mark_as_deleted is not true
+                WHERE 
+                    activity = $4 AND 
+                    uvh_level = $1 AND 
+                    true_mode=$2 AND 
+                    ($3::text IS NULL OR vault_hunter = $3::text) AND 
+                    ($5::text IS NULL OR tags ? $5) AND
+                    mark_as_deleted is not true
                 ORDER BY LOWER(runner), true_mode, run_time ASC )
             select * from records order by run_time
             limit 5
         """
 
         async with self.db_pool.acquire() as conn:
-            results = await conn.fetch(query, target_uvh, true_mode, target_vh, activity.value)
+            results = await conn.fetch(query, target_uvh, true_mode, target_vh, activity.value, tag)
 
         if not results:
             await interaction.followup.send("No runs found for these settings.")
@@ -350,8 +436,10 @@ class TimeTrialsCommand(commands.Cog):
 
         # Formatting
         vh_text = f" ({target_vh})" if target_vh else ""
+        tag_str=''
+        if tag: tag_str= f"\n[{tag}]"
         tm_text = "True Mode" if true_mode else "Standard Mode"
-        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*UVH {target_uvh} | {tm_text}*"
+        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*UVH {target_uvh} | {tm_text}{tag_str}*"
 
         description = []
         for rank, row in enumerate(results, start=1):
@@ -446,33 +534,7 @@ class TimeTrialsCommand(commands.Cog):
                 self.trigger_sheet_update(activity.value)
             except Exception as e:
                 print(f"Failed to sync Sheet: {e}")
-
-    # --- Autocomplete Logic ---
-    async def run_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-        runner = interaction.namespace.runner
-        vault_hunter = interaction.namespace.vault_hunter
-
-        if not runner or not vault_hunter:
-            return []
-
-        async with self.db_pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT id, run_time, action_skill, submit_date 
-                FROM time_trials 
-                WHERE runner ILIKE $1 AND vault_hunter = $2 and mark_as_deleted is not true
-                ORDER BY submit_date DESC
-                LIMIT 25
-            """, f"%{runner}%", vault_hunter)
-
-        choices = []
-        for r in rows:
-            time_str = TimeTrialsUtils.format_timedelta(r['run_time'])
-            date_str = r['submit_date'].strftime('%d/%m/%Y')
-            display = f"{time_str} - {r['action_skill']} - {date_str}"
-            choices.append(app_commands.Choice(name=display, value=str(r['id'])))
-        
-        return choices
-
+    
     # --- Edit Command ---
     @app_commands.command(name="edit_time", description="[TT Admin Only] Edit or delete an existing run.")
     @app_commands.describe(
@@ -509,10 +571,68 @@ class TimeTrialsCommand(commands.Cog):
             if not record:
                 await interaction.followup.send("❌ Run not found.")
                 return
+            
+            # Fetch available tags for the view
+            tag_rows = await conn.fetch("SELECT tag_name FROM time_trials_tag_definitions ORDER BY tag_name")
+            available_tags = [row['tag_name'] for row in tag_rows]
 
         # 3. Launch View
-        view = RunEditView(self.bot, record, self.db_pool, sheet_callback=self.trigger_sheet_update)
+        view = RunEditView(self.bot, record, self.db_pool, available_tags, sheet_callback=self.trigger_sheet_update)
         await interaction.followup.send(embed=view.get_embed(), view=view)
+
+    @app_commands.command(name="add_tag", description="[TT Admin] Define a new tag available for runs.")
+    @app_commands.describe(name="The name of the tag (e.g. 'No Homing', 'No AOE', 'Melee')", description="Optional description")
+    async def create_tag(self, interaction: discord.Interaction, name: str, description: str = None):
+        if not await self.check_admin(interaction):
+            await interaction.response.send_message("⛔ Permission Denied.", ephemeral=True)
+            return
+
+        async with self.db_pool.acquire() as conn:
+            try:
+                await conn.execute(
+                    "INSERT INTO time_trials_tag_definitions (tag_name, description) VALUES ($1, $2)",
+                    name, description
+                )
+                await interaction.response.send_message(f"✅ Tag **{name}** created successfully.", ephemeral=True)
+            except asyncpg.UniqueViolationError:
+                await interaction.response.send_message(f"⚠️ The tag **{name}** already exists.", ephemeral=True)
+                
+    @app_commands.command(name="delete_tag", description="[TT Admin] Permanently delete a tag definition.")
+    @app_commands.autocomplete(name=tag_autocomplete)
+    async def delete_tag(self, interaction: discord.Interaction, name: str):
+        if not await self.check_admin(interaction):
+            await interaction.response.send_message("⛔ Permission Denied.", ephemeral=True)
+            return
+
+        async with self.db_pool.acquire() as conn:
+            result = await conn.execute("DELETE FROM time_trials_tag_definitions WHERE tag_name = $1", name)
+        
+        if result == "DELETE 0":
+            await interaction.response.send_message(f"⚠️ Tag **{name}** not found.", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"🗑️ Tag **{name}** deleted.", ephemeral=True)
+            
+    @app_commands.command(name="list_tags", description="View all available Time Trial tags and their descriptions.")
+    async def list_tags(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        
+        async with self.db_pool.acquire() as conn:
+            records = await conn.fetch("SELECT tag_name, description FROM time_trials_tag_definitions ORDER BY tag_name ASC")
+            
+        if not records:
+            await interaction.followup.send("No tags have been defined yet.")
+            return
+
+        embed = discord.Embed(title="🏷️ Time Trial Run Tags", color=discord.Color.blue())
+        
+        # Group them into the description
+        desc_lines = []
+        for r in records:
+            desc = f" - *{r['description']}*" if r['description'] else ""
+            desc_lines.append(f"**{r['tag_name']}**{desc}")
+            
+        embed.description = "\n".join(desc_lines)
+        await interaction.followup.send(embed=embed)
 
 async def setup(bot: commands.Bot):
     if not hasattr(bot, 'db_pool'):
