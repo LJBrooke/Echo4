@@ -592,7 +592,7 @@ class PartCommand(commands.Cog):
                 
                 await interaction.followup.send(embeds=first_page_embeds, view=view)
 
-    @app_commands.command(name="part_inspect", description="Inspect part details related to part tags. Please use /parts if you just want which part adds damage.")
+    @app_commands.command(name="part_inspect", description="Inspect part details related to part tags.")
     @app_commands.describe(
         inv="The Manufacturer/Item Type",
         part_type="The type of the part",
