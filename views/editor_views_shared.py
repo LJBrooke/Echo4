@@ -1,4 +1,4 @@
-# cogs/editor_views_shared.py
+# views/editor_views_shared.py
 import logging
 import discord
 from discord.ext import commands
@@ -244,8 +244,6 @@ class RaritySelectionView(BaseEditorView):
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.grey, row=4)
     async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.cancel_and_delete(interaction)
-
-    # cogs/editor_views_shared.py (inside RaritySelectionView)
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, row=4)
     async def confirm_button(self, interaction: discord.Interaction, button: discord.ui.Button):

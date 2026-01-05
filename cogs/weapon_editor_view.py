@@ -4,7 +4,7 @@ import discord
 import logging
 from discord.ext import commands
 from helpers import item_parser, weapon_class
-from .editor_views_shared import (
+from views.editor_views_shared import (
     BaseEditorView, 
     LevelModal, 
     RaritySelectionView
