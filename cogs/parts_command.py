@@ -214,14 +214,17 @@ class PartCommand(commands.Cog):
     async def inspect_inv_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
         async with self.db_pool.acquire() as conn:
             query = """
-                SELECT DISTINCT inv 
-                FROM all_parts 
+                SELECT DISTINCT on (inv)
+                    tam.manufacturer || ' ' || tam.item_type as name,
+                    ap.inv
+                FROM all_parts ap
+                RIGHT JOIN type_and_manufacturer tam on tam.gestalt_type = ap.inv
                 WHERE inv ILIKE $1 
                 ORDER BY inv ASC 
                 LIMIT 25
             """
             results = await conn.fetch(query, f"%{current}%")
-        return [app_commands.Choice(name=r['inv'], value=r['inv']) for r in results if r['inv']]
+        return [app_commands.Choice(name=str(r['name']).replace('_',' ').title(), value=r['inv']) for r in results if r['inv']]
 
     async def inspect_type_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
         # Retrieve the currently selected 'inv' if it exists
