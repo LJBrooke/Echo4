@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 
 class CreatorCommand(commands.Cog):
     def __init__(self, bot: commands.Bot):
+        self.active_editor_sessions = {}
         self.bot = bot
         self.db_pool = bot.db_pool  # Assume bot has a db_pool attribute
 
@@ -28,6 +29,8 @@ class CreatorCommand(commands.Cog):
             # 2. Fetch Balance Data
             balance_file = balance_file.split('|')  # Expecting format "BalanceName|InvType"
             balance_data = await item_parser.query_item_balance_explicit(self.db_pool, balance_file[0], balance_file[1])
+            
+            self.active_editor_sessions[interaction.user.id] = "initializing"
             
             if not balance_data:
                 await interaction.followup.send(f"❌ Error: Could not load balance file: `{balance_file}`.", ephemeral=True)
@@ -52,6 +55,7 @@ class CreatorCommand(commands.Cog):
                     f"⚠️ **Warning:** No compatible parts found for `{session.item_type}` or `{session.parent_type}`.\n"
                     f"Please check if the `inv` column in your `all_parts` matches these types."
                 )
+                self.active_editor_sessions.pop(interaction.user.id, None) # Cleanup
                 return
 
             # 5. Send Loading Message (placeholder)
@@ -72,6 +76,7 @@ class CreatorCommand(commands.Cog):
         except Exception as e:
             log.error(f"Crash in create_item: {e}", exc_info=True)
             await interaction.followup.send(f"💥 **Critical Error:** {str(e)}", ephemeral=True)
+            self.active_editor_sessions.pop(interaction.user.id, None)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CreatorCommand(bot))
