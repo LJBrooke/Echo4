@@ -495,6 +495,8 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
             public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
             public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
             
+            t.inv as item_type,
+            b.inv as parent_type,
             i.serialindex ->> 'index' as serial_index,
             t.serialindex ->> 'index' as base_part,
             

@@ -507,7 +507,7 @@ class TimeTrialsCommand(commands.Cog):
                 record_id = await conn.fetchval(
                     """
                     INSERT INTO time_trials 
-                    (activity, vault_hunter, action_skill, run_time, uvh_level, true_mode, url, runner, notes, tag)
+                    (activity, vault_hunter, action_skill, run_time, uvh_level, true_mode, url, runner, notes, tags)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
                     RETURNING id
                     """,
