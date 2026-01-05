@@ -465,6 +465,7 @@ class TimeTrialsCommand(commands.Cog):
         # uvh_level="The UVH Level (0-6)",
         true_mode="Was True Mode enabled?",
         url="Link to the video proof",
+        tag="[Optional] A tag to associate with this run (e.g. No Homing)",
         gear="[Optional] A brief description of the Build/Gear used"
     )
     # Use constants for choices
@@ -483,6 +484,7 @@ class TimeTrialsCommand(commands.Cog):
         # uvh_level: app_commands.Choice[int], 
         true_mode: bool, 
         url: str, 
+        tag: str = None,
         gear: str = None
     ):
         await interaction.response.defer(ephemeral=True)
@@ -505,8 +507,8 @@ class TimeTrialsCommand(commands.Cog):
                 record_id = await conn.fetchval(
                     """
                     INSERT INTO time_trials 
-                    (activity, vault_hunter, action_skill, run_time, uvh_level, true_mode, url, runner, notes)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                    (activity, vault_hunter, action_skill, run_time, uvh_level, true_mode, url, runner, notes, tag)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
                     RETURNING id
                     """,
                     activity.value, 
@@ -518,7 +520,8 @@ class TimeTrialsCommand(commands.Cog):
                     true_mode, 
                     url, 
                     runner, 
-                    gear
+                    gear,
+                    json.dumps([tag]) if tag else json.dumps([])
                 )
 
                 await interaction.followup.send(
