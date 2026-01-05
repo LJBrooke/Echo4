@@ -2,6 +2,8 @@
 import re
 import json
 import logging
+import discord
+from discord import app_commands
 log = logging.getLogger(__name__)
 
 # Serialization URL, Nicnl and InflamedSebi are amazing.
@@ -461,6 +463,29 @@ async def query_unique_balance_files(db_pool) -> list:
         results = await conn.fetch(query)
     return results
 
+async def balance_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    async with self.db_pool.acquire() as conn:
+        query = """
+            SELECT DISTINCT
+                regexp_replace(entry_key, '^comp_[0-9]+_', '') || ' [' || inv || ']' AS variant_name,
+                entry_key||'|'||inv AS entry_key
+            FROM inv_comp
+            WHERE 
+                entry_key ~ '^comp_[0-9]+_' 
+                AND entry_key || ' [' || inv || ']' ILIKE $1 
+                AND substring(entry_key FROM '^comp_[0-9]+_(.*)$') ~ '[a-zA-Z]'
+                AND basecomposition is not null 
+            ORDER BY variant_name ASC
+            LIMIT 25;
+        """
+        # Add wildcards ONLY here in Python
+        results = await conn.fetch(query, f"%{current}%")
+
+    return [
+        app_commands.Choice(name=r['variant_name'][:100], value=r['entry_key'][:100]) 
+        for r in results if r['variant_name']
+    ]
+    
 async def query_item_balance(db_pool, entry_key: str) -> list:
     """
     Fetches the unique rules from the inventory and inventory comp tables.
