@@ -463,7 +463,7 @@ async def query_unique_balance_files(db_pool) -> list:
 
 async def query_item_balance(db_pool, entry_key: str) -> list:
     """
-    Fetches the unique repkit name and effect from the unique_repkits table.
+    Fetches the unique rules from the inventory and inventory comp tables.
     """
     if not entry_key:
         return []
@@ -518,6 +518,65 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
     """
     async with db_pool.acquire() as conn:
         results = await conn.fetch(query, entry_key)
+    return results
+
+async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) -> list:
+    """
+    Fetches the unique rules from the inventory and inventory comp tables.
+    """
+    if not entry_key:
+        return []
+    
+    query = """
+        WITH target_item AS (
+            -- 1. Get the specific "Child" Item
+            SELECT DISTINCT ON (entry_key) *
+            FROM inv_comp
+            WHERE entry_key = $1 AND inv = $2
+            ORDER BY entry_key, internal_id DESC
+        ),
+        base_item AS (
+            -- 2. Get the "Parent" Base Item
+            -- We derive the parent key dynamically from the child key found above
+            SELECT DISTINCT ON (entry_key) *
+            FROM inv_comp
+            WHERE entry_key = (
+                select substring(basecomposition from '(base_comp_[0-9]+_[^\''_]+)')
+                FROM target_item
+            )
+            and rarity is not null
+            ORDER BY entry_key, internal_id DESC
+        )
+        SELECT 
+            t.entry_key,
+            
+            -- Recursive Merge: Base Item is arg 1, Child Item is arg 2
+            public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
+            public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
+            
+            t.inv as item_type,
+	        b.inv as parent_type,
+            i.serialindex ->> 'index' as serial_index,
+            t.serialindex ->> 'index' as base_part,
+            
+            -- Assuming these are simple objects or values, we treat them all with the recursive merger
+            -- to handle edge cases where they might be objects {"min": 1, "max": 10}
+            COALESCE(bi.maxnumprefixes, i.maxnumprefixes) as maxnumprefixes,
+            COALESCE(bi.maxnumsuffixes, i.maxnumsuffixes) as maxnumsuffixes,
+            public.jsonb_merge_recursive(bi.mingamestage, i.mingamestage) as mingamestage,
+            
+            public.jsonb_merge_recursive(b.basetags, t.basetags) AS basetags,
+            public.jsonb_merge_recursive(b.parttagselectionrules, t.parttagselectionrules) AS parttagselectionrules,
+            public.jsonb_merge_recursive(b.parttypeselectionrules, t.parttypeselectionrules) AS parttypeselectionrules
+
+        FROM target_item t
+        LEFT JOIN base_item b ON true
+        LEFT JOIN inv i ON (t.inv = i.entry_key AND i.serialindex ->> 'index' is not null)
+        LEFT JOIN inv bi ON (b.inv = bi.entry_key AND bi.serialindex ->> 'index' is not null)
+        LIMIT 1;
+    """
+    async with db_pool.acquire() as conn:
+        results = await conn.fetch(query, entry_key, inv_type)
     return results
 
 async def search_lootlemon(db_pool, name: str, game: str, item_type: str = None) -> str | None:
