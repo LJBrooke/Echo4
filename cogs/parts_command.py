@@ -190,13 +190,14 @@ class PartCommand(commands.Cog):
         async with self.db_pool.acquire() as conn:
             query = """
                 SELECT DISTINCT
-                    regexp_replace(entry_key, '^comp_[0-9]+_[^_]+_', '') AS variant_name,
+                    regexp_replace(entry_key, '^comp_[0-9]+_', '') || ' [' || inv || ']' AS variant_name,
                     entry_key
                 FROM inv_comp
                 WHERE 
-                    entry_key ~ '^comp_[0-9]+_[^_]+_' 
-                    AND entry_key ILIKE $1 
-                    AND substring(entry_key FROM '^comp_[0-9]+_[^_]+_(.*)$') ~ '[a-zA-Z]'
+                    entry_key ~ '^comp_[0-9]+_' 
+                    AND entry_key || ' [' || inv || ']' ILIKE $1 
+                    AND substring(entry_key FROM '^comp_[0-9]+_(.*)$') ~ '[a-zA-Z]'
+                    AND basecomposition is not null 
                 ORDER BY variant_name ASC
                 LIMIT 25;
             """
@@ -458,7 +459,16 @@ class PartCommand(commands.Cog):
             if isinstance(tag_rules, list):
                 for item in tag_rules:
                     if isinstance(item, dict):
-                        for k, v in item.items(): lines.append(f"- **{k}:** {v}")
+                        for k, v in item.items(): 
+                            value = v
+                            if isinstance(v, list):
+                                val=[]
+                                for i in v:
+                                    if isinstance(i, dict):
+                                        for v in i.values(): val.append(str(v))
+                                    else: val.append(str(i))
+                                value = ", ".join(val)
+                            lines.append(f"- **{k}:** {value}")
                     else:
                         lines.append(f"- {item}")
             # Add fallback dict logic if needed here
@@ -592,7 +602,7 @@ class PartCommand(commands.Cog):
                 
                 await interaction.followup.send(embeds=first_page_embeds, view=view)
 
-    @app_commands.command(name="part_inspect", description="Inspect part details related to part tags.")
+    @app_commands.command(name="part_inspect", description="Inspect specific details of a single part from the combined repository.")
     @app_commands.describe(
         inv="The Manufacturer/Item Type",
         part_type="The type of the part",
