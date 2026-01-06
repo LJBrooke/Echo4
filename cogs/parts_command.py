@@ -3,7 +3,7 @@ import asyncpg
 import json
 from discord import app_commands
 from discord.ext import commands
-from helpers.item_parser import query_unique_balance_files, query_item_balance
+from helpers.item_parser import query_unique_balance_files, query_item_balance, query_item_balance_explicit
 
 class PaginationView(discord.ui.View):
     def __init__(self, pages: list[list[discord.Embed]], interaction: discord.Interaction):
@@ -191,7 +191,7 @@ class PartCommand(commands.Cog):
             query = """
                 SELECT DISTINCT
                     regexp_replace(entry_key, '^comp_[0-9]+_', '') || ' [' || inv || ']' AS variant_name,
-                    entry_key
+                    entry_key||'|'||inv AS entry_key
                 FROM inv_comp
                 WHERE 
                     entry_key ~ '^comp_[0-9]+_' 
@@ -336,7 +336,8 @@ class PartCommand(commands.Cog):
         await interaction.response.defer(ephemeral=False)
         
         # 1. Fetch Data
-        item_results = await query_item_balance(self.db_pool, item_name)
+        balance_file = balance_file.split('|')  # Expecting format "BalanceName|InvType"
+        item_results = await item_parser.query_item_balance_explicit(self.db_pool, balance_file[0], balance_file[1])
         
         if not item_results:
             await interaction.followup.send(f"No balance data found for `{item_name}`.")
