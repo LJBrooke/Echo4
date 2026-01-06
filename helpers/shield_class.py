@@ -155,7 +155,7 @@ class Shield:
         Reconstructs the full component string in the exact required order
         for serialization.
         """       
-        return (await item_parser.reserialize(self.session, self.get_component_list())).get('serial_b85')
+        return str((await item_parser.reserialize(self.session, self.get_component_list())).get('serial_b85')+' ')
 
     async def get_perks(self) -> dict[str, list[dict]]:
         """

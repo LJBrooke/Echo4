@@ -161,7 +161,7 @@ class Repkit:
         for serialization. Returns the item serial.
         """
     
-        return (await item_parser.reserialize(self.session, self.get_component_list())).get('serial_b85')
+        return str((await item_parser.reserialize(self.session, self.get_component_list())).get('serial_b85')+' ')
 
     def _get_current_perk_ids(self) -> List[int]:
         """

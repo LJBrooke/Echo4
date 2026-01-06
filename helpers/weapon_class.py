@@ -152,7 +152,7 @@ class Weapon:
     async def get_serial(self) -> str:
         log.debug("Reserializing weapon to get new serial...")
         serial_dict = await item_parser.reserialize(self.session, self.get_component_list())
-        return serial_dict.get('serial_b85')
+        return str(serial_dict.get('serial_b85')+' ')
 
     async def get_current_element_names(self) -> tuple[str, str | None]:
         """
