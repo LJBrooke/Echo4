@@ -518,11 +518,8 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
             JOIN target_item ti 
             ON lower(ic.inv) = ti.target_parent_inv 
             AND ic.entry_key = ti.target_parent_key
-            -- WHERE ic.rarity IS NOT NULL
             ORDER BY ic.entry_key, ic.internal_id DESC
         )
-        -- select * from base_item
-        -- select * from target_item
         SELECT 
             t.entry_key,
             
@@ -578,7 +575,7 @@ async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) ->
                         split_part(REPLACE(basecomposition, 'inv''', ''), '.', 2), 
                     '''')) AS target_parent_key
             FROM inv_comp
-            WHERE entry_key = $1
+            WHERE entry_key = $1 AND inv = $2
             ORDER BY entry_key, internal_id DESC
         ),
         base_item AS (
@@ -587,11 +584,8 @@ async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) ->
             JOIN target_item ti 
             ON lower(ic.inv) = ti.target_parent_inv 
             AND ic.entry_key = ti.target_parent_key
-            -- WHERE ic.rarity IS NOT NULL
             ORDER BY ic.entry_key, ic.internal_id DESC
         )
-        -- select * from base_item
-        -- select * from target_item
         SELECT 
             t.entry_key,
             
