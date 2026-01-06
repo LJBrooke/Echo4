@@ -495,31 +495,41 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
     
     query = """
         WITH target_item AS (
-            -- 1. Get the specific "Child" Item
-            SELECT DISTINCT ON (entry_key) *
+            SELECT DISTINCT ON (entry_key) 
+                entry_key,
+                inv, 
+                serialindex, 
+                basetags, 
+                parttagselectionrules, 
+                parttypeselectionrules,
+                -- 1. Part 1 is clean (inv' was removed by REPLACE)
+                lower(split_part(REPLACE(basecomposition, 'inv''', ''), '.', 1)) AS target_parent_inv,
+                -- 2. Part 2 needs the trailing quote removed using RTRIM
+                lower(RTRIM(
+                        split_part(REPLACE(basecomposition, 'inv''', ''), '.', 2), 
+                    '''')) AS target_parent_key
             FROM inv_comp
             WHERE entry_key = $1
             ORDER BY entry_key, internal_id DESC
         ),
         base_item AS (
-            -- 2. Get the "Parent" Base Item
-            -- We derive the parent key dynamically from the child key found above
-            SELECT DISTINCT ON (entry_key) *
-            FROM inv_comp
-            WHERE entry_key = (
-                select substring(basecomposition from '(base_comp_[0-9]+_[^\''_]+)')
-                FROM target_item
-            )
-            and rarity is not null
-            ORDER BY entry_key, internal_id DESC
+            SELECT DISTINCT ON (ic.entry_key) ic.*
+            FROM inv_comp ic
+            JOIN target_item ti 
+            ON lower(ic.inv) = ti.target_parent_inv 
+            AND ic.entry_key = ti.target_parent_key
+            -- WHERE ic.rarity IS NOT NULL
+            ORDER BY ic.entry_key, ic.internal_id DESC
         )
+        -- select * from base_item
+        -- select * from target_item
         SELECT 
             t.entry_key,
             
             -- Recursive Merge: Base Item is arg 1, Child Item is arg 2
             public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
             public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
-            
+
             t.inv as item_type,
             b.inv as parent_type,
             i.serialindex ->> 'index' as serial_index,
@@ -554,33 +564,43 @@ async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) ->
     
     query = """
         WITH target_item AS (
-            -- 1. Get the specific "Child" Item
-            SELECT DISTINCT ON (entry_key) *
+            SELECT DISTINCT ON (entry_key) 
+                entry_key,
+                inv, 
+                serialindex, 
+                basetags, 
+                parttagselectionrules, 
+                parttypeselectionrules,
+                -- 1. Part 1 is clean (inv' was removed by REPLACE)
+                lower(split_part(REPLACE(basecomposition, 'inv''', ''), '.', 1)) AS target_parent_inv,
+                -- 2. Part 2 needs the trailing quote removed using RTRIM
+                lower(RTRIM(
+                        split_part(REPLACE(basecomposition, 'inv''', ''), '.', 2), 
+                    '''')) AS target_parent_key
             FROM inv_comp
-            WHERE entry_key = $1 AND inv = $2
+            WHERE entry_key = $1
             ORDER BY entry_key, internal_id DESC
         ),
         base_item AS (
-            -- 2. Get the "Parent" Base Item
-            -- We derive the parent key dynamically from the child key found above
-            SELECT DISTINCT ON (entry_key) *
-            FROM inv_comp
-            WHERE entry_key = (
-                select substring(basecomposition from '(base_comp_[0-9]+_[^\''_]+)')
-                FROM target_item
-            )
-            and rarity is not null
-            ORDER BY entry_key, internal_id DESC
+            SELECT DISTINCT ON (ic.entry_key) ic.*
+            FROM inv_comp ic
+            JOIN target_item ti 
+            ON lower(ic.inv) = ti.target_parent_inv 
+            AND ic.entry_key = ti.target_parent_key
+            -- WHERE ic.rarity IS NOT NULL
+            ORDER BY ic.entry_key, ic.internal_id DESC
         )
+        -- select * from base_item
+        -- select * from target_item
         SELECT 
             t.entry_key,
             
             -- Recursive Merge: Base Item is arg 1, Child Item is arg 2
             public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
             public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
-            
+
             t.inv as item_type,
-	        b.inv as parent_type,
+            b.inv as parent_type,
             i.serialindex ->> 'index' as serial_index,
             t.serialindex ->> 'index' as base_part,
             
