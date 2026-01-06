@@ -337,7 +337,7 @@ class PartCommand(commands.Cog):
         await interaction.response.defer(ephemeral=False)
         
         # 1. Fetch Data
-        balance_file = balance_file.split('|')  # Expecting format "BalanceName|InvType"
+        balance_file = item_name.split('|')  # Expecting format "BalanceName|InvType"
         item_results = await item_parser.query_item_balance_explicit(self.db_pool, balance_file[0], balance_file[1])
         
         if not item_results:
