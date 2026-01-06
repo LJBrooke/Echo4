@@ -61,27 +61,31 @@ class detailView(discord.ui.View):
         self.vault_hunter = vault_hunter
         self.type_information = FORMULA_DATA.get("Type Information")
         
-        # Set a timeout (was 3 minutes, upped to 5.)
         super().__init__(timeout=300.0)
+        # Create a UNIQUE list of affected_by to avoid duplicate buttons
+        unique_affected_by = list(dict.fromkeys(affected_by))
+        
         index=0
-        # 2. Loop through the list and create a button for each skill name
-        for modifier in affected_by:
+        # Iterate over the UNIQUE list
+        for modifier in unique_affected_by:
+            # Safety check: ensure modifier exists in Type Information to prevent NoneType crashes
+            modifier_data = self.type_information.get(modifier)
+            if not modifier_data:
+                print(f"Warning: '{modifier}' found in Formula but missing from Type Information.")
+                continue
+
             button_style=discord.ButtonStyle.secondary
-            if self.type_information.get(modifier).get("Check")=='On Shot':
+            if modifier_data.get("Check")=='On Shot':
                 button_style=discord.ButtonStyle.primary
-            if self.type_information.get(modifier).get("Check")=='On Hit':
+            if modifier_data.get("Check")=='On Hit':
                 button_style=discord.ButtonStyle.success
+            
             button = discord.ui.Button(
                 label=modifier,
-                # Use a specific style, e.g., Blue
                 style=button_style, 
-                # Use the name as the custom_id for easy lookup in the callback
                 custom_id=str(modifier), 
             )
-            # 3. Assign the unified callback to the buttonYes.
             button.callback = self.affected_by_button_callback
-            
-            # 4. Add the button to the View
             self.add_item(button)
             index+=1
             
