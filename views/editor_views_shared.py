@@ -2,7 +2,7 @@
 import logging
 import discord
 from discord.ext import commands
-from helpers import weapon_class, shield_class, repkit_class
+from helpers import weapon_class, shield_class, repkit_class, creator_engine
 from typing import Union
 
 log = logging.getLogger(__name__)
@@ -37,6 +37,52 @@ class BaseEditorView(discord.ui.View):
             return self.cog.bot
         # self.cog is likely the Bot instance itself
         return self.cog
+    
+    async def get_legitimacy_embed(self, serial: str) -> discord.Embed:
+        """
+        Helper: Validates a serial and returns a formatted Embed.
+        Can be used by any child view (Shields, Guns, etc.)
+        """
+        try:
+            # Resolve Bot Reference
+            if hasattr(self.cog, 'bot'):
+                bot = self.cog.bot
+            else:
+                bot = self.cog
+
+            # 1. Run Validation
+            is_legit, violations, metadata = await creator_engine.validate_serial(
+                serial, 
+                bot.db_pool, 
+                bot.session
+            )
+
+            # 2. Build Embed
+            status_color = discord.Color.green() if is_legit else discord.Color.red()
+            status_text = "✅ LEGITIMATE" if is_legit else "⛔ ILLEGITIMATE"
+            
+            embed = discord.Embed(title="Legitimacy Report", color=status_color)
+            embed.add_field(name="Verdict", value=f"{status_text}", inline=False)
+            
+            if violations:
+                # Truncate to prevent hitting Discord limits
+                error_desc = "\n".join([f"• {v}" for v in violations[:8]])
+                if len(violations) > 8:
+                    error_desc += f"\n...and {len(violations)-8} more."
+                embed.add_field(name="Violations Found", value=error_desc, inline=False)
+            else:
+                embed.set_footer(text="Auto-verified: This item passes all generation rules.")
+                
+            return embed
+
+        except Exception as e:
+            log.error(f"Error generating legitimacy embed: {e}", exc_info=True)
+            # Return a generic error embed so the UI doesn't break
+            return discord.Embed(
+                title="Legitimacy Check Failed", 
+                description=f"System Error: {str(e)}", 
+                color=discord.Color.orange()
+            )
             
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         """

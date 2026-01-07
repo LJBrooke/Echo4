@@ -435,15 +435,20 @@ class MainWeaponEditorView(BaseEditorView):
             )
             log.info(f"Successfully logged 'Final Item' for session {self.session_id}, user {self.user_id}")
             
+            legit_embed = await self.get_legitimacy_embed(final_serial)
+            
+            if self.message:
+                try:
+                    current_embeds = self.message.embeds
+                    # Append the report to existing embeds
+                    await self.message.edit(embeds=current_embeds + [legit_embed], view=None)
+                except (discord.NotFound, discord.Forbidden):
+                    pass
+            
         except Exception as e:
             log.error(f"Failed to log 'Final Item' event for session {self.session_id}: {e}", exc_info=True)
-            # Don't prevent the rest of the timeout logic from running
-            
-        if self.message: 
-            try:
-                await self.message.edit(view=None)
-            except (discord.NotFound, discord.Forbidden):
-                pass
+            if self.message:
+                try: await self.message.edit(view=None)
+                except (discord.NotFound, discord.Forbidden): pass
         
-        # Call the BaseEditorView.on_timeout()
         await super().on_timeout()

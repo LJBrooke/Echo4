@@ -2,11 +2,220 @@ import asyncpg
 import json
 import logging
 import random
-from typing import Optional, List, Dict, Any
+import re
+from collections import Counter
+from typing import Optional, List, Dict, Any, Tuple
 from helpers import db_utils, item_parser
 
 log = logging.getLogger(__name__)
 
+def parse_component_string(component_str: str) -> Tuple[str, str, List[int], List[int]]:
+    """
+    Parses the deserialized string.
+    Returns: (inv_type_id, item_id, item_specific_ids, parent_specific_ids)
+    """
+    first_section = component_str.split('|')[0]
+    inv_type_id = first_section.split(',')[0].strip()
+
+    if '||' not in component_str:
+        raise ValueError("Invalid format: Missing '||' separator.")
+        
+    parts_block = component_str.split('||')[1]
+    if '|' in parts_block:
+        parts_block = parts_block.split('|')[0]
+
+    item_specific_ids = []
+    parent_specific_ids = []
+    raw_tokens = re.findall(r'\{([^}]+)\}', parts_block)
+    all_ordered_ids = [] 
+
+    for token in raw_tokens:
+        is_parent_type = ':' in token
+        if is_parent_type:
+            val_part = token.split(':', 1)[1].strip()
+        else:
+            val_part = token.strip()
+        
+        val_part = val_part.replace('[', '').replace(']', '')
+        sub_ids = []
+        for sid in val_part.split():
+            if sid.isdigit():
+                sub_ids.append(int(sid))
+        
+        if is_parent_type:
+            parent_specific_ids.extend(sub_ids)
+        else:
+            item_specific_ids.extend(sub_ids)
+        all_ordered_ids.extend(sub_ids)
+
+    if not all_ordered_ids:
+        raise ValueError("No Item ID or Parts found.")
+
+    item_id = str(all_ordered_ids[0])
+    
+    # Remove Item ID from the parts list so we don't try to equip the gun to itself
+    # Check item specific bucket first
+    if item_specific_ids and str(item_specific_ids[0]) == item_id:
+        item_specific_ids.pop(0)
+
+    return inv_type_id, item_id, item_specific_ids, parent_specific_ids
+
+async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> Tuple[bool, List[str], Dict[str, Any]]:
+    """
+    Validates a serial string against database rules.
+    
+    Args:
+        serial: The encoded string (BL3(...))
+        db_pool: Database connection pool
+        session: aiohttp session for deserialization
+        
+    Returns:
+        Tuple: (is_legit: bool, violations: list[str], metadata: dict)
+        
+    Metadata contains: {'inv_id', 'item_id', 'part_count', 'tags': list}
+    """
+    violations = []
+    metadata = {'inv_id': '?', 'item_id': '?', 'part_count': 0, 'tags': []}
+    
+    try:
+        # 1. Deserialize
+        resp = await item_parser.deserialize(session, serial)
+        if not resp or 'deserialized' not in resp:
+            return False, ["Could not deserialize code."], metadata
+            
+        component_str = str(resp.get('deserialized'))
+        
+        # 2. Parse
+        try:
+            inv_id, item_id, item_p_ids, parent_p_ids = parse_component_string(component_str)
+            metadata['inv_id'] = inv_id
+            metadata['item_id'] = item_id
+            metadata['part_count'] = len(item_p_ids) + len(parent_p_ids)
+        except Exception as e:
+            return False, [f"Parsing Error: {e}"], metadata
+
+        # 3. Fetch Balance
+        balance_data = await item_parser.get_balance(db_pool, inv_id, item_id)
+        if not balance_data:
+            return False, [f"Unknown Item: Inv `{inv_id}` / Item `{item_id}`"], metadata
+
+        # 4. Init Session
+        creator = CreatorSession(
+            user_id=0, # Dummy ID for validation
+            balance_name=balance_data[0].get('entry_key'),
+            balance_data=balance_data,
+            db_pool=db_pool,
+            session=session
+        )
+        await creator.initialize()
+        
+        metadata['item_name'] = creator.balance_name
+
+        target_item_type = str(creator.balance_data.get('item_type'))
+        target_parent_type = str(creator.balance_data.get('parent_type'))
+
+        # 5. Load Parts
+        loaded_parts = []
+        async with db_pool.acquire() as conn:
+            if item_p_ids:
+                q1 = """
+                    SELECT * FROM all_parts 
+                    LEFT JOIN type_and_manufacturer ON inv = gestalt_type 
+                    WHERE serial_index::int = ANY($1::int[]) AND inv = $2
+                """
+                rows1 = await conn.fetch(q1, item_p_ids, target_item_type)
+                loaded_parts.extend([dict(r) for r in rows1])
+
+            if parent_p_ids:
+                q2 = """
+                    SELECT * FROM all_parts 
+                    LEFT JOIN type_and_manufacturer ON inv = gestalt_type 
+                    WHERE serial_index::int = ANY($1::int[]) AND inv = $2
+                """
+                rows2 = await conn.fetch(q2, parent_p_ids, target_parent_type)
+                loaded_parts.extend([dict(r) for r in rows2])
+
+        # 6. Equip & Check IDs
+        found_ids = set()
+        for p in loaded_parts:
+            sid = p['serial_index']
+            if sid and str(sid).isdigit():
+                found_ids.add(int(sid))
+
+        all_requested = set(item_p_ids + parent_p_ids)
+        unknown_ids = all_requested - found_ids
+        if unknown_ids:
+            violations.append(f"**Unknown IDs**: {list(unknown_ids)}")
+
+        for part in loaded_parts:
+            p_type = part['part_type']
+            if p_type in creator.slots:
+                creator.selections[p_type].append(part)
+
+        # 7. Validation Checks
+        
+        # A. Slot Limits
+        for slot in creator.slots:
+            selected = creator.selections[slot]
+            count = len(selected)
+            rules = creator.constraints.get(slot, {})
+            max_val = rules.get('max', 1)
+            min_val = rules.get('min', 0)
+            
+            if count > max_val:
+                violations.append(f"**{slot.title()}**: Too many parts ({count}/{max_val}).")
+            if count < min_val:
+                # Before flagging as missing, check if any parts could actually spawn there
+                # given the current tags (dependencies/exclusions).
+                possible_parts = await creator.get_parts_status(slot)
+                
+                # If ANY part is valid, it means the user had a choice but didn't pick it -> Violation.
+                # If ALL parts are invalid (valid=False), the slot is forced empty -> Legitimate.
+                if any(p['valid'] for p in possible_parts):
+                    violations.append(f"**{slot.title()}**: Missing parts ({count}/{min_val}).")
+                # violations.append(f"**{slot.title()}**: Missing parts ({count}/{min_val}).")
+
+        # B. Tags (with Counter logic)
+        current_tags_list = creator.get_current_tags()
+        metadata['tags'] = sorted(list(set(current_tags_list))) # Store for metadata
+        
+        global_counts = Counter(current_tags_list)
+        current_tags_set = set(current_tags_list)
+        
+        for slot, parts in creator.selections.items():
+            for part in parts:
+                p_name = part.get('partname', 'Unknown')
+                
+                p_add_list = db_utils.decode_jsonb_list(part.get('addtags'))
+                my_counts = Counter(p_add_list)
+                other_counts = global_counts - my_counts
+                
+                p_exc = set(db_utils.decode_jsonb_list(part.get('exclusiontags')))
+                p_dep = set(db_utils.decode_jsonb_list(part.get('dependencytags')))
+
+                for exc_tag in p_exc:
+                    if other_counts[exc_tag] > 0:
+                        violations.append(f"**{p_name}**: Incompatible. Excludes `{exc_tag}` which is present elsewhere.")
+
+                if p_dep and not p_dep.issubset(current_tags_set):
+                    missing = list(p_dep - current_tags_set)
+                    violations.append(f"**{p_name}**: Missing required tags: `{', '.join(missing)}`.")
+
+        # C. Global Limits
+        for rule in creator.global_tag_rules:
+            limit = rule['max']
+            targets = rule['tags']
+            count = sum(1 for t in current_tags_list if t in targets)
+            if count > limit:
+                t_names = list(targets)[0]
+                violations.append(f"**Global Limit**: Exceeded `{t_names}` ({count}/{limit}).")
+
+        return (len(violations) == 0), violations, metadata
+
+    except Exception as e:
+        log.error(f"Validation Exception: {e}", exc_info=True)
+        return False, [f"System Error: {str(e)}"], metadata
+    
 class CreatorSession:
     """
     Manages the state of a weapon creation session.
@@ -390,7 +599,7 @@ class CreatorSession:
             log.warning("CreatorSession has no aiohttp session stored. Returning raw string.")
 
         return full_serial
-    
+  
     def toggle_part(self, slot_name: str, part_row: Optional[dict]):
         """
         Toggles selection. 
