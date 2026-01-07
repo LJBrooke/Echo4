@@ -621,7 +621,7 @@ async def get_balance(db_pool, inv_id: str, item_id: str) -> list:
         LIMIT 1;
     """
     async with db_pool.acquire() as conn:
-        results = await conn.fetch(query, inv_id, item_id)
+        results = await conn.fetch(query, int(inv_id), item_id)
     return results
 
 async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) -> list:
