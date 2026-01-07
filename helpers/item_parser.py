@@ -518,6 +518,7 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
             JOIN target_item ti 
             ON lower(ic.inv) = ti.target_parent_inv 
             AND ic.entry_key = ti.target_parent_key
+            where aspects ->> 0 is not null and aspects ->> 0 != ''
             ORDER BY ic.entry_key, ic.internal_id DESC
         )
         SELECT 
@@ -552,6 +553,77 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
         results = await conn.fetch(query, entry_key)
     return results
 
+async def get_balance(db_pool, inv_id: str, item_id: str) -> list:
+    """
+    Fetches the unique rules from the inventory and inventory comp tables.
+    """
+    if not inv_id or not item_id:
+        return []
+    
+    query = """
+        WITH target_item AS (
+            SELECT DISTINCT ON (entry_key) 
+                entry_key,
+                inv, 
+                serialindex, 
+                basetags, 
+                parttagselectionrules, 
+                parttypeselectionrules,
+                -- 1. Part 1 is clean (inv' was removed by REPLACE)
+                lower(split_part(REPLACE(basecomposition, 'inv''', ''), '.', 1)) AS target_parent_inv,
+                -- 2. Part 2 needs the trailing quote removed using RTRIM
+                lower(RTRIM(
+                        split_part(REPLACE(basecomposition, 'inv''', ''), '.', 2), 
+                    '''')) AS target_parent_key
+            FROM inv_comp
+            left join type_and_manufacturer on 
+		        inv = gestalt_type 
+            WHERE 
+				id=$1
+				and serialindex ->> 'index' = $2
+            ORDER BY entry_key, internal_id DESC
+        ),
+        base_item AS (
+            SELECT DISTINCT ON (ic.entry_key) ic.*
+            FROM inv_comp ic
+            JOIN target_item ti 
+            ON lower(ic.inv) = ti.target_parent_inv 
+            AND ic.entry_key = ti.target_parent_key
+            where aspects ->> 0 is not null and aspects ->> 0 != ''
+            ORDER BY ic.entry_key, ic.internal_id DESC
+        )
+        SELECT 
+            t.entry_key,
+            
+            -- Recursive Merge: Base Item is arg 1, Child Item is arg 2
+            public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
+            public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
+
+            t.inv as item_type,
+            b.inv as parent_type,
+            i.serialindex ->> 'index' as serial_index,
+            t.serialindex ->> 'index' as base_part,
+            
+            -- Assuming these are simple objects or values, we treat them all with the recursive merger
+            -- to handle edge cases where they might be objects {"min": 1, "max": 10}
+            COALESCE(bi.maxnumprefixes, i.maxnumprefixes) as maxnumprefixes,
+            COALESCE(bi.maxnumsuffixes, i.maxnumsuffixes) as maxnumsuffixes,
+            public.jsonb_merge_recursive(bi.mingamestage, i.mingamestage) as mingamestage,
+            
+            public.jsonb_merge_recursive(b.basetags, t.basetags) AS basetags,
+            public.jsonb_merge_recursive(b.parttagselectionrules, t.parttagselectionrules) AS parttagselectionrules,
+            public.jsonb_merge_recursive(b.parttypeselectionrules, t.parttypeselectionrules) AS parttypeselectionrules
+
+        FROM target_item t
+        LEFT JOIN base_item b ON true
+        LEFT JOIN inv i ON (t.inv = i.entry_key AND i.serialindex ->> 'index' is not null)
+        LEFT JOIN inv bi ON (b.inv = bi.entry_key AND bi.serialindex ->> 'index' is not null)
+        LIMIT 1;
+    """
+    async with db_pool.acquire() as conn:
+        results = await conn.fetch(query, inv_id, item_id)
+    return results
+
 async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) -> list:
     """
     Fetches the unique rules from the inventory and inventory comp tables.
@@ -584,6 +656,7 @@ async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) ->
             JOIN target_item ti 
             ON lower(ic.inv) = ti.target_parent_inv 
             AND ic.entry_key = ti.target_parent_key
+            where aspects ->> 0 is not null and aspects ->> 0 != ''
             ORDER BY ic.entry_key, ic.internal_id DESC
         )
         SELECT 
