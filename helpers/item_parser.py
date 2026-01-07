@@ -518,7 +518,7 @@ async def query_item_balance(db_pool, entry_key: str) -> list:
             JOIN target_item ti 
             ON lower(ic.inv) = ti.target_parent_inv 
             AND ic.entry_key = ti.target_parent_key
-            where aspects ->> 0 is not null and aspects ->> 0 != ''
+            where rarity is not null
             ORDER BY ic.entry_key, ic.internal_id DESC
         )
         SELECT 
@@ -589,7 +589,7 @@ async def get_balance(db_pool, inv_id: str, item_id: str) -> list:
             JOIN target_item ti 
             ON lower(ic.inv) = ti.target_parent_inv 
             AND ic.entry_key = ti.target_parent_key
-            where aspects ->> 0 is not null and aspects ->> 0 != ''
+            where rarity is not null
             ORDER BY ic.entry_key, ic.internal_id DESC
         )
         SELECT 
@@ -656,7 +656,7 @@ async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) ->
             JOIN target_item ti 
             ON lower(ic.inv) = ti.target_parent_inv 
             AND ic.entry_key = ti.target_parent_key
-            where aspects ->> 0 is not null and aspects ->> 0 != ''
+            where rarity is not null
             ORDER BY ic.entry_key, ic.internal_id DESC
         )
         SELECT 
