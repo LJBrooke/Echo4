@@ -55,7 +55,6 @@
             "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
             "Base": "Gun Card",
             "Vault Hunter": "Harlowe",
-            "Notes": "This is the formula for Cryo, Radiation does not benefit gun damage on hit such as creative overflow and class mod gun damage boosts.",
             "Bonus Element": "Decoherence %",
             "Visible": true
         },
@@ -63,7 +62,6 @@
             "Affected by": ["Order Charge", "Enhancement", "Amp", "Flat On Shot", "Gear Crit", "Gun Damage", "Skill Damage", "Debuff", "Elemental", "Damage Dealt", "Skill Tree Crit", "Splash"],
             "Base": "Gun Card",
             "Vault Hunter": "Harlowe",
-            "Notes": "This is the formula for Cryo, Radiation does not benefit gun damage on hit such as creative overflow and class mod gun damage boosts.",
             "Bonus Element": "Decoherence %",
             "Visible": true
         },
