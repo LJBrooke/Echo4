@@ -13,7 +13,7 @@ from discord import app_commands, Interaction
 
 # --- LOGGING SETUP ---
 # Set the default level to DEBUG for development, or INFO for production
-log_level = logging.DEBUG 
+log_level = logging.INFO
 
 # 1. Create the ColoredFormatter
 #    NOTICE: We are using standard %(name)s and %(message)s.
