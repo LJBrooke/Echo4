@@ -142,11 +142,6 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
             if sid and str(sid).isdigit():
                 found_ids.add(int(sid))
 
-        all_requested = set(item_p_ids + parent_p_ids)
-        unknown_ids = all_requested - found_ids
-        if unknown_ids:
-            violations.append(f"**Unknown IDs**: {list(unknown_ids)}")
-
         for part in loaded_parts:
             p_type = part['part_type']
             if p_type in creator.slots:
@@ -210,7 +205,15 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
                 t_names = list(targets)[0]
                 violations.append(f"**Global Limit**: Exceeded `{t_names}` ({count}/{limit}).")
 
-        return (len(violations) == 0), violations, metadata
+        legitimacy = len(violations) == 0
+        
+        # D. Unknown IDs are not immediately disqualifying, but noted.
+        all_requested = set(item_p_ids + parent_p_ids)
+        unknown_ids = all_requested - found_ids
+        if unknown_ids:
+            violations.append(f"**Unknown IDs**: {list(unknown_ids)}")
+            
+        return legitimacy, violations, metadata
 
     except Exception as e:
         log.error(f"Validation Exception: {e}", exc_info=True)

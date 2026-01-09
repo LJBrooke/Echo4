@@ -1,11 +1,8 @@
 import discord
 import re
 import logging
-from collections import Counter # Import Counter for smarter tag checking
 from discord import app_commands
 from discord.ext import commands
-from helpers import item_parser
-from helpers import db_utils
 from helpers import creator_engine
 
 log = logging.getLogger(__name__)
