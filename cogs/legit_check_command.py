@@ -80,6 +80,7 @@ class LegitCheckCommand(commands.Cog):
         # but the validator returns raw IDs.
         
         embed = discord.Embed(title=f"Legit Check: {item_name}", color=status_color)
+        embed.set_author(name=f"{metadata.get('item_type')}")
         embed.add_field(name="Verdict", value=f"{status_text}", inline=False)
         
         if violations:

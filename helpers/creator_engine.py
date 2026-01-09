@@ -72,7 +72,7 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
     Returns:
         Tuple: (is_legit: bool, violations: list[str], metadata: dict)
         
-    Metadata contains: {'inv_id', 'item_id', 'part_count', 'tags': list}
+    Metadata contains: {'inv_id', 'item_name', 'item_type', 'item_id', 'part_count', 'tags': list}
     """
     violations = []
     metadata = {'inv_id': '?', 'item_id': '?', 'part_count': 0, 'tags': []}
@@ -113,6 +113,7 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
 
         target_item_type = str(creator.balance_data.get('item_type'))
         target_parent_type = str(creator.balance_data.get('parent_type'))
+        metadata['item_type'] = target_item_type
 
         # 5. Load Parts
         loaded_parts = []

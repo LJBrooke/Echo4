@@ -366,6 +366,7 @@ class PartCommand(commands.Cog):
             color=embed_color
         )
         
+        embed.set_author(name=f"{balance_file[1]}")  
         # --- Add base part num ---
         embed.add_field(name="Base Part ID: ", value=row.get('base_part', 'N/A'), inline=True)
 
@@ -432,7 +433,7 @@ class PartCommand(commands.Cog):
                     count_str = ""
                     if part_count:
                         p_min = part_count.get("min", "0")
-                        p_max = part_count.get("max", str(len(parts_list)) if parts_list else "?")
+                        p_max = part_count.get("max", str(len(parts_list)) if parts_list else "1")
                         count_str = f" [{p_min}-{p_max}]"
                     
                     lines.append(f"**{p_type}{count_str}**")
