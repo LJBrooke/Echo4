@@ -10,6 +10,117 @@ log = logging.getLogger(__name__)
 LOCAL_URL = 'http://borderlands-serials:8080/api/v1/'
 NICNL_URL = 'https://borderlands4-deserializer.nicnl.com/api/v1/'
 
+# Centralized SQL Template
+# We use explicit placeholders __JOIN_CLAUSE__ and __WHERE_CLAUSE__ 
+# to avoid conflicts with JSON braces '{}'
+BASE_BALANCE_SQL = """
+WITH RECURSIVE 
+-- 1. PRE-CALCULATE THE "LATEST" VERSION OF EVERY COMPONENT
+latest_comp AS (
+    SELECT DISTINCT ON (entry_key, inv)
+        ic.*
+    FROM inv_comp ic
+    ORDER BY entry_key, inv, internal_id ASC
+),
+
+item_hierarchy AS (
+    -- -----------------------------------------------------------------
+    -- ANCHOR: The Target Item (Level 0)
+    -- -----------------------------------------------------------------
+    SELECT 
+        ic.entry_key AS origin_entry_key,
+        ic.serialindex ->> 'index' AS origin_base_part,
+        
+        -- Recursion Pointers
+        ic.entry_key AS current_entry_key,
+        ic.inv AS current_inv,
+        lower(split_part(REPLACE(ic.basecomposition, 'inv''', ''), '.', 1)) AS next_inv,
+        lower(RTRIM(split_part(REPLACE(ic.basecomposition, 'inv''', ''), '.', 2), '''')) AS next_key,
+        
+        -- Accumulators
+        i.aspects,
+        i.parttypes,
+        i.maxnumprefixes,
+        i.maxnumsuffixes,
+        i.mingamestage,
+        ic.basetags,
+        ic.parttagselectionrules,
+        ic.parttypeselectionrules,
+        
+        -- Metadata
+        ic.inv::text AS item_type,
+        i.serialindex ->> 'index' AS serial_index,
+        ic.inv::text AS parent_type, 
+        0 AS level
+    FROM latest_comp ic
+    LEFT JOIN inv i ON (ic.inv = i.entry_key)
+    __JOIN_CLAUSE__
+    WHERE 
+        __WHERE_CLAUSE__
+
+    UNION ALL
+
+    -- -----------------------------------------------------------------
+    -- RECURSIVE MEMBER: The Parents
+    -- -----------------------------------------------------------------
+    SELECT 
+        child.origin_entry_key,
+        child.origin_base_part,
+        parent.entry_key,
+        parent.inv,
+        lower(split_part(REPLACE(parent.basecomposition, 'inv''', ''), '.', 1)),
+        lower(RTRIM(split_part(REPLACE(parent.basecomposition, 'inv''', ''), '.', 2), '''')),
+        
+        -- MERGE LOGIC (Aggressive Inheritance)
+        CASE WHEN child.aspects IS NULL OR child.aspects = '{}'::jsonb THEN pi.aspects ELSE public.jsonb_merge_recursive(pi.aspects, child.aspects) END,
+        CASE WHEN child.parttypes IS NULL OR child.parttypes = '{}'::jsonb THEN pi.parttypes ELSE public.jsonb_merge_recursive(pi.parttypes, child.parttypes) END,
+        COALESCE(child.maxnumprefixes, pi.maxnumprefixes),
+        COALESCE(child.maxnumsuffixes, pi.maxnumsuffixes),
+        CASE WHEN child.mingamestage IS NULL THEN pi.mingamestage ELSE public.jsonb_merge_recursive(pi.mingamestage, child.mingamestage) END,
+
+        CASE WHEN child.basetags IS NULL OR child.basetags = '{}'::jsonb THEN parent.basetags ELSE public.jsonb_merge_recursive(parent.basetags, child.basetags) END,
+            
+        -- Part Tag Selection Rules
+        CASE 
+            WHEN child.parttagselectionrules IS NULL 
+            OR jsonb_typeof(child.parttagselectionrules) = 'null' 
+            OR child.parttagselectionrules = '{}'::jsonb 
+            OR child.parttagselectionrules = '[]'::jsonb 
+            THEN parent.parttagselectionrules
+            ELSE public.jsonb_merge_recursive(parent.parttagselectionrules, child.parttagselectionrules) 
+        END,
+            
+        CASE WHEN child.parttypeselectionrules IS NULL OR child.parttypeselectionrules = '{}'::jsonb THEN parent.parttypeselectionrules ELSE public.jsonb_merge_recursive(parent.parttypeselectionrules, child.parttypeselectionrules) END,
+        
+        child.item_type,
+        child.serial_index,
+        parent.inv::text, 
+        child.level + 1
+    FROM latest_comp parent
+    LEFT JOIN inv pi ON (parent.inv = pi.entry_key)
+    JOIN item_hierarchy child 
+    ON lower(parent.inv) = child.next_inv 
+    AND lower(parent.entry_key) = child.next_key
+)
+SELECT 
+    origin_entry_key AS entry_key,    
+    origin_base_part AS base_part,    
+    aspects,              
+    parttypes,            
+    item_type,            
+    parent_type,          
+    serial_index,         
+    maxnumprefixes,
+    maxnumsuffixes,
+    mingamestage,
+    basetags,
+    parttagselectionrules,
+    parttypeselectionrules
+FROM item_hierarchy
+ORDER BY level DESC 
+LIMIT 1;
+"""
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # ASYNC SERIALIZATION FUNCTIONS
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -485,210 +596,49 @@ async def balance_autocomplete(self, interaction: discord.Interaction, current: 
         app_commands.Choice(name=r['variant_name'][:100], value=r['entry_key'][:100]) 
         for r in results if r['variant_name']
     ]
-    
-async def query_item_balance(db_pool, entry_key: str) -> list:
-    """
-    Fetches the unique rules from the inventory and inventory comp tables.
-    """
-    if not entry_key:
-        return []
-    
-    query = """
-        WITH target_item AS (
-            SELECT DISTINCT ON (entry_key) 
-                entry_key,
-                inv, 
-                serialindex, 
-                basetags, 
-                parttagselectionrules, 
-                parttypeselectionrules,
-                -- 1. Part 1 is clean (inv' was removed by REPLACE)
-                lower(split_part(REPLACE(basecomposition, 'inv''', ''), '.', 1)) AS target_parent_inv,
-                -- 2. Part 2 needs the trailing quote removed using RTRIM
-                lower(RTRIM(
-                        split_part(REPLACE(basecomposition, 'inv''', ''), '.', 2), 
-                    '''')) AS target_parent_key
-            FROM inv_comp
-            WHERE entry_key = $1
-            ORDER BY entry_key, internal_id DESC
-        ),
-        base_item AS (
-            SELECT DISTINCT ON (ic.entry_key) ic.*
-            FROM inv_comp ic
-            JOIN target_item ti 
-            ON lower(ic.inv) = ti.target_parent_inv 
-            AND ic.entry_key = ti.target_parent_key
-            where rarity is not null
-            ORDER BY ic.entry_key, ic.internal_id DESC
-        )
-        SELECT 
-            t.entry_key,
-            
-            -- Recursive Merge: Base Item is arg 1, Child Item is arg 2
-            public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
-            public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
-
-            t.inv as item_type,
-            b.inv as parent_type,
-            i.serialindex ->> 'index' as serial_index,
-            t.serialindex ->> 'index' as base_part,
-            
-            -- Assuming these are simple objects or values, we treat them all with the recursive merger
-            -- to handle edge cases where they might be objects {"min": 1, "max": 10}
-            COALESCE(bi.maxnumprefixes, i.maxnumprefixes) as maxnumprefixes,
-            COALESCE(bi.maxnumsuffixes, i.maxnumsuffixes) as maxnumsuffixes,
-            public.jsonb_merge_recursive(bi.mingamestage, i.mingamestage) as mingamestage,
-            
-            public.jsonb_merge_recursive(b.basetags, t.basetags) AS basetags,
-            public.jsonb_merge_recursive(b.parttagselectionrules, t.parttagselectionrules) AS parttagselectionrules,
-            public.jsonb_merge_recursive(b.parttypeselectionrules, t.parttypeselectionrules) AS parttypeselectionrules
-
-        FROM target_item t
-        LEFT JOIN base_item b ON true
-        LEFT JOIN inv i ON (t.inv = i.entry_key AND i.serialindex ->> 'index' is not null)
-        LEFT JOIN inv bi ON (b.inv = bi.entry_key AND bi.serialindex ->> 'index' is not null)
-        LIMIT 1;
-    """
-    async with db_pool.acquire() as conn:
-        results = await conn.fetch(query, entry_key)
-    return results
 
 async def get_balance(db_pool, inv_id: str, item_id: str) -> list:
     """
-    Fetches the unique rules from the inventory and inventory comp tables.
+    Fetches rules using the numeric inventory ID and part index.
     """
     if not inv_id or not item_id:
         return []
     
-    query = """
-        WITH target_item AS (
-            SELECT DISTINCT ON (entry_key) 
-                entry_key,
-                inv, 
-                serialindex, 
-                basetags, 
-                parttagselectionrules, 
-                parttypeselectionrules,
-                -- 1. Part 1 is clean (inv' was removed by REPLACE)
-                lower(split_part(REPLACE(basecomposition, 'inv''', ''), '.', 1)) AS target_parent_inv,
-                -- 2. Part 2 needs the trailing quote removed using RTRIM
-                lower(RTRIM(
-                        split_part(REPLACE(basecomposition, 'inv''', ''), '.', 2), 
-                    '''')) AS target_parent_key
-            FROM inv_comp
-            left join type_and_manufacturer on 
-		        inv = gestalt_type 
-            WHERE 
-				id=$1
-				and serialindex ->> 'index' = $2
-            ORDER BY entry_key, internal_id DESC
-        ),
-        base_item AS (
-            SELECT DISTINCT ON (ic.entry_key) ic.*
-            FROM inv_comp ic
-            JOIN target_item ti 
-            ON lower(ic.inv) = ti.target_parent_inv 
-            AND ic.entry_key = ti.target_parent_key
-            where rarity is not null
-            ORDER BY ic.entry_key, ic.internal_id DESC
-        )
-        SELECT 
-            t.entry_key,
-            
-            -- Recursive Merge: Base Item is arg 1, Child Item is arg 2
-            public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
-            public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
-
-            t.inv as item_type,
-            b.inv as parent_type,
-            i.serialindex ->> 'index' as serial_index,
-            t.serialindex ->> 'index' as base_part,
-            
-            -- Assuming these are simple objects or values, we treat them all with the recursive merger
-            -- to handle edge cases where they might be objects {"min": 1, "max": 10}
-            COALESCE(bi.maxnumprefixes, i.maxnumprefixes) as maxnumprefixes,
-            COALESCE(bi.maxnumsuffixes, i.maxnumsuffixes) as maxnumsuffixes,
-            public.jsonb_merge_recursive(bi.mingamestage, i.mingamestage) as mingamestage,
-            
-            public.jsonb_merge_recursive(b.basetags, t.basetags) AS basetags,
-            public.jsonb_merge_recursive(b.parttagselectionrules, t.parttagselectionrules) AS parttagselectionrules,
-            public.jsonb_merge_recursive(b.parttypeselectionrules, t.parttypeselectionrules) AS parttypeselectionrules
-
-        FROM target_item t
-        LEFT JOIN base_item b ON true
-        LEFT JOIN inv i ON (t.inv = i.entry_key AND i.serialindex ->> 'index' is not null)
-        LEFT JOIN inv bi ON (b.inv = bi.entry_key AND bi.serialindex ->> 'index' is not null)
-        LIMIT 1;
-    """
+    # 1. Define the specific JOIN needed to resolve 'id'
+    join_clause = "LEFT JOIN type_and_manufacturer ON ic.inv = gestalt_type"
+    
+    # 2. Define the specific WHERE clause for this lookup
+    where_clause = "id=$1 AND ic.serialindex ->> 'index' = $2"
+    
+    # 3. Inject into template
+    query = BASE_BALANCE_SQL.replace("__JOIN_CLAUSE__", join_clause).replace("__WHERE_CLAUSE__", where_clause)
+    
     async with db_pool.acquire() as conn:
+        # Pass the specific arguments for this query structure
         results = await conn.fetch(query, int(inv_id), item_id)
+        
     return results
 
 async def query_item_balance_explicit(db_pool, entry_key: str, inv_type: str) -> list:
     """
-    Fetches the unique rules from the inventory and inventory comp tables.
+    Fetches rules using the explicit entry key and inventory type string.
     """
     if not entry_key:
         return []
+
+    # 1. No extra join needed for explicit lookup
+    join_clause = ""
     
-    query = """
-        WITH target_item AS (
-            SELECT DISTINCT ON (entry_key) 
-                entry_key,
-                inv, 
-                serialindex, 
-                basetags, 
-                parttagselectionrules, 
-                parttypeselectionrules,
-                -- 1. Part 1 is clean (inv' was removed by REPLACE)
-                lower(split_part(REPLACE(basecomposition, 'inv''', ''), '.', 1)) AS target_parent_inv,
-                -- 2. Part 2 needs the trailing quote removed using RTRIM
-                lower(RTRIM(
-                        split_part(REPLACE(basecomposition, 'inv''', ''), '.', 2), 
-                    '''')) AS target_parent_key
-            FROM inv_comp
-            WHERE entry_key = $1 AND inv = $2
-            ORDER BY entry_key, internal_id DESC
-        ),
-        base_item AS (
-            SELECT DISTINCT ON (ic.entry_key) ic.*
-            FROM inv_comp ic
-            JOIN target_item ti 
-            ON lower(ic.inv) = ti.target_parent_inv 
-            AND ic.entry_key = ti.target_parent_key
-            where rarity is not null
-            ORDER BY ic.entry_key, ic.internal_id DESC
-        )
-        SELECT 
-            t.entry_key,
-            
-            -- Recursive Merge: Base Item is arg 1, Child Item is arg 2
-            public.jsonb_merge_recursive(bi.aspects, i.aspects) as aspects,
-            public.jsonb_merge_recursive(bi.parttypes, i.parttypes) as parttypes,
-
-            t.inv as item_type,
-            b.inv as parent_type,
-            i.serialindex ->> 'index' as serial_index,
-            t.serialindex ->> 'index' as base_part,
-            
-            -- Assuming these are simple objects or values, we treat them all with the recursive merger
-            -- to handle edge cases where they might be objects {"min": 1, "max": 10}
-            COALESCE(bi.maxnumprefixes, i.maxnumprefixes) as maxnumprefixes,
-            COALESCE(bi.maxnumsuffixes, i.maxnumsuffixes) as maxnumsuffixes,
-            public.jsonb_merge_recursive(bi.mingamestage, i.mingamestage) as mingamestage,
-            
-            public.jsonb_merge_recursive(b.basetags, t.basetags) AS basetags,
-            public.jsonb_merge_recursive(b.parttagselectionrules, t.parttagselectionrules) AS parttagselectionrules,
-            public.jsonb_merge_recursive(b.parttypeselectionrules, t.parttypeselectionrules) AS parttypeselectionrules
-
-        FROM target_item t
-        LEFT JOIN base_item b ON true
-        LEFT JOIN inv i ON (t.inv = i.entry_key AND i.serialindex ->> 'index' is not null)
-        LEFT JOIN inv bi ON (b.inv = bi.entry_key AND bi.serialindex ->> 'index' is not null)
-        LIMIT 1;
-    """
+    # 2. Define the specific WHERE clause
+    where_clause = "ic.entry_key = $1 AND ic.inv = $2"
+    
+    # 3. Inject into template
+    query = BASE_BALANCE_SQL.replace("__JOIN_CLAUSE__", join_clause).replace("__WHERE_CLAUSE__", where_clause)
+    
     async with db_pool.acquire() as conn:
+        # Pass the specific arguments for this query structure
         results = await conn.fetch(query, entry_key, inv_type)
+        
     return results
 
 async def search_lootlemon(db_pool, name: str, game: str, item_type: str = None) -> str | None:

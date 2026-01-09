@@ -4,7 +4,7 @@ import json
 from discord import app_commands
 from discord.ext import commands
 from helpers import item_parser
-from helpers.item_parser import query_unique_balance_files, query_item_balance, query_item_balance_explicit
+from helpers.item_parser import query_unique_balance_files, query_item_balance_explicit
 
 class PaginationView(discord.ui.View):
     def __init__(self, pages: list[list[discord.Embed]], interaction: discord.Interaction):
