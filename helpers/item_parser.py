@@ -22,7 +22,13 @@ latest_comp AS (
     FROM inv_comp ic
     ORDER BY entry_key, inv, internal_id ASC
 ),
-
+with latest_inv AS (
+    SELECT DISTINCT ON (entry_key, inv)
+        i.*
+    FROM inv i
+	where entry_key like 'weapon'
+    ORDER BY entry_key, inv, internal_id ASC
+)
 item_hierarchy AS (
     -- -----------------------------------------------------------------
     -- ANCHOR: The Target Item (Level 0)
@@ -53,7 +59,7 @@ item_hierarchy AS (
         ic.inv::text AS parent_type, 
         0 AS level
     FROM latest_comp ic
-    LEFT JOIN inv i ON (ic.inv = i.entry_key)
+    LEFT JOIN latest_inv i ON (ic.inv = i.entry_key)
     __JOIN_CLAUSE__
     WHERE 
         __WHERE_CLAUSE__
@@ -97,7 +103,7 @@ item_hierarchy AS (
         parent.inv::text, 
         child.level + 1
     FROM latest_comp parent
-    LEFT JOIN inv pi ON (parent.inv = pi.entry_key)
+    LEFT JOIN latest_inv pi ON (parent.inv = pi.entry_key)
     JOIN item_hierarchy child 
     ON lower(parent.inv) = child.next_inv 
     AND lower(parent.entry_key) = child.next_key
