@@ -976,7 +976,7 @@
         },
 		{
             "name": "Vitriol",
-            "damage type": "Bonus Element",
+            "damage type": "Flat On Shot",
             "element": null
         },
 		{

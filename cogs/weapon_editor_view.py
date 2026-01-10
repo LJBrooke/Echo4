@@ -289,6 +289,15 @@ class MainWeaponEditorView(BaseEditorView):
         self.weapon = weapon
         self.session_id = session_id
         
+        legit_button = discord.ui.Button(
+            label=f"Check Legitimacy",
+            style=discord.ButtonStyle.green,
+            custom_id="action_legit",
+            row=0
+        )
+        legit_button.callback = self.main_button_callback
+        self.add_item(legit_button)
+        
         # --- 1. Manually create and add Level Button ---
         level_button = discord.ui.Button(
             label=f"Set Level ({weapon.level})", 
@@ -337,7 +346,7 @@ class MainWeaponEditorView(BaseEditorView):
                 # Assign the same, single callback
                 part_button.callback = self.main_button_callback
                 self.add_item(part_button)
-
+                
     async def main_button_callback(self, interaction: discord.Interaction):
         """
         A single, monolithic callback to handle all button clicks,
@@ -350,6 +359,19 @@ class MainWeaponEditorView(BaseEditorView):
             modal = LevelModal(self.weapon, self)
             await interaction.response.send_modal(modal)
             return
+        elif custom_id == "action_legit":
+            await interaction.response.defer()
+            legit_embed = await self.get_legitimacy_embed(await self.weapon.get_serial())
+            if self.message:
+                try:
+                    current_embeds = self.message.embeds
+                    # Append the report to existing embeds
+                    await self.message.edit(embeds=current_embeds + [legit_embed])
+                except (discord.NotFound, discord.Forbidden):
+                    pass
+            return
+        
+        await self._clean_embeds()
 
         # 2. Handle Session Cleanup
         if hasattr(self.cog, 'bot'): session_host = self.cog.bot

@@ -341,6 +341,8 @@ class MainShieldEditorView(BaseEditorView):
             await interaction.followup.send("Error: Main message reference not found.", ephemeral=True)
             return
 
+        await self._clean_embeds()
+        
         # 3. Launch the view
         try:
             new_message = await interaction.followup.send(
@@ -356,6 +358,19 @@ class MainShieldEditorView(BaseEditorView):
             await interaction.followup.send(f"An internal error occurred: `{e}`", ephemeral=True)
 
     # --- BUTTON CALLBACKS ---
+
+    @discord.ui.button(label="Check Legitimacy", style=discord.ButtonStyle.green, custom_id="action_legit", row=0)
+    async def legit_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        legit_embed = await self.get_legitimacy_embed(await self.shield.get_serial())
+        if self.message:
+            try:
+                current_embeds = self.message.embeds
+                # Append the report to existing embeds
+                await self.message.edit(embeds=current_embeds + [legit_embed])
+            except (discord.NotFound, discord.Forbidden):
+                pass
+        return
 
     @discord.ui.button(label="Set Level", style=discord.ButtonStyle.blurple, custom_id="action_level", row=0)
     async def level_button(self, interaction: discord.Interaction, button: discord.ui.Button):

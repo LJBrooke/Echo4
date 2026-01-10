@@ -38,6 +38,19 @@ class BaseEditorView(discord.ui.View):
         # self.cog is likely the Bot instance itself
         return self.cog
     
+    async def _clean_embeds(self):
+        """
+        Helper to revert the message to just the first embed (the weapon card),
+        removing any attached reports like 'Legitimacy Check'.
+        """
+        if self.message and self.message.embeds:
+            try:
+                # Keep only the first embed (Index 0 is the weapon card)
+                clean_embed_list = [self.message.embeds[0]]
+                await self.message.edit(embeds=clean_embed_list)
+            except (discord.NotFound, discord.Forbidden):
+                pass
+    
     async def get_legitimacy_embed(self, serial: str) -> discord.Embed:
         """
         Helper: Validates a serial and returns a formatted Embed.
