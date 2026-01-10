@@ -26,7 +26,6 @@ latest_inv AS (
     SELECT DISTINCT ON (entry_key, inv)
         i.*
     FROM inv i
-	where entry_key like 'weapon'
     ORDER BY entry_key, inv, internal_id ASC
 ),
 item_hierarchy AS (
