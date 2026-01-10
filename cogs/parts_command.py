@@ -369,6 +369,7 @@ class PartCommand(commands.Cog):
         embed.set_author(name=f"{balance_file[1]}")  
         # --- Add base part num ---
         embed.add_field(name="Base Part ID: ", value=row.get('base_part', 'N/A'), inline=True)
+        embed.add_field(name="Archetype ID: ", value=row.get('parent_type_index', 'N/A'), inline=True)
 
         # --- DESCRIPTION (Prefixes/Suffixes) ---
         description_lines = []
