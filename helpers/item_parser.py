@@ -22,13 +22,13 @@ latest_comp AS (
     FROM inv_comp ic
     ORDER BY entry_key, inv, internal_id ASC
 ),
-with latest_inv AS (
+latest_inv AS (
     SELECT DISTINCT ON (entry_key, inv)
         i.*
     FROM inv i
 	where entry_key like 'weapon'
     ORDER BY entry_key, inv, internal_id ASC
-)
+),
 item_hierarchy AS (
     -- -----------------------------------------------------------------
     -- ANCHOR: The Target Item (Level 0)
