@@ -114,7 +114,7 @@ SELECT
     parttypes,            
     item_type,            
     parent_type,          
-    serial_index,         
+    serial_index,               
     maxnumprefixes,
     maxnumsuffixes,
     mingamestage,
