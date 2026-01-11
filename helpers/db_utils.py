@@ -146,7 +146,7 @@ def match_rule_part_name(db_partname: str, db_tags: List[str], rule_part_string:
     # print(f"  Expected Full String: {expected_full_str}")
 
     # Direct Match
-    if db_partname == expected_full_str:
+    if db_partname == expected_full_str or db_partname == rule_part_string:
         return True
 
     # Suffix/Tag Match

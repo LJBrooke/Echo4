@@ -13,20 +13,13 @@ class CreatorDashboardView(BaseEditorView):
         self.session = session
         
         self.original_serial = original_serial
-        # Use the pre-calculated active slots
         self.active_slots = session.active_slots 
         self.current_slot = self.active_slots[0] if self.active_slots else None
         
         self.part_cache = {} 
         
     def build_dashboard_embed(self, final_serial: str = None) -> discord.Embed:
-        """
-        Helper method to construct the dashboard embed.
-        Centralizes logic for Editing, Finalizing, and future 'Original Serial' display.
-        """
         is_final = final_serial is not None
-        
-        # 1. Title & Color
         if is_final:
             title = f"✅ Finalized: {self.session.balance_name}"
             color = discord.Color.green()
@@ -36,14 +29,9 @@ class CreatorDashboardView(BaseEditorView):
             
         embed = discord.Embed(title=title, color=color)
 
-        # 2. Description (Slots & Parts)
         desc_lines = []
         for slot in self.active_slots:
             parts = self.session.selections.get(slot, [])
-            
-            # Icon Logic:
-            # If finalized, just use a static bullet.
-            # If editing, point to the active slot.
             if is_final:
                 icon = "🔹"
             else:
@@ -59,7 +47,6 @@ class CreatorDashboardView(BaseEditorView):
         
         embed.description = "\n".join(desc_lines)
         
-        # 3. Active Tags Field
         active_tags = self.session.get_current_tags()
         if active_tags:
             from collections import Counter
@@ -67,21 +54,11 @@ class CreatorDashboardView(BaseEditorView):
             tag_display = [f"{k} ({v})" if v > 1 else k for k, v in counts.items()]
             embed.add_field(name="Active Tags", value=", ".join(tag_display)[:1024], inline=False)
 
-        # 4. Original Serial Field (For Edit Mode)
         if self.original_serial:
-            embed.add_field(
-                name="Original Serial", 
-                value=f"```\n{self.original_serial}\n```", 
-                inline=False
-            )
+            embed.add_field(name="Original Serial", value=f"```\n{self.original_serial}\n```", inline=False)
 
-        # 5. Final Serial Field (For Finished State)
         if final_serial:
-            embed.add_field(
-                name="New Serial Code", 
-                value=f"```\n{final_serial}\n```", 
-                inline=False
-            )
+            embed.add_field(name="New Serial Code", value=f"```\n{final_serial}\n```", inline=False)
             embed.set_footer(text="Session Closed. Copy the code above to use in-game.")
         else:
             embed.set_footer(text="Parts list is automatically filtered by your active tags.")
@@ -90,8 +67,8 @@ class CreatorDashboardView(BaseEditorView):
     
     async def advance_to_next_valid_slot(self):
         """
-        Moves self.current_slot to the next slot in the list that has 
-        at least one valid (selectable) part given current tags.
+        Moves self.current_slot to the next slot that REQUIRES user choice.
+        Skips slots that have only 1 valid option (presumed auto-filled).
         """
         if not self.current_slot: return
 
@@ -100,29 +77,33 @@ class CreatorDashboardView(BaseEditorView):
         except ValueError:
             return
 
-        # Iterate through all SUBSEQUENT slots
-        # We start at current_idx + 1
+        # Iterate through remaining slots
         for next_slot in self.active_slots[current_idx + 1:]:
-            
-            # Check if this slot has ANY valid options given current tags
-            # We reuse the engine's check logic
             parts_data = await self.session.get_parts_status(next_slot)
+            valid_candidates = [p for p in parts_data if p['valid']]
+            count = len(valid_candidates)
             
-            # If at least one part is VALID (not locked by tags), we stop here
-            if any(item['valid'] for item in parts_data):
+            # If > 1, the user has a choice to make. Stop here.
+            if count > 1:
                 self.current_slot = next_slot
                 return
+            
+            # If count == 1, it was likely auto-selected by initialize()
+            # or is forced. We skip it to save the user clicks.
+            if count == 1:
+                log.debug(f"Auto-skipping slot {next_slot} (Only 1 valid option)")
+                continue
+            
+            # If count == 0, it's empty/invalid, keep searching.
 
     async def update_view(self, interaction: discord.Interaction):
         try:
             self.clear_items()
             
-            # --- 1. Slot Selector ---
             slot_options = []
             for s in self.active_slots[:25]: 
                 selected_parts = self.session.selections.get(s, [])
                 count = len(selected_parts)
-                
                 rules = self.session.constraints.get(s, {})
                 max_val = rules.get('max', 1)
                 
@@ -133,47 +114,45 @@ class CreatorDashboardView(BaseEditorView):
                 
                 desc = "Empty"
                 if selected_parts:
-                    names = [p['partname'] for p in selected_parts]
-                    desc = ", ".join(names)
+                    if max_val > 1:
+                        from collections import Counter
+                        names = [p['partname'] for p in selected_parts]
+                        c = Counter(names)
+                        desc = ", ".join([f"{k} ({v})" if v > 1 else k for k,v in c.items()])
+                    else:
+                        names = [p['partname'] for p in selected_parts]
+                        desc = ", ".join(names)
+                        
                     if len(desc) > 50: desc = desc[:47] + "..."
 
                 slot_options.append(discord.SelectOption(
                     label=label, 
-                    value=s,
-                    description=f"{status} {desc}",
+                    value=s, 
+                    description=f"{status} {desc}", 
                     default=(s == self.current_slot)
                 ))
             
             if slot_options:
                 self.add_item(SlotSelect(slot_options))
 
-            # --- 2. Part Selector ---
             if self.current_slot:
                 parts_data = await self.session.get_parts_status(self.current_slot)
-                
-                # Sort: Valid first, then by name
                 parts_data.sort(key=lambda x: (not x['valid'], x['part']['partname']))
                 
-                # Rebuild Cache (Dictionary naturally handles dupes by keeping last one)
                 self.part_cache = {str(p['part']['serial_index']): p['part'] for p in parts_data}
                 
-                part_options = []
                 rules = self.session.constraints.get(self.current_slot, {})
-                max_val = rules.get('max', 1)
+                slot_max = rules.get('max', 1)
                 
-                # Option to clear slot (Single Select only)
-                if max_val == 1:
-                    part_options.append(discord.SelectOption(
-                        label="[ CLEAR SLOT ]", value="REMOVE", emoji="🚫"
-                    ))
-
-                current_ids = [str(p['serial_index']) for p in self.session.selections.get(self.current_slot, [])]
+                current_selection = self.session.selections.get(self.current_slot, [])
+                current_ids = [str(p['serial_index']) for p in current_selection]
                 
+                part_options = []
                 seen_indices = set()
                 
-                # Iterate through ALL data, but stop when we hit 25 options
                 for item in parts_data:
                     if len(part_options) >= 25: break
+
                     p = item['part']
                     p_idx = str(p['serial_index'])
                     
@@ -182,54 +161,46 @@ class CreatorDashboardView(BaseEditorView):
                     
                     is_valid = item['valid']
                     reason = item['reason']
-                    label = p['partname'][:100] # Now using Prettified Name
+                    label = p['partname'][:100]
                     
-                    # --- NEW DESCRIPTION LOGIC ---
-                    # Priority 1: Use Stats if available
-                    # Priority 2: Use just Tag List
-                    # Priority 3: Fallback to inv code
-                    tag_str = "<No Tags>"
                     stats_text = p.get('stats')
-                    tags_list = self.session._parse_tags(p.get('addtags'))
-                    if tags_list: tag_str = ", ".join(tags_list)
                     
                     if not is_valid:
                         label = f"🔒 {label}"
                         desc = f"⛔ {reason}"
                     elif stats_text and stats_text.strip():
-                        # Use the stats!
-                        desc = f"{stats_text} | {tag_str}"[:100]
+                        desc = stats_text[:100]
                     else:
-                        # Fallback to tags or inv
-                        
+                        tags_list = self.session._parse_tags(p.get('addtags'))
                         if tags_list:
-                            desc = f"{p['inv']} | {tag_str}"[:100]
+                            t_str = ", ".join(tags_list)
+                            desc = f"{p['inv']} | {t_str}"
                         else:
                             desc = f"{p['inv']}"
-                    
+                            
                     if len(desc) > 100: desc = desc[:97] + "..."
 
                     is_selected = (p_idx in current_ids)
 
                     part_options.append(discord.SelectOption(
-                        label=label,
-                        value=p_idx,
-                        description=desc,
+                        label=label, 
+                        value=p_idx, 
+                        description=desc, 
                         default=is_selected
                     ))
                 
-                # Configure Component
-                actual_max = min(max_val, len(part_options))
-                actual_max = max(1, actual_max)
-                
                 if part_options:
-                    self.add_item(PartSelect(part_options, max_values=actual_max))
+                    placeholder_text = self.session.get_slot_placeholder(self.current_slot)
+                    
+                    self.add_item(PartSelect(
+                        options=part_options, 
+                        placeholder=placeholder_text,
+                        max_values=slot_max
+                    ))
 
-            # --- Buttons ---
             self.add_item(FinishButton())
             self.add_item(CancelButton())
             
-            # --- Embed ---
             embed = self.build_dashboard_embed()
 
             if self.main_message:
@@ -244,8 +215,6 @@ class CreatorDashboardView(BaseEditorView):
             except:
                 pass
 
-# --- Components ---
-
 class SlotSelect(ui.Select):
     def __init__(self, options):
         super().__init__(
@@ -254,38 +223,42 @@ class SlotSelect(ui.Select):
         )
 
     async def callback(self, interaction: discord.Interaction):
-        # Must acknowledge interaction immediately to prevent "Interaction Failed"
         await interaction.response.defer() 
         view: CreatorDashboardView = self.view
         view.current_slot = self.values[0]
         await view.update_view(interaction)
 
 class PartSelect(ui.Select):
-    def __init__(self, options, max_values=1):
+    def __init__(self, options, placeholder, max_values):
+        real_max = min(max_values, len(options), 25)
         super().__init__(
-            placeholder="Select Component(s)...", 
-            min_values=0 if max_values > 1 else 1, 
-            max_values=max_values, options=options, row=1
+            placeholder=placeholder, 
+            min_values=0,
+            max_values=real_max, 
+            options=options, 
+            row=1
         )
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         view: CreatorDashboardView = self.view
         
-        # 1. Update Session
-        if "REMOVE" in self.values:
-            view.session.toggle_part(view.current_slot, None)
-        else:
-            new_selection = []
-            for val in self.values:
-                part = view.part_cache.get(val)
-                if part: new_selection.append(part)
-            view.session.selections[view.current_slot] = new_selection
+        selected_parts = []
+        for val in self.values:
+            part = view.part_cache.get(val)
+            if part:
+                selected_parts.append(part)
         
-        # 2. Advance to Next Valid Slot (Logic Added Here)
-        await view.advance_to_next_valid_slot()
+        view.session.update_slot_selection(view.current_slot, selected_parts)
 
-        # 3. Refresh UI
+        # Logic: If it is a Single-Select slot AND the user selected 1 item,
+        # we attempt to auto-advance. (If they selected 0, they just cleared it, so stay.)
+        rules = view.session.constraints.get(view.current_slot, {})
+        slot_max = rules.get('max', 1)
+        
+        if slot_max == 1 and len(selected_parts) == 1:
+            await view.advance_to_next_valid_slot()
+
         await view.update_view(interaction)
 
 class FinishButton(ui.Button):
@@ -298,9 +271,6 @@ class FinishButton(ui.Button):
         
         try:
             final_serial = await view.session.get_serial_string()
-            
-            # USE HELPER TO BUILD FINAL EMBED
-            # We pass final_serial, which triggers the Green Color + Code Block
             embed = view.build_dashboard_embed(final_serial=final_serial)
             
             if view.main_message:
