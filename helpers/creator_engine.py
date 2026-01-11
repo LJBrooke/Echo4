@@ -399,21 +399,27 @@ class CreatorSession:
             rows = await conn.fetch(query, slot_name, target_inv)
             log.debug(f"DB Query returned {len(rows)} raw rows for {slot_name} (inv={target_inv})")
             
-            stats_query = """
-                SELECT pl.id, pl.stats
-                FROM part_list pl
-                RIGHT JOIN type_and_manufacturer tam 
-                    ON lower(pl.manufacturer) = tam.manufacturer 
-                    AND lower(pl.weapon_type) = tam.item_type
-                WHERE tam.gestalt_type = $1
-            """
-            try:
-                log.debug(f"Fetching stats for item type: {self.item_type}")
-                stat_rows = await conn.fetch(stats_query, self.item_type)
-                stats_map = {r['id']: r['stats'] for r in stat_rows if r['id'] is not None}
-            except Exception as e:
-                log.warning(f"Failed to fetch stats: {e}")
-                stats_map = {}
+            stats_map = {}
+            if target_inv == self.item_type:
+                # Primary Table: Fetch stats normally
+                stats_query = """
+                    SELECT pl.id, pl.stats
+                    FROM part_list pl
+                    RIGHT JOIN type_and_manufacturer tam 
+                        ON lower(pl.manufacturer) = tam.manufacturer 
+                        AND lower(pl.weapon_type) = tam.item_type
+                    WHERE tam.gestalt_type = $1
+                """
+                try:
+                    stat_rows = await conn.fetch(stats_query, self.item_type)
+                    stats_map = {r['id']: r['stats'] for r in stat_rows if r['id'] is not None}
+                except Exception as e:
+                    log.warning(f"Failed to fetch stats: {e}")
+            else:
+                # Secondary (Parent) Table: Do NOT fetch stats to avoid ID overlap
+                # TODO: Insert function call here to fetch stats for Parent Type parts when available.
+                # currently, we leave stats_map empty so parts get 'None' stats.
+                log.debug(f"Skipping stats fetch for Parent Type parts in slot {slot_name} to prevent overlap.")
 
         results = []
 
