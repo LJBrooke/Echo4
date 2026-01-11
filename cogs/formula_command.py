@@ -144,7 +144,7 @@ class FormulaCommand(commands.Cog):
         response = _gen_formula(formula_type)
         formula_dict = FORMULA_DATA.get('Formula').get(formula_type)
         response = response + '\n- **Applies to: **' + formula_dict.get('Vault Hunter')
-        response = response + '\n- **Notes: **' + formula_dict.get('Notes')
+        if formula_dict.get('Notes'): response = response + '\n- **Notes: **' + formula_dict.get('Notes')
         
         view = detailView(self, response, formula_dict.get('Affected by'), formula_dict.get('Vault Hunter'))
         
