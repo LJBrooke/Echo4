@@ -185,7 +185,7 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
             count = len(selected)
             rules = creator.constraints.get(slot, {})
             max_val = rules.get('max', 1)
-            min_val = rules.get('min', 0)
+            min_val = rules.get('min', 1)
             
             if count > max_val:
                 violations.append(f"**{slot.title()}**: Too many parts ({count}/{max_val}).")
