@@ -86,12 +86,14 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
     metadata = {'inv_id': '?', 'item_id': '?', 'part_count': 0, 'tags': []}
     
     try:
+        # 1. Deserialize
         resp = await item_parser.deserialize(session, serial)
         if not resp or 'deserialized' not in resp:
             return False, ["Could not deserialize code."], metadata
             
         component_str = str(resp.get('deserialized'))
         
+        # 2. Parse
         try:
             inv_id, item_id, item_p_ids, parent_p_ids = parse_component_string(component_str)
             metadata['inv_id'] = inv_id
@@ -100,10 +102,12 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
         except Exception as e:
             return False, [f"Parsing Error: {e}"], metadata
 
+        # 3. Fetch Balance
         balance_data = await item_parser.get_balance(db_pool, inv_id, item_id)
         if not balance_data:
             return False, [f"Unknown Item: Inv `{inv_id}` / Item `{item_id}`"], metadata
 
+        # 4. Init Session
         creator = CreatorSession(
             user_id=0,
             balance_name=balance_data[0].get('entry_key'),
@@ -114,46 +118,67 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
         await creator.initialize()
         
         metadata['item_name'] = creator.balance_name
-
-        target_item_type = str(creator.balance_data.get('item_type'))
-        target_parent_type = str(creator.balance_data.get('parent_type'))
+        
+        target_item_type = str(creator.item_type) if creator.item_type is not None else ""
+        target_parent_type = str(creator.parent_type) if creator.parent_type is not None else ""
         metadata['item_type'] = target_item_type
 
+        # 5. Load Parts (SPLIT QUERY to prevent ID collision)
         loaded_parts = []
         async with db_pool.acquire() as conn:
-            all_requested = item_p_ids + parent_p_ids
-            if all_requested:
-                q = """
+            
+            # Query A: Fetch Standard Parts from Item Inventory Only
+            if item_p_ids:
+                q_item = """
                     SELECT * FROM all_parts 
                     LEFT JOIN type_and_manufacturer ON inv = gestalt_type 
-                    WHERE serial_index::int = ANY($1::int[])
+                    WHERE serial_index::int = ANY($1::int[]) AND inv = $2
                 """
-                log.debug(f"Validating Serial - Loading Parts for IDs: {all_requested}")
-                rows = await conn.fetch(q, all_requested)
-                loaded_parts = [dict(r) for r in rows]
+                log.debug(f"Loading Standard Parts: {item_p_ids} from {target_item_type}")
+                rows_i = await conn.fetch(q_item, item_p_ids, target_item_type)
+                loaded_parts.extend([dict(r) for r in rows_i])
 
+            # Query B: Fetch Structured Parts from Parent Inventory Only
+            if parent_p_ids:
+                q_parent = """
+                    SELECT * FROM all_parts 
+                    LEFT JOIN type_and_manufacturer ON inv = gestalt_type 
+                    WHERE serial_index::int = ANY($1::int[]) AND inv = $2
+                """
+                log.debug(f"Loading Parent Parts: {parent_p_ids} from {target_parent_type}")
+                rows_p = await conn.fetch(q_parent, parent_p_ids, target_parent_type)
+                loaded_parts.extend([dict(r) for r in rows_p])
+
+        # 6. Equip & Check IDs
+        # Note: We track found IDs based on the original combined request to ensure nothing was missed
         found_ids = set()
         for p in loaded_parts:
-            sid = p['serial_index']
-            if sid and str(sid).isdigit():
+            sid = p.get('serial_index')
+            if sid is not None:
                 found_ids.add(int(sid))
 
         for part in loaded_parts:
-            p_type = part['part_type']
-            p_inv = part.get('inv')
+            p_type = part.get('part_type')
+            p_inv = str(part.get('inv', ''))
             
+            # --- STRICT INV CHECKING ---
             struct_key = PART_STRUCT_MAPPING.get(p_type)
             if struct_key:
+                # Must be Parent Type
                 if p_inv != target_parent_type:
                     violations.append(f"**{part.get('partname')}**: Invalid Source. Expected Parent Type `{target_parent_type}`, got `{p_inv}`.")
                     continue
             else:
+                # Must be Item Type
                 if p_inv != target_item_type:
                     violations.append(f"**{part.get('partname')}**: Invalid Source. Expected Item Type `{target_item_type}`, got `{p_inv}`.")
                     continue
+            # ---------------------------
 
             if p_type in creator.slots:
                 creator.selections[p_type].append(part)
+        
+        # 7. Logic Checks
         
         # A. Slot Limits
         for slot in creator.slots:
@@ -166,6 +191,7 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
             if count > max_val:
                 violations.append(f"**{slot.title()}**: Too many parts ({count}/{max_val}).")
             if count < min_val:
+                # Only flag missing if there ARE valid options that could have been picked
                 possible_parts = await creator.get_parts_status(slot)
                 if any(p['valid'] for p in possible_parts):
                     violations.append(f"**{slot.title()}**: Missing parts ({count}/{min_val}).")
@@ -206,6 +232,8 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
 
         legitimacy = len(violations) == 0
         
+        # D. Unknown IDs
+        all_requested = item_p_ids + parent_p_ids
         all_requested_set = set(all_requested)
         unknown_ids = all_requested_set - found_ids
         if unknown_ids:

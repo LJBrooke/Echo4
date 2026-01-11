@@ -71,6 +71,7 @@ class LegitCheckCommand(commands.Cog):
             self.bot.session
         )
 
+        log.info(f"Legit Check by {interaction.user} for serial '{serial}': Legit={is_legit}, Violations={violations}, Metadata={metadata}")
         # BUILD EMBED
         status_color = discord.Color.green() if is_legit else discord.Color.red()
         status_text = "✅ LEGITIMATE" if is_legit else "⛔ ILLEGITIMATE"
