@@ -115,7 +115,7 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
             db_pool=db_pool,
             session=session
         )
-        await creator.initialize()
+        await creator.initialize(auto_select=False)
         
         metadata['item_name'] = creator.balance_name
         
@@ -131,7 +131,6 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
             if item_p_ids:
                 q_item = """
                     SELECT * FROM all_parts 
-                    LEFT JOIN type_and_manufacturer ON inv = gestalt_type 
                     WHERE serial_index::int = ANY($1::int[]) AND inv = $2
                 """
                 log.debug(f"Loading Standard Parts: {item_p_ids} from {target_item_type}")
@@ -142,7 +141,6 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
             if parent_p_ids:
                 q_parent = """
                     SELECT * FROM all_parts 
-                    LEFT JOIN type_and_manufacturer ON inv = gestalt_type 
                     WHERE serial_index::int = ANY($1::int[]) AND inv = $2
                 """
                 log.debug(f"Loading Parent Parts: {parent_p_ids} from {target_parent_type}")
@@ -160,6 +158,7 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
         for part in loaded_parts:
             p_type = part.get('part_type')
             p_inv = str(part.get('inv', ''))
+            log.debug(f"Validating Part: ID={part.get('serial_index')} Name={part.get('partname')} Type={p_type} Inv={p_inv}")
             
             # --- STRICT INV CHECKING ---
             struct_key = PART_STRUCT_MAPPING.get(p_type)
@@ -301,7 +300,7 @@ class CreatorSession:
         self.selections: Dict[str, List[Dict[str, Any]]] = {slot: [] for slot in self.slots}
         self.active_slots = []
         
-    async def initialize(self):
+    async def initialize(self, auto_select: bool = True):
         """
         Performs the 'Preliminary Scan'.
         Determines active slots and Auto-Selects parts if they are the only option.
@@ -339,7 +338,7 @@ class CreatorSession:
 
             self.active_slots = [s for s in self.slots if s in valid_slots]
 
-            if single_candidate_slots:
+            if auto_select and single_candidate_slots:
                 fetch_q = "SELECT * FROM all_parts WHERE part_type = ANY($1::text[]) and inv = ANY($2::text[])"
                 log.debug(f"Auto-selecting parts for slots: {single_candidate_slots}")
                 p_rows = await conn.fetch(fetch_q, single_candidate_slots, [self.item_type, self.parent_type])

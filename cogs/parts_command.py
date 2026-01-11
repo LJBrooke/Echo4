@@ -336,7 +336,7 @@ class PartCommand(commands.Cog):
     async def balance(self, interaction: discord.Interaction, item_name: str):
         await interaction.response.defer(ephemeral=False)
         
-        if not '|' not in item_name:
+        if '|' not in item_name:
             await interaction.followup.send(f"Incorrect Balance format provided, expected `Name [Type]`.", ephemeral=True)
             return
         
