@@ -336,6 +336,10 @@ class PartCommand(commands.Cog):
     async def balance(self, interaction: discord.Interaction, item_name: str):
         await interaction.response.defer(ephemeral=False)
         
+        if not '|' not in item_name:
+            await interaction.followup.send(f"Incorrect Balance format provided, expected `Name [Type]`.", ephemeral=True)
+            return
+        
         # 1. Fetch Data
         balance_file = item_name.split('|')  # Expecting format "BalanceName|InvType"
         item_results = await item_parser.query_item_balance_explicit(self.db_pool, balance_file[0], balance_file[1])
