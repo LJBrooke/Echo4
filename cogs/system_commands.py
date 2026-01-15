@@ -1,4 +1,5 @@
 import os
+import random
 import asyncpg
 import discord
 from discord import app_commands
@@ -157,8 +158,10 @@ class SystemCommands(commands.Cog):
 
     @app_commands.command(name="news", description="Borderlands 4 Update Notes.")
     async def updates(self, interaction: discord.Interaction):
-        updates='''[The latest Borderlands 4 Patch notes can be found here](https://borderlands.2k.com/borderlands-4/update-notes/)
-        '''
+        link='https://borderlands.2k.com/borderlands-4/update-notes/'
+        if random.random() > 0.9:
+            link='https://youtu.be/dQw4w9WgXcQ?si=il--ViA_ShirGhNC'
+        updates=f'''[The latest Borderlands 4 Patch notes can be found here](<{link}>)'''
         await interaction.response.send_message(updates)
 
 
