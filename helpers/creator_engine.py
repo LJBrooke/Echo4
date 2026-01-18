@@ -283,7 +283,45 @@ class CreatorSession:
         elif isinstance(raw_pt, dict):
             self.part_types_config = raw_pt
 
-        self.constraints = db_utils.parse_selection_rules(self.balance_data.get('parttypeselectionrules'))
+        # --- FIX: Parse and Sanitize parttypeselectionrules ---
+        raw_rules = self.balance_data.get('parttypeselectionrules')
+
+        # 1. Ensure it is a Dictionary
+        if isinstance(raw_rules, str):
+            try:
+                raw_rules = json.loads(raw_rules)
+            except Exception:
+                raw_rules = {}
+        
+        if not isinstance(raw_rules, dict):
+            raw_rules = {}
+
+        # 2. Recursive Sanitizer: Handles both Flat and Nested "Pairs" structures
+        # targets keys 'parts' or 'allowed_parts' anywhere in the JSON tree.
+        def sanitize_rules_data(data):
+            if isinstance(data, dict):
+                for k, v in data.items():
+                    # Check for keys that hold part lists
+                    if k in ['parts', 'allowed_parts'] and isinstance(v, list):
+                        new_list = []
+                        for item in v:
+                            if isinstance(item, str):
+                                # Fix: Convert plain string (even empty "") to dict object
+                                new_list.append({'part': item})
+                            else:
+                                new_list.append(item)
+                        data[k] = new_list
+                    else:
+                        # Continue recursion
+                        sanitize_rules_data(v)
+            elif isinstance(data, list):
+                for item in data:
+                    sanitize_rules_data(item)
+
+        sanitize_rules_data(raw_rules)
+
+        self.constraints = db_utils.parse_selection_rules(raw_rules)
+        # -----------------------------------------------------------
         
         self.global_tag_rules = []
         raw_tag_rules = self.balance_data.get('parttagselectionrules')
@@ -461,11 +499,9 @@ class CreatorSession:
                 match_found = False
                 for rule_str in allowed_list:
                     if db_utils.match_rule_part_name(raw_name, identification_tags, rule_str, part['inv']):
-                        log.debug(f"Part '{raw_name}' matches allowed rule '{rule_str}'.")
                         match_found = True
                         break
                 if not match_found:
-                    log.debug(f"Part '{raw_name}' filtered: Not in allowed_list.")
                     continue 
 
             p_dep_set = set(p_dep)
@@ -475,14 +511,12 @@ class CreatorSession:
             if not p_exc_set.isdisjoint(current_tags_set):
                 status["valid"] = False
                 status["reason"] = "Incompatible (Exclusion)"
-                log.debug(f"Part '{raw_name}' INVALID: Exclusion conflict with tags {p_exc_set.intersection(current_tags_set)}")
             
             # 3. Dependency Check
             elif p_dep_set and not p_dep_set.issubset(current_tags_set):
                 status["valid"] = False
                 missing = list(p_dep_set - current_tags_set)
                 status["reason"] = f"Requires: {', '.join(missing)}"
-                log.debug(f"Part '{raw_name}' INVALID: Missing dependency {missing}")
                 
             # 4. Global Tag Limits
             if status["valid"]:
@@ -490,11 +524,9 @@ class CreatorSession:
                 if not is_ok:
                     status["valid"] = False
                     status["reason"] = reason
-                    log.debug(f"Part '{raw_name}' INVALID: Global Limit {reason}")
 
             results.append(status)
 
-        log.debug(f"--- SLOT {slot_name} FINISHED. {len(results)} parts returned. ---")
         return results
     
     async def get_serial_string(self) -> str:
@@ -570,10 +602,6 @@ class CreatorSession:
         return full_serial
   
     def update_slot_selection(self, slot_name: str, part_rows: List[dict]):
-        """
-        Updates the selection for a slot using a list of parts (Multi-Select compatible).
-        Replaces the current selection. Truncates if exceeds max limit.
-        """
         rules = self.constraints.get(slot_name, {})
         max_limit = rules.get('max', 1)
         
