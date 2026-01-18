@@ -9,78 +9,80 @@ from helpers import db_utils, item_parser
 
 log = logging.getLogger(__name__)
 
-# --- CONFIGURATION ---
-# Associates a Part Type (slot name) with a specific Structure Key (the 'x' in {x:y}).
-# Any part type listed here will:
-# 1. Be formatted as {Key:[ID, ID]} in the serial.
-# 2. Be queried exclusively from the PARENT inventory type (parent_type).
-# Part types NOT listed here will use standard {ID} formatting and ITEM inventory type.
-PART_STRUCT_MAPPING = {
-    "body_ele": "1", 
-    "secondary_ele": "1"
-}
+PART_STRUCT_MAPPING = {}
 
-def parse_component_string(component_str: str) -> Tuple[str, str, List[int], List[int]]:
+def parse_component_string(component_str: str) -> Tuple[str, str, List[Tuple[int, str]]]:
     """
-    Parses the deserialized string.
-    Handles standard {id} and structured {key:val} or {key:[v1, v2]} formats.
-    Returns: (inv_type_id, item_id, item_specific_ids, parent_specific_ids)
-    """
-    first_section = component_str.split('|')[0]
-    inv_type_id = first_section.split(',')[0].strip()
+    Parses the deserialized string using Table Reference Logic.
+    
+    Format:
+    - {y}        -> serial_index=y, serial_inv=inv_type_id (Base Item ID)
+    - {x:y}      -> serial_index=y, serial_inv=x
+    - {x:[y, z]} -> serial_index=y/z, serial_inv=x
 
+    Returns: (inv_type_id, item_id, List[(part_id, required_serial_inv)])
+    """
     if '||' not in component_str:
         raise ValueError("Invalid format: Missing '||' separator.")
         
+    first_section = component_str.split('|')[0]
+    # The first number is the Inventory ID for the base item (e.g., '50')
+    inv_type_id = first_section.split(',')[0].strip()
+
     parts_block = component_str.split('||')[1]
     if '|' in parts_block:
         parts_block = parts_block.split('|')[0]
 
-    item_specific_ids = []
-    parent_specific_ids = []
-    all_ordered_ids = [] 
-
+    parsed_parts: List[Tuple[int, str]] = []
+    
+    # Regex finds content inside curly braces: {123} or {1:[123, 456]}
     raw_tokens = re.findall(r'\{((?:[^{}]|\[[^\]]*\])+)\}', parts_block)
+
+    all_ids_ordered = []
 
     for token in raw_tokens:
         token = token.strip()
-        is_parent_type = ':' in token
         
-        sub_ids = []
-        
-        if is_parent_type:
-            _, val_part = token.split(':', 1)
+        # Check for Table Reference: {x:...}
+        if ':' in token:
+            target_inv_ref, val_part = token.split(':', 1)
+            target_inv_ref = target_inv_ref.strip()
             val_part = val_part.strip()
-            clean_val = val_part.replace('[', '').replace(']', '').replace(',', ' ')
             
-            for sid in clean_val.split():
-                if sid.strip().isdigit():
-                    sub_ids.append(int(sid))
+            # Clean brackets for list format [x, y]
+            clean_val = val_part.replace('[', '').replace(']', '').replace(',', ' ')
+            ids = [int(s) for s in clean_val.split() if s.strip().isdigit()]
+            
+            for pid in ids:
+                parsed_parts.append((pid, target_inv_ref))
+                all_ids_ordered.append(pid)
         else:
-            clean_val = token.replace('[', '').replace(']', '') 
-            for sid in clean_val.split():
-                if sid.strip().isdigit():
-                    sub_ids.append(int(sid))
-        
-        if is_parent_type:
-            parent_specific_ids.extend(sub_ids)
-        else:
-            item_specific_ids.extend(sub_ids)
-        all_ordered_ids.extend(sub_ids)
+            # Standard format {y} -> Uses the Item's inv_type_id
+            clean_val = token.replace('[', '').replace(']', '').replace(',', ' ')
+            ids = [int(s) for s in clean_val.split() if s.strip().isdigit()]
+            
+            for pid in ids:
+                parsed_parts.append((pid, inv_type_id))
+                all_ids_ordered.append(pid)
 
-    if not all_ordered_ids:
+    if not all_ids_ordered:
         raise ValueError("No Item ID or Parts found.")
 
-    item_id = str(all_ordered_ids[0])
+    # Convention: First ID found is the Item/Base ID, remove it from parts list
+    item_id = str(all_ids_ordered[0])
     
-    if item_specific_ids and str(item_specific_ids[0]) == item_id:
-        item_specific_ids.pop(0)
+    # Remove the first occurrence of item_id from parsed_parts to avoid treating base as a part
+    for i, (pid, pinv) in enumerate(parsed_parts):
+        if str(pid) == item_id:
+            parsed_parts.pop(i)
+            break
 
-    return inv_type_id, item_id, item_specific_ids, parent_specific_ids
+    return inv_type_id, item_id, parsed_parts
 
 async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> Tuple[bool, List[str], Dict[str, Any]]:
     """
-    Validates a serial string against database rules.
+    Validates a serial string by strictly checking (serial_index, serial_inv) pairs
+    and ensuring the resulting parts belong to allowed inventory types.
     """
     violations = []
     metadata = {'inv_id': '?', 'item_id': '?', 'part_count': 0, 'tags': []}
@@ -95,89 +97,90 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
         
         # 2. Parse
         try:
-            inv_id, item_id, item_p_ids, parent_p_ids = parse_component_string(component_str)
-            metadata['inv_id'] = inv_id
+            inv_type_id, item_id, parsed_parts = parse_component_string(component_str)
+            metadata['inv_id'] = inv_type_id
             metadata['item_id'] = item_id
-            metadata['part_count'] = len(item_p_ids) + len(parent_p_ids)
+            metadata['part_count'] = len(parsed_parts)
         except Exception as e:
             return False, [f"Parsing Error: {e}"], metadata
 
-        # 3. Fetch Balance
-        balance_data = await item_parser.get_balance(db_pool, inv_id, item_id)
+        # 3. Fetch Balance (The Recursive SQL Result)
+        balance_data = await item_parser.get_balance(db_pool, inv_type_id, item_id)
         if not balance_data:
-            return False, [f"Unknown Item: Inv `{inv_id}` / Item `{item_id}`"], metadata
+            return False, [f"Unknown Item: Inv `{inv_type_id}` / Item `{item_id}`"], metadata
 
-        # 4. Init Session
+        # 4. Determine Valid Inventory Types (Whitelist)
+        row = balance_data[0]
+        item_type = row.get('item_type')
+        parent_types = row.get('parent_type') or []
+        child_types = row.get('child_types') or []
+        
+        # Fallback for data types
+        if not isinstance(parent_types, list): parent_types = [str(parent_types)] if parent_types else []
+        if not isinstance(child_types, list): child_types = [str(child_types)] if child_types else []
+        
+        # Valid Scopes: The part must belong to one of these text names
+        valid_inv_scopes = set([item_type] + parent_types + child_types)
+
+        # 5. Init Session
         creator = CreatorSession(
             user_id=0,
-            balance_name=balance_data[0].get('entry_key'),
+            balance_name=row.get('entry_key'),
             balance_data=balance_data,
+            base_serial_inv_id=inv_type_id, # Pass the numeric ID
             db_pool=db_pool,
             session=session
         )
         await creator.initialize(auto_select=False)
         
         metadata['item_name'] = creator.balance_name
-        
-        target_item_type = str(creator.item_type) if creator.item_type is not None else ""
-        target_parent_type = str(creator.parent_type) if creator.parent_type is not None else ""
-        metadata['item_type'] = target_item_type
+        metadata['item_type'] = str(creator.item_type)
 
-        # 5. Load Parts (SPLIT QUERY to prevent ID collision)
+        # 6. Bulk Load Parts
+        # We need to query: WHERE (serial_index, serial_inv) IN (parsed_parts)
+        # We use UNNEST to pass arrays of IDs and Invs matching index-wise.
         loaded_parts = []
-        async with db_pool.acquire() as conn:
+        
+        if parsed_parts:
+            req_ids = [p[0] for p in parsed_parts]
+            req_invs = [p[1] for p in parsed_parts]
             
-            # Query A: Fetch Standard Parts from Item Inventory Only
-            if item_p_ids:
-                q_item = """
-                    SELECT * FROM all_parts 
-                    WHERE serial_index::int = ANY($1::int[]) AND inv = $2
+            async with db_pool.acquire() as conn:
+                # UPDATED: Explicit casts to resolve "operator does not exist: text = integer"
+                q_fetch = """
+                    SELECT p.* FROM all_parts p
+                    JOIN unnest($1::int[], $2::text[]) AS req(idx, sinv) 
+                        ON p.serial_index::int = req.idx AND p.serial_inv::text = req.sinv
                 """
-                log.debug(f"Loading Standard Parts: {item_p_ids} from {target_item_type}")
-                rows_i = await conn.fetch(q_item, item_p_ids, target_item_type)
-                loaded_parts.extend([dict(r) for r in rows_i])
+                log.debug(f"Bulk validating {len(parsed_parts)} parts.")
+                rows = await conn.fetch(q_fetch, req_ids, req_invs)
+                loaded_parts = [dict(r) for r in rows]
 
-            # Query B: Fetch Structured Parts from Parent Inventory Only
-            if parent_p_ids:
-                q_parent = """
-                    SELECT * FROM all_parts 
-                    WHERE serial_index::int = ANY($1::int[]) AND inv = $2
-                """
-                log.debug(f"Loading Parent Parts: {parent_p_ids} from {target_parent_type}")
-                rows_p = await conn.fetch(q_parent, parent_p_ids, target_parent_type)
-                loaded_parts.extend([dict(r) for r in rows_p])
+        # 7. Equip & Validate
+        
+        # Track which requested (ID, Inv) pairs we actually found
+        found_map = { (int(p['serial_index']), str(p['serial_inv'])): p for p in loaded_parts }
+        
+        for req_id, req_inv in parsed_parts:
+            part = found_map.get((req_id, req_inv))
+            
+            # Check A: Did we find the part in the specific table ref?
+            if not part:
+                violations.append(f"**Missing Part**: ID `{req_id}` not found in Table Ref `{req_inv}`.")
+                continue
 
-        # 6. Equip & Check IDs
-        # Note: We track found IDs based on the original combined request to ensure nothing was missed
-        found_ids = set()
-        for p in loaded_parts:
-            sid = p.get('serial_index')
-            if sid is not None:
-                found_ids.add(int(sid))
+            # Check B: Is the part's Actual Inventory Type allowed for this Item?
+            real_inv_type = part.get('inv')
+            if real_inv_type not in valid_inv_scopes:
+                violations.append(f"**{part.get('partname')}**: Invalid Source. Source `{real_inv_type}` is not in allowed types for this item.")
+                continue
 
-        for part in loaded_parts:
+            # Equip
             p_type = part.get('part_type')
-            p_inv = str(part.get('inv', ''))
-            log.debug(f"Validating Part: ID={part.get('serial_index')} Name={part.get('partname')} Type={p_type} Inv={p_inv}")
-            
-            # --- STRICT INV CHECKING ---
-            struct_key = PART_STRUCT_MAPPING.get(p_type)
-            if struct_key:
-                # Must be Parent Type
-                if p_inv != target_parent_type:
-                    violations.append(f"**{part.get('partname')}**: Invalid Source. Expected Parent Type `{target_parent_type}`, got `{p_inv}`.")
-                    continue
-            else:
-                # Must be Item Type
-                if p_inv != target_item_type:
-                    violations.append(f"**{part.get('partname')}**: Invalid Source. Expected Item Type `{target_item_type}`, got `{p_inv}`.")
-                    continue
-            # ---------------------------
-
             if p_type in creator.slots:
                 creator.selections[p_type].append(part)
         
-        # 7. Logic Checks
+        # 8. Standard Logic Checks (Limits, Tags)
         
         # A. Slot Limits
         for slot in creator.slots:
@@ -190,7 +193,6 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
             if count > max_val:
                 violations.append(f"**{slot.title()}**: Too many parts ({count}/{max_val}).")
             if count < min_val:
-                # Only flag missing if there ARE valid options that could have been picked
                 possible_parts = await creator.get_parts_status(slot)
                 if any(p['valid'] for p in possible_parts):
                     violations.append(f"**{slot.title()}**: Missing parts ({count}/{min_val}).")
@@ -230,14 +232,6 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
                 violations.append(f"**Global Limit**: Exceeded `{t_names}` ({count}/{limit}).")
 
         legitimacy = len(violations) == 0
-        
-        # D. Unknown IDs
-        all_requested = item_p_ids + parent_p_ids
-        all_requested_set = set(all_requested)
-        unknown_ids = all_requested_set - found_ids
-        if unknown_ids:
-            violations.append(f"**Unknown IDs**: {list(unknown_ids)}")
-            
         return legitimacy, violations, metadata
 
     except Exception as e:
@@ -245,11 +239,12 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
         return False, [f"System Error: {str(e)}"], metadata
     
 class CreatorSession:
-    def __init__(self, user_id: int, balance_name: str, balance_data: Any, db_pool: asyncpg.Pool, session: Any):
+    def __init__(self, user_id: int, balance_name: str, balance_data: Any, db_pool: asyncpg.Pool, session: Any, base_serial_inv_id: str = "0"):
         self.user_id = user_id
         self.balance_name = balance_name
         self.db_pool = db_pool
         self.session = session
+        self.base_serial_inv_id = base_serial_inv_id # The numeric ID (e.g. '50')
         
         if isinstance(balance_data, list):
             self.balance_data = dict(balance_data[0]) if balance_data else {}
@@ -258,9 +253,23 @@ class CreatorSession:
         else:
             self.balance_data = {}
             
-        self.item_type = balance_data[0].get('item_type')      
-        self.parent_type = balance_data[0].get('parent_type')
+        self.item_type = self.balance_data.get('item_type')      
+        
+        # Load Hierarchy Types
+        self.parent_types = self.balance_data.get('parent_type') or []
+        if not isinstance(self.parent_types, list): self.parent_types = [str(self.parent_types)]
+        
+        self.child_types = self.balance_data.get('child_types') or []
+        if not isinstance(self.child_types, list): self.child_types = [str(self.child_types)]
+        
+        # Create Whitelist of Valid Inventory Names
+        # If child_types is empty, include item_type.
+        if not self.child_types and self.item_type:
+             self.child_types = [self.item_type]
 
+        self.valid_inv_types = list(set([self.item_type] + self.parent_types + self.child_types))
+
+        # Config Loading...
         raw_pt = self.balance_data.get('parttypes')
         if isinstance(raw_pt, str): raw_pt = json.loads(raw_pt)
         
@@ -293,80 +302,64 @@ class CreatorSession:
                     except (ValueError, TypeError): continue
         
         self.base_tags = db_utils.decode_jsonb_list(self.balance_data.get('basetags'))
-
-        # Slot order from balance_data
         self.slots = list(self.part_types_config.keys())
-        
         self.selections: Dict[str, List[Dict[str, Any]]] = {slot: [] for slot in self.slots}
         self.active_slots = []
         
     async def initialize(self, auto_select: bool = True):
         """
-        Performs the 'Preliminary Scan'.
-        Determines active slots and Auto-Selects parts if they are the only option.
+        Preliminary Scan.
+        Updated to strictly filter by serial_inv to avoid cross-contamination.
         """
         async with self.db_pool.acquire() as conn:
+            # UPDATED: Group by serial_inv too.
             query = """
-                SELECT part_type, inv, COUNT(*) as c
+                SELECT part_type, inv, serial_inv, COUNT(*) as c
                 FROM all_parts
-                WHERE inv = $1 OR inv = $2
-                GROUP BY part_type, inv
+                WHERE inv = ANY($1::text[])
+                GROUP BY part_type, inv, serial_inv
             """
-            log.debug(f"Initializing CreatorSession for Item Type: {self.item_type}, Parent Type: {self.parent_type}")
-            rows = await conn.fetch(query, self.item_type, self.parent_type)
+            log.debug(f"Initializing Session. Valid Invs: {self.valid_inv_types}")
+            rows = await conn.fetch(query, self.valid_inv_types)
             
             valid_slots = set()
             single_candidate_slots = []
+            
+            # Map part types to their counts *if* they match the correct serial_inv
+            slot_candidates = {}
 
             for r in rows:
                 p_type = r['part_type']
                 p_inv = r['inv']
-                count = r['c']
+                # Cast to string for safe comparison
+                p_serial_inv = str(r['serial_inv']) 
                 
-                struct_key = PART_STRUCT_MAPPING.get(p_type)
-                
-                is_valid_source = False
-                if struct_key:
-                    if p_inv == self.parent_type: is_valid_source = True
-                else:
-                    if p_inv == self.item_type: is_valid_source = True
-                
-                if is_valid_source and count > 0:
-                    valid_slots.add(p_type)
+                # Check 1: Does this part belong to the expected Table Ref for this slot?
+                expected_ref = PART_STRUCT_MAPPING.get(p_type, self.base_serial_inv_id)
+                if p_serial_inv != expected_ref:
+                    # Skip parts that happen to have the same name/inv but wrong table ID
+                    continue
+
+                if p_type not in slot_candidates:
+                    slot_candidates[p_type] = 0
+                slot_candidates[p_type] += r['c']
+
+            for s, count in slot_candidates.items():
+                if count > 0:
+                    valid_slots.add(s)
                     if count == 1:
-                        single_candidate_slots.append(p_type)
+                        single_candidate_slots.append(s)
 
             self.active_slots = [s for s in self.slots if s in valid_slots]
 
             if auto_select and single_candidate_slots:
-                fetch_q = "SELECT * FROM all_parts WHERE part_type = ANY($1::text[]) and inv = ANY($2::text[])"
-                log.debug(f"Auto-selecting parts for slots: {single_candidate_slots}")
-                p_rows = await conn.fetch(fetch_q, single_candidate_slots, [self.item_type, self.parent_type])
-
-                for row in p_rows:
-                    p_type = row['part_type']
-                    p_inv = row['inv']
-                    
-                    struct_key = PART_STRUCT_MAPPING.get(p_type)
-                    target_inv = self.parent_type if struct_key else self.item_type
-
-                    if p_inv == target_inv:
-                        self.selections[p_type] = [dict(row)]
-
-    def _parse_tags(self, tag_data: Any) -> List[str]:
-        parsed = self._parse_json(tag_data, default=[])
-        cleaned_tags = []
-        if isinstance(parsed, list):
-            for item in parsed:
-                if isinstance(item, dict):
-                    cleaned_tags.extend(str(v) for v in item.values())
-                elif isinstance(item, str):
-                    cleaned_tags.append(item)
-        elif isinstance(parsed, dict):
-            cleaned_tags.extend(str(v) for v in parsed.values())
-        elif isinstance(parsed, str):
-            cleaned_tags.append(parsed)
-        return cleaned_tags
+                # To auto-select, we must respect the table references
+                for slot in single_candidate_slots:
+                    parts = await self.get_parts_status(slot)
+                    # get_parts_status does strict checking now
+                    valid_p = [p['part'] for p in parts if p['valid']]
+                    if len(valid_p) == 1:
+                        self.selections[slot] = valid_p
 
     def get_current_tags(self) -> List[str]:
         tags = list(self.base_tags)
@@ -390,20 +383,10 @@ class CreatorSession:
                     return False, f"Max Limit ({tag_name})"
         return True, ""
 
-    def _parse_json(self, data: Any, default=None) -> Any:
-        if data is None: return default
-        if isinstance(data, (dict, list)): return data
-        if isinstance(data, str):
-            try: return json.loads(data)
-            except json.JSONDecodeError: return default
-        return default
-
-    def select_part(self, slot_name: str, part_row: Optional[dict]):
-        self.selections[slot_name] = part_row
-
     async def get_parts_status(self, slot_name: str) -> List[Dict]:
         """
-        Fetches parts with extensive DEBUG logging to trace filtering.
+        Fetches parts for a slot using strictly mapped Table Ref IDs (serial_inv).
+        AND validates that the parts come from allowed Inventory Types (inv).
         """
         log.debug(f"--- FETCHING PARTS FOR SLOT: {slot_name} ---")
         
@@ -412,23 +395,32 @@ class CreatorSession:
         rules = self.constraints.get(slot_name, {})
         allowed_list = rules.get('allowed_parts') 
         
-        struct_key = PART_STRUCT_MAPPING.get(slot_name)
-        if struct_key:
-            target_inv = self.parent_type
-            log.debug(f"Slot {slot_name} mapped to Key {struct_key}. Using PARENT Type: {target_inv}")
+        # DETERMINE TARGET SERIAL_INV
+        mapped_ref = PART_STRUCT_MAPPING.get(slot_name)
+        if mapped_ref:
+            target_serial_inv = mapped_ref
+            log.debug(f"Slot {slot_name} uses Mapped Ref: {target_serial_inv}")
         else:
-            target_inv = self.item_type
-            log.debug(f"Slot {slot_name} is Standard. Using ITEM Type: {target_inv}")
+            target_serial_inv = self.base_serial_inv_id
+            log.debug(f"Slot {slot_name} uses Base Ref: {target_serial_inv}")
 
         async with self.db_pool.acquire() as conn:
-            query = "SELECT * FROM all_parts WHERE part_type = $1 AND inv = $2"
-            log.debug(f"Executing DB Query for parts in slot '{slot_name}' with inv '{target_inv}'")
-            rows = await conn.fetch(query, slot_name, target_inv)
-            log.debug(f"DB Query returned {len(rows)} raw rows for {slot_name} (inv={target_inv})")
+            # STRICT QUERY with CASTS:
+            # 1. Matches part_type
+            # 2. Matches serial_inv (casted to text to match Python string)
+            # 3. Matches allowed Inventory Types (inv)
+            query = """
+                SELECT * FROM all_parts 
+                WHERE part_type = $1 
+                AND serial_inv::text = $2 
+                AND inv = ANY($3::text[])
+            """
+            rows = await conn.fetch(query, slot_name, target_serial_inv, self.valid_inv_types)
+            log.debug(f"Query returned {len(rows)} parts.")
             
             stats_map = {}
-            if target_inv == self.item_type:
-                # Primary Table: Fetch stats normally
+            if mapped_ref is None: 
+                # Standard Item logic for stats
                 stats_query = """
                     SELECT pl.id, pl.stats
                     FROM part_list pl
@@ -440,13 +432,7 @@ class CreatorSession:
                 try:
                     stat_rows = await conn.fetch(stats_query, self.item_type)
                     stats_map = {r['id']: r['stats'] for r in stat_rows if r['id'] is not None}
-                except Exception as e:
-                    log.warning(f"Failed to fetch stats: {e}")
-            else:
-                # Secondary (Parent) Table: Do NOT fetch stats to avoid ID overlap
-                # TODO: Insert function call here to fetch stats for Parent Type parts when available.
-                # currently, we leave stats_map empty so parts get 'None' stats.
-                log.debug(f"Skipping stats fetch for Parent Type parts in slot {slot_name} to prevent overlap.")
+                except Exception: pass
 
         results = []
 
@@ -513,12 +499,18 @@ class CreatorSession:
     
     async def get_serial_string(self) -> str:
         """
-        Constructs the final serial string, respecting Structured Keys.
+        Constructs the final serial string using Table Reference buckets.
         """
         base = str(self.balance_data.get('base_part') or '0')
         classification = str(self.balance_data.get('serial_index') or '0')
         
-        part_tokens = []
+        # We group parts by their required Table Reference ID
+        # Map: serial_inv -> list of IDs
+        buckets: Dict[str, List[str]] = {}
+        
+        # Initialize default bucket (Base Item ID)
+        buckets[self.base_serial_inv_id] = []
+        
         for slot in self.slots:
             selection = self.selections.get(slot)
             if not selection: continue
@@ -526,20 +518,36 @@ class CreatorSession:
             if isinstance(selection, dict): parts_list = [selection]
             else: parts_list = selection
             
-            ids = [str(p.get('serial_index', '0')) for p in parts_list]
-            ids = [i for i in ids if i != '0']
+            # Determine which bucket these parts belong to
+            mapped_ref = PART_STRUCT_MAPPING.get(slot)
+            target_bucket = mapped_ref if mapped_ref else self.base_serial_inv_id
+            
+            if target_bucket not in buckets:
+                buckets[target_bucket] = []
+
+            for p in parts_list:
+                sid = str(p.get('serial_index', '0'))
+                if sid != '0':
+                    buckets[target_bucket].append(sid)
+
+        # Build Token Strings
+        part_tokens = []
+        
+        # 1. Handle Default Bucket (Unstructured {id})
+        default_ids = buckets.get(self.base_serial_inv_id, [])
+        for pid in default_ids:
+            part_tokens.append(f"{{{pid}}}")
+            
+        # 2. Handle Structured Buckets ({ref:[ids]})
+        for ref, ids in buckets.items():
+            if ref == self.base_serial_inv_id: continue # Already handled
             if not ids: continue
             
-            struct_key = PART_STRUCT_MAPPING.get(slot)
-            if struct_key:
-                if len(ids) == 1:
-                    part_tokens.append(f"{{{struct_key}:{ids[0]}}}")
-                else:
-                    joined_ids = ", ".join(ids)
-                    part_tokens.append(f"{{{struct_key}:[{joined_ids}]}}")
+            if len(ids) == 1:
+                part_tokens.append(f"{{{ref}:{ids[0]}}}")
             else:
-                for i in ids:
-                    part_tokens.append(f"{{{i}}}")
+                joined_ids = ", ".join(ids)
+                part_tokens.append(f"{{{ref}:[{joined_ids}]}}")
 
         all_tokens = []
         if base != '0':
@@ -549,7 +557,8 @@ class CreatorSession:
         rand_val = random.randint(1, 9999)
         component_parts = " ".join(all_tokens)
         
-        full_component_list = f"{classification}, 0, 1, 50| 2, {rand_val} ||{component_parts}"
+        # Inv Type ID goes into the prefix
+        full_component_list = f"{self.base_serial_inv_id}, {classification}, 0, 1, 50| 2, {rand_val} ||{component_parts}"
         
         if hasattr(self, 'session'):
             result = await item_parser.reserialize(self.session, full_component_list)
@@ -578,12 +587,7 @@ class CreatorSession:
             self.selections[slot_name] = part_rows
 
     def get_slot_placeholder(self, slot_name: str) -> str:
-        """
-        Returns the formatted placeholder string for the UI.
-        Example: "Select body_acc to add [2-3]"
-        """
         rules = self.constraints.get(slot_name, {})
         min_val = rules.get('min', 0)
         max_val = rules.get('max', 1)
-        
         return f"Select {slot_name} to add [{min_val}-{max_val}]"
