@@ -55,7 +55,13 @@ item_hierarchy AS (
         -- Metadata
         ic.inv::text AS item_type,
         i.serialindex ->> 'index' AS serial_index,
-        ic.inv::text AS parent_type, 
+        
+        -- Accumulate Parents (Upwards)
+        ARRAY[]::text[] AS parent_type, 
+        
+        -- NEW: Accumulate Children (Downwards path relative to parent)
+        ARRAY[]::text[] AS child_types,
+        
         0 AS level
     FROM latest_comp ic
     LEFT JOIN latest_inv i ON (ic.inv = i.entry_key)
@@ -99,7 +105,13 @@ item_hierarchy AS (
         
         child.item_type,
         child.serial_index,
-        parent.inv::text, 
+        
+        -- Append Current Parent to Parent List
+        child.parent_type || parent.inv::text, 
+        
+        -- NEW: Append Previous Node (Child) to Child List
+        child.child_types || child.current_inv::text,
+        
         child.level + 1
     FROM latest_comp parent
     LEFT JOIN latest_inv pi ON (parent.inv = pi.entry_key)
@@ -113,7 +125,8 @@ SELECT
     aspects,              
     parttypes,            
     item_type,            
-    parent_type,          
+    parent_type,
+    child_types,          
     serial_index,               
     maxnumprefixes,
     maxnumsuffixes,
