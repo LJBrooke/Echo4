@@ -142,8 +142,8 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
         loaded_parts = []
         
         if parsed_parts:
-            req_ids = [p[0] for p in parsed_parts]
-            req_invs = [p[1] for p in parsed_parts]
+            req_ids = [int(p[0]) for p in parsed_parts]
+            req_invs = [int(p[1]) for p in parsed_parts]
             
             async with db_pool.acquire() as conn:
                 # UPDATED: Explicit casts to resolve "operator does not exist: text = integer"
