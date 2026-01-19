@@ -407,6 +407,17 @@ class CreatorSession:
                 tags.extend(p_add)
         return tags
 
+    def _parse_tags(self, tag_data: Any) -> List[str]:
+        return self._parse_json(tag_data, default=[]) if isinstance(tag_data, str) else db_utils.decode_jsonb_list(tag_data)
+
+    def _parse_json(self, data: Any, default=None) -> Any:
+        if data is None: return default
+        if isinstance(data, (dict, list)): return data
+        if isinstance(data, str):
+            try: return json.loads(data)
+            except json.JSONDecodeError: return default
+        return default
+    
     def check_global_tag_limits(self, candidate_part_tags: List[str]) -> tuple[bool, str]:
         if not self.global_tag_rules: return True, ""
         current_tags = self.get_current_tags()
