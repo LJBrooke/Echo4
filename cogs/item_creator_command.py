@@ -52,7 +52,7 @@ class CreatorCommand(commands.Cog):
             # DEBUG: Check if we actually found slots
             if not session.active_slots:
                 await interaction.followup.send(
-                    f"⚠️ **Warning:** No compatible parts found for `{session.item_type}` or `{session.parent_type}`.\n"
+                    f"⚠️ **Warning:** No compatible parts found for `{session.item_type}` or `{str(session.parent_types)}`.\n"
                     f"Please check if the `inv` column in your `all_parts` matches these types."
                 )
                 self.active_editor_sessions.pop(interaction.user.id, None) # Cleanup

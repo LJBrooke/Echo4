@@ -149,8 +149,8 @@ async def validate_serial(serial: str, db_pool: asyncpg.Pool, session: Any) -> T
                 # UPDATED: Explicit casts to resolve "operator does not exist: text = integer"
                 q_fetch = """
                     SELECT p.* FROM all_parts p
-                    JOIN unnest($1::int[], $2::text[]) AS req(idx, sinv) 
-                        ON p.serial_index::int = req.idx AND p.serial_inv::text = req.sinv
+                    JOIN unnest($1::int[], $2::int[]) AS req(idx, sinv) 
+                        ON p.serial_index::int = req.idx AND p.serial_inv = req.sinv
                 """
                 log.debug(f"Bulk validating {len(parsed_parts)} parts.")
                 rows = await conn.fetch(q_fetch, req_ids, req_invs)
@@ -450,7 +450,7 @@ class CreatorSession:
             query = """
                 SELECT * FROM all_parts 
                 WHERE part_type = $1 
-                AND serial_inv::text = $2 
+                AND serial_inv = $2 
                 AND inv = ANY($3::text[])
             """
             rows = await conn.fetch(query, slot_name, target_serial_inv, self.valid_inv_types)
