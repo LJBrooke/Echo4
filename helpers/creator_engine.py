@@ -436,10 +436,10 @@ class CreatorSession:
         # DETERMINE TARGET SERIAL_INV
         mapped_ref = PART_STRUCT_MAPPING.get(slot_name)
         if mapped_ref:
-            target_serial_inv = mapped_ref
+            target_serial_inv = int(mapped_ref)
             log.debug(f"Slot {slot_name} uses Mapped Ref: {target_serial_inv}")
         else:
-            target_serial_inv = self.base_serial_inv_id
+            target_serial_inv = int(self.base_serial_inv_id)
             log.debug(f"Slot {slot_name} uses Base Ref: {target_serial_inv}")
 
         async with self.db_pool.acquire() as conn:
