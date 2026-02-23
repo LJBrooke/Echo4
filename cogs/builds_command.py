@@ -1,6 +1,7 @@
 import discord
 import logging
 import asyncpg
+from builds import build
 from discord import app_commands
 from discord.ext import commands
 
@@ -184,6 +185,35 @@ class BuildCommands(commands.Cog):
     def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
         self.bot = bot
         self.db_pool = db_pool
+        
+    async def _check_for_link(self, interaction: discord.Interaction) -> str:
+        """
+        Checks the last 10 messages for a Lootlemon class link
+        and returns the first one found (newest to oldest).
+        """
+        LEMON_PREFIX = "https://www.lootlemon.com/class/"
+        try:
+            # Scan the last 10 messages (newest to oldest)
+            async for message in interaction.channel.history(limit=10):
+                # Simple check first for performance
+                if LEMON_PREFIX in message.content:
+                    # If the prefix is in the message, find the actual link
+                    # Handle newlines and split by space
+                    words = message.content.replace('\n', ' ').split(' ') 
+                    for word in words:
+                        # Find the first "word" that starts with the prefix
+                        if word.startswith(LEMON_PREFIX):
+                            # Found the link, return it immediately
+                            return word
+            
+            # If we get through all 10 messages without returning, no link was found
+            return "No valid Lootlemon link found"
+        except (discord.Forbidden, discord.HTTPException) as e:
+            log.warning(f"Could not check for 'Lootlemon link' in message history: {e}")
+            return "No valid Lootlemon link found" # Return the "not found" string on permission error
+        except Exception as e:
+            log.error(f"Unexpected error during 'Lootlemon link' check: {e}", exc_info=True)
+            return "No valid Lootlemon link found" # Return the "not found" string on general error
 
     # --- Autocomplete Logic ---
     async def author_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
@@ -230,6 +260,38 @@ class BuildCommands(commands.Cog):
 
     # --- Commands ---
 
+        # --- Interpret Lootlemon Build ---
+    @app_commands.command(name="build_summary", description="Describe a build")
+    @app_commands.describe(link="Lootlemon link of build or ^ if someone has already posted the link.")
+    async def build_inspect(self, interaction: discord.Interaction, link: str):
+        
+        if link.strip()=='^':
+            link = await self._check_for_link(interaction)
+            if 'https://www.lootlemon.com/class/' not in link:
+                return await interaction.response.send_message(content=link)
+            
+        build_obj = build.SkillBuild.from_lootlemon(link)
+        # build_obj.pretty_print()
+        
+        embed_content = f"**Action skill:**: {build_obj.action_skill or 'None'}"
+        embed_content = embed_content + f"\n**Augment:** {build_obj.augment}"
+        embed_content = embed_content + f"\n**Capstone:** {build_obj.capstone}"
+        embed_content = embed_content + "\n\n**Allocated skills:**"
+        for tree in build_obj.skill_trees:
+            for skill in build_obj.skill_trees[tree]:
+                for name, pts in build_obj.skill_trees[tree][skill].items():
+                        embed_content = embed_content + f"\n -> {name}: **{pts}**"
+            embed_content = embed_content + "\n"
+        embed = discord.Embed(title=f"{build_obj.vh.title()}", description=embed_content)
+        embed.color = discord.Color.green() # Default to Harlowe's colour.
+        match build_obj.vh:
+            case "amon": embed.color = discord.Color.red()
+            case "rafa": embed.color = discord.Color.blue()
+            case "vex": embed.color = discord.Color.purple()
+            
+        embed.url = build_obj.to_lootlemon()
+        await interaction.response.send_message(embed=embed)
+        
     @app_commands.command(name="builds", description="Show endgame builds for a specific Vault Hunter.")
     @app_commands.choices(vault_hunter=[
         app_commands.Choice(name="Amon", value="Amon"),
