@@ -98,10 +98,11 @@ item_hierarchy AS (
             OR child.parttagselectionrules = '{}'::jsonb 
             OR child.parttagselectionrules = '[]'::jsonb 
             THEN parent.parttagselectionrules
-            ELSE public.jsonb_merge_recursive(parent.parttagselectionrules, child.parttagselectionrules) 
+            ELSE child.parttagselectionrules 
+            --ELSE public.jsonb_merge_recursive(parent.parttagselectionrules, child.parttagselectionrules) 
         END,
             
-        CASE WHEN child.parttypeselectionrules IS NULL OR child.parttypeselectionrules = '{}'::jsonb THEN parent.parttypeselectionrules ELSE public.jsonb_merge_recursive(parent.parttypeselectionrules, child.parttypeselectionrules) END,
+        CASE WHEN child.parttypeselectionrules IS NULL OR child.parttypeselectionrules = '{}'::jsonb THEN parent.parttypeselectionrules ELSE child.parttypeselectionrules END,
         
         child.item_type,
         child.serial_index,
