@@ -102,7 +102,32 @@ item_hierarchy AS (
             --ELSE public.jsonb_merge_recursive(parent.parttagselectionrules, child.parttagselectionrules) 
         END,
             
-        CASE WHEN child.parttypeselectionrules IS NULL OR child.parttypeselectionrules = '{}'::jsonb THEN parent.parttypeselectionrules ELSE child.parttypeselectionrules END,
+        CASE 
+            -- If child is empty/null, safely use parent
+            WHEN child.parttypeselectionrules IS NULL 
+              OR jsonb_typeof(child.parttypeselectionrules) = 'null' 
+              OR child.parttypeselectionrules = '{}'::jsonb 
+              OR child.parttypeselectionrules = '[]'::jsonb 
+            THEN parent.parttypeselectionrules
+            
+            -- If parent is empty/null, safely use child
+            WHEN parent.parttypeselectionrules IS NULL 
+              OR jsonb_typeof(parent.parttypeselectionrules) = 'null' 
+              OR parent.parttypeselectionrules = '{}'::jsonb 
+              OR parent.parttypeselectionrules = '[]'::jsonb 
+            THEN child.parttypeselectionrules
+            
+            -- If both exist, merge strictly inside the "pairs" key
+            ELSE 
+                jsonb_set(
+                    child.parttypeselectionrules, -- Use child as base to preserve any other top-level keys
+                    '{pairs}',                    -- Target the "pairs" node
+                    -- Merge the pairs. Putting child on the right side of || ensures 
+                    -- the child's pairs overwrite the parent's in the event of an exact key collision.
+                    COALESCE(parent.parttypeselectionrules->'pairs', '{}'::jsonb) || 
+                    COALESCE(child.parttypeselectionrules->'pairs', '{}'::jsonb)
+                )
+        END,
         
         child.item_type,
         child.serial_index,

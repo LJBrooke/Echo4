@@ -446,7 +446,7 @@ class PartCommand(commands.Cog):
                     # 3. Process allowed parts
                     if parts_list:
                         for part_obj in parts_list:
-                            part_name = part_obj.get("part", "Unknown Part")
+                            part_name = part_obj.get("part", "Unknown Part").replace("part_", "")
                             lines.append(f"> - `{part_name}`")
                     else:
                         lines.append("> - No restrictions")
