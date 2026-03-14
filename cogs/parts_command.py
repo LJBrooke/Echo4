@@ -458,8 +458,8 @@ class PartCommand(commands.Cog):
             
             # Add to Embed
             full_text = "\n".join(lines)
-            if len(full_text) > 1024:
-                full_text = full_text[:1020] + "..."
+            if len(full_text) > 1604:
+                full_text = full_text[:1600] + "..."
             
             embed.add_field(name="Part Rules", value=full_text, inline=False)
 
