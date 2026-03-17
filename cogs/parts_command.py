@@ -438,7 +438,7 @@ class PartCommand(commands.Cog):
                     count_str = ""
                     if part_count:
                         p_min = part_count.get("min", "0")
-                        p_max = part_count.get("max", str(len(parts_list)) if parts_list else "1")
+                        p_max = part_count.get("max", "1")
                         count_str = f" [{p_min}-{p_max}]"
                     
                     lines.append(f"**{p_type}{count_str}**")

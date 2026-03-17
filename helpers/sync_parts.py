@@ -260,7 +260,7 @@ async def sync_lemons(session: aiohttp.ClientSession) -> str:
             db_pass
         )
 
-        success_message = f"✅ Sync complete. Successfully loaded {rows_synced} rows into '{TABLE_NAME}'."
+        success_message = f"✅ Sync complete. Successfully loaded {rows_synced} rows into '{LEMON_TABLE}'."
         print(success_message)
         return success_message
 
