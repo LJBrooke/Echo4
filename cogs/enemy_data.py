@@ -87,7 +87,7 @@ class EnemyData(commands.Cog):
                 WHERE 
                     (ud.text ILIKE $1 OR va.balance_path ILIKE $1)
                 ORDER BY friendly_name ASC
-                LIMIT 25;
+                LIMIT 24;
             """
             results = await conn.fetch(query, f"%{current}%")
 
