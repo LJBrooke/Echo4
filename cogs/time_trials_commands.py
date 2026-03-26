@@ -25,6 +25,7 @@ ACTION_SKILLS = [
 # UVH Levels 6 down to 0
 # UVH_LEVELS = list(range(6, -1, -1))
 UVH_LEVELS = [6]
+MAX_LEVEL=60
 
 # Pre-compiled Choice lists for Discord Decorators
 VH_CHOICES = [app_commands.Choice(name=vh, value=vh) for vh in VAULT_HUNTERS]
@@ -388,7 +389,8 @@ class TimeTrialsCommand(commands.Cog):
         vault_hunter="[Optional] Filter by a specific Vault Hunter",
         # uvh_level="[Optional] Filter by UVH Level (Default: 6)",
         true_mode="[Optional] Filter by True Mode (Default: True)",
-        tag="[Optional] Filter by a specific Tag (e.g. No Homing)"
+        tag="[Optional] Filter by a specific Tag (e.g. No DLC)",
+        level="[Optional] Filter by character level (Default: 60)"
     )
     # Use constants for choices
     @app_commands.choices(activity=ACTIVITY_CHOICES)
@@ -402,7 +404,8 @@ class TimeTrialsCommand(commands.Cog):
         vault_hunter: app_commands.Choice[str] = None,
         # uvh_level: app_commands.Choice[int] = None,
         true_mode: bool = True,
-        tag: str = None
+        tag: str = None,
+        level: int = MAX_LEVEL
     ):
         await interaction.response.defer()
         # Time trial only supports one UVH level currently.
@@ -421,14 +424,15 @@ class TimeTrialsCommand(commands.Cog):
                     true_mode=$2 AND 
                     ($3::text IS NULL OR vault_hunter = $3::text) AND 
                     ($5::text IS NULL OR tags ? $5) AND
-                    mark_as_deleted is not true
+                    mark_as_deleted is not true AND
+                    level = $6
                 ORDER BY LOWER(runner), true_mode, run_time ASC )
             select * from records order by run_time
             limit 5
         """
 
         async with self.db_pool.acquire() as conn:
-            results = await conn.fetch(query, target_uvh, true_mode, target_vh, activity.value, tag)
+            results = await conn.fetch(query, target_uvh, true_mode, target_vh, activity.value, tag, level)
 
         if not results:
             await interaction.followup.send("No runs found for these settings.")
@@ -466,7 +470,8 @@ class TimeTrialsCommand(commands.Cog):
         true_mode="Was True Mode enabled?",
         url="Link to the video proof",
         tag="[Optional] A tag to associate with this run (e.g. No Homing)",
-        gear="[Optional] A brief description of the Build/Gear used"
+        gear="[Optional] A brief description of the Build/Gear used",
+        level="[Optional] Character level at the time of the run (Default: 60)"
     )
     # Use constants for choices
     @app_commands.choices(activity=ACTIVITY_CHOICES)
@@ -485,7 +490,8 @@ class TimeTrialsCommand(commands.Cog):
         true_mode: bool, 
         url: str, 
         tag: str = None,
-        gear: str = None
+        gear: str = None,
+        level: int = MAX_LEVEL
     ):
         await interaction.response.defer(ephemeral=True)
         
@@ -508,7 +514,7 @@ class TimeTrialsCommand(commands.Cog):
                     """
                     INSERT INTO time_trials 
                     (activity, vault_hunter, action_skill, run_time, uvh_level, true_mode, url, runner, notes, tags)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11)
                     RETURNING id
                     """,
                     activity.value, 
@@ -521,7 +527,8 @@ class TimeTrialsCommand(commands.Cog):
                     url, 
                     runner, 
                     gear,
-                    json.dumps([tag]) if tag else json.dumps([])
+                    json.dumps([tag]) if tag else json.dumps([]),
+                    level
                 )
 
                 await interaction.followup.send(

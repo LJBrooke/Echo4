@@ -19,8 +19,9 @@ class TimeTrialsSheets:
         "Vaults": ["Vault of Radix", "Vault of Inceptus", "Vault of Origo", "Vault Marathon"] 
     }
 
-    def __init__(self, db_pool):
+    def __init__(self, db_pool, level):
         self.db_pool = db_pool
+        self.level=level
         # self.gc = gspread.service_account(filename=JSON_CREDENTIALS)
         # self.sheet = self.gc.open_by_key(SPREADSHEET_ID)
         creds_env = os.getenv("GOOGLE_CREDS_JSON")
@@ -87,13 +88,15 @@ class TimeTrialsSheets:
                     SELECT DISTINCT ON (LOWER(runner), true_mode)
                         runner, run_time, vault_hunter, action_skill, true_mode, notes, url
                     FROM time_trials
-                    WHERE activity = $1 AND uvh_level = 6 and mark_as_deleted is not true
+                    WHERE activity = $1 AND uvh_level = 6 
+                        and mark_as_deleted is not true
+                        and level = $2
                     ORDER BY LOWER(runner), true_mode, run_time ASC )
                 select * from records order by run_time
             """)
             
             for activity in activities:
-                rows = await stmt.fetch(activity)
+                rows = await stmt.fetch(activity, self.level)
                 
                 # Split single DB result into True/Standard buckets
                 data_tree = {
