@@ -316,7 +316,7 @@ class TimeTrialsCommand(commands.Cog):
     def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
         self.bot = bot
         self.db_pool = db_pool
-        self.sheets_mgr = TimeTrialsSheets(self, db_pool, MAX_LEVEL)
+        self.sheets_mgr = TimeTrialsSheets(db_pool, MAX_LEVEL)
 
     # --- Helper: Permissions ---
     async def check_admin(self, interaction: discord.Interaction) -> bool:

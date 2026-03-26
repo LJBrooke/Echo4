@@ -19,7 +19,7 @@ class TimeTrialsSheets:
         "Vaults": ["Vault of Radix", "Vault of Inceptus", "Vault of Origo", "Vault Marathon"] 
     }
 
-    def __init__(self, db_pool, level):
+    def __init__(self, db_pool, level=60):
         self.db_pool = db_pool
         self.level=level
         # self.gc = gspread.service_account(filename=JSON_CREDENTIALS)
