@@ -316,7 +316,7 @@ class TimeTrialsCommand(commands.Cog):
     def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
         self.bot = bot
         self.db_pool = db_pool
-        self.sheets_mgr = TimeTrialsSheets(db_pool, MAX_LEVEL)
+        self.sheets_mgr = TimeTrialsSheets(self, db_pool, MAX_LEVEL)
 
     # --- Helper: Permissions ---
     async def check_admin(self, interaction: discord.Interaction) -> bool:
@@ -648,4 +648,4 @@ async def setup(bot: commands.Bot):
     if not hasattr(bot, 'db_pool'):
         print("Error: bot.db_pool not found.")
         return
-    await bot.add_cog(TimeTrialsCommand(bot, bot.db_pool, MAX_LEVEL))
+    await bot.add_cog(TimeTrialsCommand(bot, bot.db_pool))
