@@ -11,12 +11,13 @@ from discord.ext import commands
 # --- CONFIGURATION / CONSTANTS ---
 # Single source of truth for game data
 
-ACTIVITY_LIST = ["Bloomreaper", "Vault of Origo", "Vault of Inceptus", "Vault of Radix", "Vault Marathon"]
+ACTIVITY_LIST = ["Bloomreaper", "Vault of Origo", "Vault of Inceptus", "Vault of Radix"]
 
-VAULT_HUNTERS = ["Amon", "Harlowe", "Rafa", "Vex"]
+VAULT_HUNTERS = ["Amon", "C4sh" "Harlowe", "Rafa", "Vex"]
 
 ACTION_SKILLS = [
     "Crucible", "Scourge", "Onslaughter", 
+    "Cleromancy", "Sleight of Hand", "Cross-Fire",
     "Flux Generator", "Zero-Point", "CHROMA Accelerator", 
     "Arc-Knives", "APOPHIS Lance", "Peacebreaker Cannons", 
     "Incarnate", "Dead Ringer", "Phase Phamiliar"
