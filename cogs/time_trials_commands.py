@@ -13,7 +13,7 @@ from discord.ext import commands
 
 ACTIVITY_LIST = ["Bloomreaper", "Vault of Origo", "Vault of Inceptus", "Vault of Radix"]
 
-VAULT_HUNTERS = ["Amon", "C4sh" "Harlowe", "Rafa", "Vex"]
+VAULT_HUNTERS = ["Amon", "C4sh", "Harlowe", "Rafa", "Vex"]
 
 ACTION_SKILLS = [
     "Crucible", "Scourge", "Onslaughter", 
