@@ -337,11 +337,12 @@ class BuildCommands(commands.Cog):
         app_commands.Choice(name="60", value=60),
         app_commands.Choice(name="50", value=50)
     ])
-    async def creator_builds(self, interaction: discord.Interaction, creator: str, level: list[int] = [MAX_LEVEL]):
+    async def creator_builds(self, interaction: discord.Interaction, creator: str, level: app_commands.Choice[int] = None):
         """Displays a menu of builds for the selected Creator."""
         await interaction.response.defer()
 
-        view = CreatorView(self, creator, level.value)
+        actual_level = level.value if level else MAX_LEVEL
+        view = CreatorView(self, creator, actual_level)
         await view.init_buttons() # Initialize async data fetching
         
         if not view.children:
