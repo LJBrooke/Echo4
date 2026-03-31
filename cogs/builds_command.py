@@ -309,11 +309,13 @@ class BuildCommands(commands.Cog):
         app_commands.Choice(name="50", value=50)
     ])
     @app_commands.describe(class_mod="Filter by specific Class Mod")
-    async def builds(self, interaction: discord.Interaction, vault_hunter: app_commands.Choice[str], class_mod: str = None, level: list[int] = [MAX_LEVEL]):
+    async def builds(self, interaction: discord.Interaction, vault_hunter: app_commands.Choice[str], class_mod: str = None, level: app_commands.Choice[int] = None):
         """Displays a menu of builds for the selected VH."""
         await interaction.response.defer()
         
-        view = BuildView(self, vault_hunter.value, class_mod, level.value)
+        actual_level = level.value if level else MAX_LEVEL
+        
+        view = BuildView(self, vault_hunter.value, class_mod, actual_level)
         await view.init_buttons() # Initialize async data fetching
         
         if not view.children:
