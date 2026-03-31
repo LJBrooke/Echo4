@@ -20,13 +20,16 @@ ORDER_BY_SQL = """
         name ASC
 """
 
+MAX_LEVEL = 60
+
 # --- View 1: Creator View (Filtered by Author) ---
 class CreatorView(discord.ui.View):
-    def __init__(self, cog: 'BuildCommands', creator: str):
+    def __init__(self, cog: 'BuildCommands', creator: str, level: int = MAX_LEVEL):
         self.cog = cog
         self.creator = creator
         self.message = None
         self.builds_data = [] # Store fetched records here
+        self.level = level
         
         # Set a timeout (5 minutes)
         super().__init__(timeout=300.0)
@@ -36,10 +39,10 @@ class CreatorView(discord.ui.View):
         # We query for builds where the author string contains the creator name
         query = f"""
             SELECT * FROM endgame_builds 
-            WHERE author ILIKE $1 
+            WHERE author ILIKE $1 and level = $2
             {ORDER_BY_SQL}
         """
-        search_term = f"%{self.creator}%"
+        search_term = [f"%{self.creator}%", self.level]
         
         async with self.cog.db_pool.acquire() as conn:
             self.builds_data = await conn.fetch(query, search_term)
@@ -101,25 +104,26 @@ class CreatorView(discord.ui.View):
 
 # --- View 2: Build View (Filtered by VH and optionally COM) ---
 class BuildView(discord.ui.View):
-    def __init__(self, cog: 'BuildCommands', vault_hunter: str, class_mod: str = None):
+    def __init__(self, cog: 'BuildCommands', vault_hunter: str, class_mod: str = None, level: int = MAX_LEVEL):
         self.cog = cog
         self.vault_hunter = vault_hunter
         self.class_mod = class_mod
         self.message = None
         self.builds_data = []
+        self.level = level
 
         super().__init__(timeout=300.0)
     
     async def init_buttons(self):
         """Async initializer to fetch data and setup buttons"""
         # Base Query
-        query = "SELECT * FROM endgame_builds WHERE vault_hunter ILIKE $1"
-        params = [self.vault_hunter]
+        query = "SELECT * FROM endgame_builds WHERE vault_hunter ILIKE $1 AND level = $2"
+        params = [self.vault_hunter, self.level]
 
         # Add COM filter if present
         if self.class_mod:
             # Check if the class_mod string exists within the class_mods text array
-            query += " AND $2 = ANY(class_mods)"
+            query += " AND $3 = ANY(class_mods)"
             params.append(self.class_mod)
         
         query += ORDER_BY_SQL
@@ -295,16 +299,21 @@ class BuildCommands(commands.Cog):
     @app_commands.command(name="builds", description="Show endgame builds for a specific Vault Hunter.")
     @app_commands.choices(vault_hunter=[
         app_commands.Choice(name="Amon", value="Amon"),
+        app_commands.Choice(name="C4sh", value="C4sh"),
         app_commands.Choice(name="Harlowe", value="Harlowe"),
         app_commands.Choice(name="Rafa", value="Rafa"),
         app_commands.Choice(name="Vex", value="Vex")
+    ],
+    level=[
+        app_commands.Choice(name="60", value=60),
+        app_commands.Choice(name="50", value=50)
     ])
     @app_commands.describe(class_mod="Filter by specific Class Mod")
-    async def builds(self, interaction: discord.Interaction, vault_hunter: app_commands.Choice[str], class_mod: str = None):
+    async def builds(self, interaction: discord.Interaction, vault_hunter: app_commands.Choice[str], class_mod: str = None, level: list[int] = [MAX_LEVEL]):
         """Displays a menu of builds for the selected VH."""
         await interaction.response.defer()
         
-        view = BuildView(self, vault_hunter.value, class_mod)
+        view = BuildView(self, vault_hunter.value, class_mod, level.value)
         await view.init_buttons() # Initialize async data fetching
         
         if not view.children:
@@ -322,11 +331,15 @@ class BuildCommands(commands.Cog):
 
     @app_commands.command(name="creator_builds", description="Show builds by a specific creator.")
     @app_commands.autocomplete(creator=author_autocomplete)
-    async def creator_builds(self, interaction: discord.Interaction, creator: str):
+    @app_commands.choices(level=[
+        app_commands.Choice(name="60", value=60),
+        app_commands.Choice(name="50", value=50)
+    ])
+    async def creator_builds(self, interaction: discord.Interaction, creator: str, level: list[int] = [MAX_LEVEL]):
         """Displays a menu of builds for the selected Creator."""
         await interaction.response.defer()
 
-        view = CreatorView(self, creator)
+        view = CreatorView(self, creator, level.value)
         await view.init_buttons() # Initialize async data fetching
         
         if not view.children:
