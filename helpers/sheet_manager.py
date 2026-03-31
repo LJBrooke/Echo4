@@ -16,7 +16,7 @@ class TimeTrialsSheets:
     # The code automatically handles splitting it into "True" and "Standard" tables.
     ACTIVITY_GROUPS = {
         "Raid Bosses": ["Bloomreaper"], 
-        "Vaults": ["Vault of Radix", "Vault of Inceptus", "Vault of Origo", "Vault Marathon"] 
+        "Vaults": ["Vault of Radix", "Vault of Inceptus", "Vault of Origo"] 
     }
 
     def __init__(self, db_pool, level=60):
