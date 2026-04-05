@@ -14,7 +14,7 @@ async def is_gear_request(message: discord.Message, db_pool: asyncpg.Pool) -> bo
     a database-backed heuristic scoring system.
     """
     
-    print(f"\n--- DEBUG: Message from {message.author} has passed outer guards ---")
+    # print(f"\n--- DEBUG: Message from {message.author} has passed outer guards ---")
     
     # 1. OUTER GUARD: Only run this logic in the specific community guild
     TARGET_GUILD_ID = 1357925020860551328  # Soup Kitchen guild ID
@@ -50,7 +50,7 @@ async def is_gear_request(message: discord.Message, db_pool: asyncpg.Pool) -> bo
     print(f"\n--- DEBUG: Message from {message.author} passed guards, checking score eval ---")
     # 5. Check against your threshold
     THRESHOLD = 3 
-    print(f"DEBUG: Total score for message '{message.content}' is {total_score} (threshold is {THRESHOLD})")
+    # print(f"DEBUG: Total score for message '{message.content}' is {total_score} (threshold is {THRESHOLD})")
     return total_score >= THRESHOLD
 
 async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bool:
@@ -85,7 +85,7 @@ async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bo
     # 5. If they passed the user checks, evaluate the message content
     # Assumes bot.db_pool was instantiated in bot.setup_hook()
     if await is_gear_request(message, bot.db_pool):
-        print(f"\n--- DEBUG: Message from {message.author} triggered gear request response ---")
+        print(f"\n--- Log: Message from {message.author} triggered gear request response ---")
         gear_channel = message.guild.get_channel(GEAR_CHANNEL_ID)
         
         if gear_channel:
