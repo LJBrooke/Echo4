@@ -50,6 +50,7 @@ async def is_gear_request(message: discord.Message, db_pool: asyncpg.Pool) -> bo
     print(f"\n--- DEBUG: Message from {message.author} passed guards, checking score eval ---")
     # 5. Check against your threshold
     THRESHOLD = 3 
+    print(f"DEBUG: Total score for message '{message.content}' is {total_score} (threshold is {THRESHOLD})")
     return total_score >= THRESHOLD
 
 async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bool:
