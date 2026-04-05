@@ -4,6 +4,10 @@ import re
 from datetime import datetime, timedelta, timezone
 import asyncpg
 
+# Configuration IDs
+TARGET_GUILD_ID = 1357925020860551328  # Soup Kitchen guild ID
+GEAR_CHANNEL_ID = 1490422924996251688  # gear-requests channel ID
+
 async def is_gear_request(message: discord.Message, db_pool: asyncpg.Pool) -> bool:
     """
     Evaluates short messages to determine if they are asking for gear using
@@ -49,15 +53,19 @@ async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bo
     account age in the server or persistent cache overrides.
     Returns True if the message was routed, False otherwise.
     """
-    # 1. Must be in a guild to have a joined_at attribute
-    if not isinstance(message.author, discord.Member):
+    # 1. GUILD GUARD: Only run this logic in the specific community guild
+    if message.guild is None or message.guild.id != TARGET_GUILD_ID:
+        return False
+    
+    # 2. CHANNEL GUARD: Do not trigger if the message is already in the gear channel
+    if message.channel.id == GEAR_CHANNEL_ID:
         return False
 
-    # 2. Check if user is in the persistent cache
+    # 3. Check if user is in the persistent cache
     # Assumes bot.persistent_users_cache was populated in bot.setup_hook()
     is_persistent = message.author.id in getattr(bot, 'persistent_users_cache', set())
 
-    # 3. If not persistent, check the 72-hour window
+    # 4. If not persistent, check the 72-hour window
     if not is_persistent:
         if message.author.joined_at is None:
             return False
@@ -66,11 +74,10 @@ async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bo
         if time_since_join > timedelta(hours=72):
             return False
 
-    # 4. If they passed the user checks, evaluate the message content
+    # 5. If they passed the user checks, evaluate the message content
     # Assumes bot.db_pool was instantiated in bot.setup_hook()
     if await is_gear_request(message, bot.db_pool):
-        gear_channel_id = 1490422924996251688  # gear-requests channel ID
-        gear_channel = message.guild.get_channel(gear_channel_id)
+        gear_channel = message.guild.get_channel(GEAR_CHANNEL_ID)
         
         if gear_channel:
             await message.reply(
