@@ -84,6 +84,7 @@ async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bo
     # 5. If they passed the user checks, evaluate the message content
     # Assumes bot.db_pool was instantiated in bot.setup_hook()
     if await is_gear_request(message, bot.db_pool):
+        print(f"\n--- DEBUG: Message from {message.author} triggered gear request response ---")
         gear_channel = message.guild.get_channel(GEAR_CHANNEL_ID)
         
         if gear_channel:
