@@ -26,7 +26,9 @@ async def is_gear_request(message: discord.Message, db_pool: asyncpg.Pool) -> bo
         return False
         
     content_lower = message.content.lower()
-    if "drop" not in content_lower or "give" not in content_lower or "anyone" not in content_lower:
+    trigger_words = ["drop", "give", "anyone", "gear"]
+    if not any(word in content_lower for word in trigger_words):
+        print("DEBUG: Failed trigger word guard clause.") # Add this to see it fail
         return False
 
     # 3. Fetch the dynamic heuristics from your PostgreSQL database
