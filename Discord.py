@@ -98,6 +98,7 @@ class MyBot(commands.Bot):
             command_prefix="!",
             intents=discord.Intents.default()
         )
+        self.persistent_users_cache = set()
     
     async def log_command_metric(self, command_name: str, response_time_ms: float, user_type: str, guild_context: str, command_options: str):
         """
@@ -119,7 +120,7 @@ class MyBot(commands.Bot):
                 
         except Exception as e:
             log.error(f"Failed to log command metric to database: {e}", exc_info=True)
-            
+                 
     async def log_command_error(self, command_name: str, error: app_commands.AppCommandError, user_type: str, guild_context: str):
         """
         Writes command error details to the 'command_errors' table in the database.
@@ -321,6 +322,10 @@ class MyBot(commands.Bot):
             log.info(f"Failed to sync commands: {e}")
             
         self.monitor_bot_health.start()
+        
+        query = "SELECT user_id FROM persistent_gear_requesters;"
+        records = await self.db_pool.fetch(query)
+        self.persistent_users_cache = {record['user_id'] for record in records}
 
     async def on_ready(self):
         """This event is called when the bot is fully connected."""
