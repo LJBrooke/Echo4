@@ -93,6 +93,12 @@ command_start_times = {}
 
 class MyBot(commands.Bot):
     def __init__(self):
+        # 1. Instantiate the default intents
+        intents = discord.Intents.default()
+        
+        # 2. Enable the specific privileged intent for reading messages
+        intents.message_content = True
+        
         # Set up intents and the command prefix
         super().__init__(
             command_prefix="!",
