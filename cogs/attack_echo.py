@@ -26,10 +26,10 @@ async def is_gear_request(message: discord.Message, db_pool: asyncpg.Pool) -> bo
         return False
         
     content_lower = message.content.lower()
-    trigger_words = ["drop", "give", "anyone", "gear"]
-    if not any(word in content_lower for word in trigger_words):
-        print("DEBUG: Failed trigger word guard clause.") # Add this to see it fail
-        return False
+    # trigger_words = ["drop", "give", "anyone", "gear"]
+    # if not any(word in content_lower for word in trigger_words):
+    #     print("DEBUG: Failed trigger word guard clause.") # Add this to see it fail
+    #     return False
 
     # 3. Fetch the dynamic heuristics from your PostgreSQL database
     # Note: For production, you may want to cache these heuristics in memory 
@@ -47,6 +47,7 @@ async def is_gear_request(message: discord.Message, db_pool: asyncpg.Pool) -> bo
         if re.search(rf'\b{re.escape(keyword)}\b', content_lower):
             total_score += weight
 
+    print(f"\n--- DEBUG: Message from {message.author} passed guards, checking score eval ---")
     # 5. Check against your threshold
     THRESHOLD = 3 
     return total_score >= THRESHOLD
@@ -58,7 +59,7 @@ async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bo
     Returns True if the message was routed, False otherwise.
     """
     
-    print(f"\n--- DEBUG: Message from {message.author} is being checked for gear heuristics ---")
+    # print(f"\n--- DEBUG: Message from {message.author} is being checked for gear heuristics ---")
     # 1. GUILD GUARD: Only run this logic in the specific community guild
     if message.guild is None or message.guild.id != TARGET_GUILD_ID:
         return False
