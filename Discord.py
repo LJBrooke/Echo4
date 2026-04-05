@@ -102,7 +102,7 @@ class MyBot(commands.Bot):
         # Set up intents and the command prefix
         super().__init__(
             command_prefix="!",
-            intents=discord.Intents.default()
+            intents=intents  # <--- Pass your custom variable here
         )
         self.persistent_users_cache = set()
     
