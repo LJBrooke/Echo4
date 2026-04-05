@@ -14,6 +14,8 @@ async def is_gear_request(message: discord.Message, db_pool: asyncpg.Pool) -> bo
     a database-backed heuristic scoring system.
     """
     
+    print(f"\n--- DEBUG: Message from {message.author} has passed outer guards ---")
+    
     # 1. OUTER GUARD: Only run this logic in the specific community guild
     TARGET_GUILD_ID = 1357925020860551328  # Soup Kitchen guild ID
     if message.guild is None or message.guild.id != TARGET_GUILD_ID:
@@ -53,6 +55,8 @@ async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bo
     account age in the server or persistent cache overrides.
     Returns True if the message was routed, False otherwise.
     """
+    
+    print(f"\n--- DEBUG: Message from {message.author} is being checked for gear heuristics ---")
     # 1. GUILD GUARD: Only run this logic in the specific community guild
     if message.guild is None or message.guild.id != TARGET_GUILD_ID:
         return False
@@ -73,7 +77,7 @@ async def handle_gear_routing(message: discord.Message, bot: commands.Bot) -> bo
         time_since_join = datetime.now(timezone.utc) - message.author.joined_at
         if time_since_join > timedelta(hours=72):
             return False
-
+        
     # 5. If they passed the user checks, evaluate the message content
     # Assumes bot.db_pool was instantiated in bot.setup_hook()
     if await is_gear_request(message, bot.db_pool):
