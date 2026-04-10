@@ -71,7 +71,7 @@ class LookupCommand(commands.Cog):
             thumbnail_url='https://cdn.prod.website-files.com/5ff36780a1084987868ce198/68e22a4d705bce252742b8a9_Rafa.avif'
         elif char_name.title()=='Vex':
             thumbnail_url='https://cdn.prod.website-files.com/5ff36780a1084987868ce198/68e22a40a94f8477fe7d1c2e_Vex.avif'
-        elif char_name.title()=='C4sh':
+        elif char_name.title()=='C4Sh':
             thumbnail_url='https://cdn.prod.website-files.com/5ff36780a1084987868ce198/69ca414534773b7527eff62d_player_class_robodealer.avif'
         embed.set_thumbnail(url=thumbnail_url)
         
