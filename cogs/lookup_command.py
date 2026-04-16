@@ -185,6 +185,7 @@ class LookupCommand(commands.Cog):
                 field_str = f"**{name}**{details_str}"
                 if effect.get('note'): field_str += f"\n  - Note: {effect['note']}"
                 if effect.get('source inheriting'): field_str += f"\n  - Source Inheriting: {effect['source inheriting']}"
+                if effect.get('skill damage'): field_str += f"\n  - Is Skill Damage: {effect['skill damage']}"
                 if effect.get('action skill damage'): field_str += f"\n  - Is Action Skill Damage: {effect['action skill damage']}"
                 
                 effects_text.append(field_str)
