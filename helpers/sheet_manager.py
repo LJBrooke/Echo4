@@ -82,21 +82,27 @@ class TimeTrialsSheets:
         sheet_payload = [] # List of tuples: (activity_name, data_tree)
         
         async with self.db_pool.acquire() as conn:
+            records = await self.db_pool.fetch("SELECT tag_name FROM time_trials_tag_definitions WHERE excluder = true")
+            excluders = [r['tag_name'] for r in records]
+            
             # Prepare statement for efficiency since we run it multiple times
             stmt = await conn.prepare("""
-                with records as (
+                WITH records AS (
                     SELECT DISTINCT ON (LOWER(runner), true_mode)
                         runner, run_time, vault_hunter, action_skill, true_mode, notes, url
                     FROM time_trials
-                    WHERE activity = $1 AND uvh_level = 6 
-                        and mark_as_deleted is not true
-                        and level = $2
-                    ORDER BY LOWER(runner), true_mode, run_time ASC )
-                select * from records order by run_time
+                    WHERE activity = $1 
+                        AND uvh_level = 6 
+                        AND mark_as_deleted IS NOT TRUE
+                        AND level = $2
+                        AND (tags IS NULL OR NOT (tags ?| $3::text[]))
+                    ORDER BY LOWER(runner), true_mode, run_time ASC 
+                )
+                SELECT * FROM records ORDER BY run_time
             """)
             
             for activity in activities:
-                rows = await stmt.fetch(activity, self.level)
+                rows = await stmt.fetch(activity, self.level, excluders)
                 
                 # Split single DB result into True/Standard buckets
                 data_tree = {

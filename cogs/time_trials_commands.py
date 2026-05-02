@@ -409,32 +409,54 @@ class TimeTrialsCommand(commands.Cog):
         level: int = MAX_LEVEL
     ):
         await interaction.response.defer()
-        # Time trial only supports one UVH level currently.
-        # target_uvh = uvh_level.value if uvh_level else 6
+        
         target_uvh = 6
         target_vh = vault_hunter.value if vault_hunter else None
         
+        # 1. Fetch ALL excluders every time, regardless of what is searched
+        records = await self.db_pool.fetch("SELECT tag_name FROM time_trials_tag_definitions WHERE excluder = true")
+        all_excluders = [r['tag_name'] for r in records]
+        
+        # 2. Build the active excluders list by ignoring the tag currently being searched
+        active_excluders = [e for e in all_excluders if e != tag]
+        
+        # 3. The SQL is now much cleaner
         query = """
-            with records as (
+            WITH records AS (
                 SELECT DISTINCT ON (LOWER(runner), true_mode)
                     runner, run_time, vault_hunter, action_skill, true_mode, notes, url
                 FROM time_trials
                 WHERE 
                     activity = $4 AND 
                     uvh_level = $1 AND 
-                    true_mode=$2 AND 
+                    true_mode = $2 AND 
                     ($3::text IS NULL OR vault_hunter = $3::text) AND 
+                    
+                    -- Rule 1: If a tag is searched, the run MUST have it
                     ($5::text IS NULL OR tags ? $5) AND
-                    mark_as_deleted is not true AND
+                    
+                    -- Rule 2: The run MUST NOT have any active excluders
+                    -- (We include 'tags IS NULL' so runs with no tags aren't accidentally dropped by the JSONB operator)
+                    (tags IS NULL OR NOT (tags ?| $7::text[])) AND
+                    
+                    mark_as_deleted IS NOT TRUE AND
                     level = $6
-                ORDER BY LOWER(runner), true_mode, run_time ASC )
-            select * from records order by run_time
-            limit 5
+                ORDER BY LOWER(runner), true_mode, run_time ASC 
+            )
+            SELECT * FROM records ORDER BY run_time
+            LIMIT 5
         """
-
-        async with self.db_pool.acquire() as conn:
-            results = await conn.fetch(query, target_uvh, true_mode, target_vh, activity.value, tag, level)
-
+        
+        results = await self.db_pool.fetch(
+            query,
+            target_uvh,       # $1
+            true_mode,        # $2
+            target_vh,        # $3
+            activity.value,   # $4
+            tag,              # $5
+            level,            # $6
+            active_excluders  # $7
+        )
         if not results:
             await interaction.followup.send("No runs found for these settings.")
             return
@@ -592,19 +614,44 @@ class TimeTrialsCommand(commands.Cog):
         await interaction.followup.send(embed=view.get_embed(), view=view)
 
     @app_commands.command(name="add_tag", description="[TT Admin] Define a new tag available for runs.")
-    @app_commands.describe(name="The name of the tag (e.g. 'No Homing', 'No AOE', 'Melee')", description="Optional description")
-    async def create_tag(self, interaction: discord.Interaction, name: str, description: str = None):
+    @app_commands.describe(
+        name="The name of the tag (e.g. 'No Homing', 'No AOE', 'Melee')", 
+        description="Optional description", 
+        excluder="Should this tag be an excluder?"
+    )
+    @app_commands.choices(excluder=[
+        app_commands.Choice(name="True (Excludes run from default searches)", value=1),
+        app_commands.Choice(name="False (Standard tag)", value=0)
+    ])
+    async def create_tag(
+        self, 
+        interaction: discord.Interaction, 
+        name: str, 
+        description: str = None, 
+        excluder: app_commands.Choice[int] = None
+    ):
         if not await self.check_admin(interaction):
             await interaction.response.send_message("⛔ Permission Denied.", ephemeral=True)
             return
 
+        # Safely convert the choice back to a boolean (default to False)
+        is_excluder = bool(excluder.value) if excluder else False
+
         async with self.db_pool.acquire() as conn:
             try:
                 await conn.execute(
-                    "INSERT INTO time_trials_tag_definitions (tag_name, description) VALUES ($1, $2)",
-                    name, description
+                    "INSERT INTO time_trials_tag_definitions (tag_name, description, excluder) VALUES ($1, $2, $3)",
+                    name, description, is_excluder
                 )
-                await interaction.response.send_message(f"✅ Tag **{name}** created successfully.", ephemeral=True)
+                
+                # Updated Success Message format
+                status_text = "True" if is_excluder else "False"
+                success_msg = f"✅ **New Tag Created:** `{name}`\n* **Excluder:** {status_text}"
+                if description:
+                    success_msg += f"\n* **Description:** {description}"
+                    
+                await interaction.response.send_message(success_msg, ephemeral=True)
+                
             except asyncpg.UniqueViolationError:
                 await interaction.response.send_message(f"⚠️ The tag **{name}** already exists.", ephemeral=True)
                 
