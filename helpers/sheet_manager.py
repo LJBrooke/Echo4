@@ -106,8 +106,8 @@ class TimeTrialsSheets:
                 
                 # Split single DB result into True/Standard buckets
                 data_tree = {
-                    True: {"Amon": [], "Harlowe": [], "Rafa": [], "Vex": []},
-                    False: {"Amon": [], "Harlowe": [], "Rafa": [], "Vex": []}
+                    True: {"Amon": [], "C4sh": [], "Harlowe": [], "Rafa": [], "Vex": []},
+                    False: {"Amon": [], "C4sh": [],  "Harlowe": [], "Rafa": [], "Vex": []}
                 }
 
                 for row in rows:
@@ -125,7 +125,7 @@ class TimeTrialsSheets:
         """Helper to build the 8-row block for a specific mode."""
         vh_row = []
         header_row = ["Rank"]
-        for vh in ["Amon", "Harlowe", "Rafa", "Vex"]:
+        for vh in ["Amon", "C4sh" "Harlowe", "Rafa", "Vex"]:
             vh_row.extend(["", f"{vh}", "", "", ""])
             header_row.extend([f"Player", "Action Skill", "Gear/Equipment", "Time", ""]) 
         
@@ -134,7 +134,7 @@ class TimeTrialsSheets:
         
         for i in range(5):
             row_data = [f"#{i+1}"]
-            for vh in ["Amon", "Harlowe", "Rafa", "Vex"]:
+            for vh in ["Amon",  "C4sh", "Harlowe", "Rafa", "Vex"]:
                 runs = data_tree[true_mode][vh]
                 if i < len(runs):
                     r = runs[i]
@@ -153,7 +153,7 @@ class TimeTrialsSheets:
         try:
             worksheet = self.sheet.worksheet(sheet_name)
         except gspread.WorksheetNotFound:
-            worksheet = self.sheet.add_worksheet(title=sheet_name, rows=100, cols=20)
+            worksheet = self.sheet.add_worksheet(title=sheet_name, rows=100, cols=26)
 
         worksheet.clear()
         worksheet.freeze(cols=1)
@@ -220,10 +220,11 @@ class TimeTrialsSheets:
             batch.requests.extend(all_merges)
 
     def _apply_sheet_formatting(self, worksheet: gspread.worksheet):
+        # UPDATE: Added column V, U, and W:X to accommodate the 5th VH shift
         set_column_widths(worksheet, [
-            ('A', 40), ('B', 150), ('G', 150), ('L', 150), ('Q', 150),
-            ('F', 40), ('K', 40), ('P', 40),
-            ('C:D', 150), ('H:I', 150), ('M:N', 150), ('R:S', 150)
+            ('A', 40), ('B', 150), ('G', 150), ('L', 150), ('Q', 150), ('V', 150),
+            ('F', 40), ('K', 40), ('P', 40), ('U', 40),
+            ('C:D', 150), ('H:I', 150), ('M:N', 150), ('R:S', 150), ('W:X', 150)
         ])
 
     def _apply_category_formatting(self, worksheet: gspread.worksheet, initial_row: int, format_choice: int):
@@ -249,17 +250,19 @@ class TimeTrialsSheets:
         center_fmt = cellFormat(horizontalAlignment='CENTER') # type: ignore
 
         format_cell_ranges(worksheet, [
-            (f'A{initial_row+0}:T{initial_row+0}', activity_header),
-            (f'A{initial_row+1}:T{initial_row+1}', char_header_fmt),
-            (f'A{initial_row+2}:T{initial_row+2}', header_fmt),
+            (f'A{initial_row+0}:Y{initial_row+0}', activity_header),
+            (f'A{initial_row+1}:Y{initial_row+1}', char_header_fmt),
+            (f'A{initial_row+2}:Y{initial_row+2}', header_fmt),
             (f'B{initial_row+1}:E{initial_row+1}', center_fmt),
             (f'G{initial_row+1}:J{initial_row+1}', center_fmt),
             (f'L{initial_row+1}:O{initial_row+1}', center_fmt),
             (f'Q{initial_row+1}:T{initial_row+1}', center_fmt),
-            (f'B{initial_row+3}:T{initial_row+7}', content_fmt),
+            (f'V{initial_row+1}:Y{initial_row+1}', center_fmt),
+            (f'B{initial_row+3}:Y{initial_row+7}', content_fmt),
             (f'F{initial_row+0}:F{initial_row+7}', divider_fmt),
             (f'K{initial_row+0}:K{initial_row+7}', divider_fmt),
             (f'P{initial_row+0}:P{initial_row+7}', divider_fmt),
+            (f'U{initial_row+0}:U{initial_row+7}', divider_fmt),
             (f'A{initial_row+3}:A{initial_row+7}', rank_fmt)
         ])
         set_row_heights(worksheet, [(f"{initial_row+3}:{initial_row+7}", 48)])
@@ -269,9 +272,10 @@ class TimeTrialsSheets:
         merges = [
             (base_idx, 1, 4),       # B-D (Title row)
             (base_idx + 1, 1, 5),   # B-E (Amon)
-            (base_idx + 1, 6, 10),  # G-J (Harlowe)
-            (base_idx + 1, 11, 15), # L-O (Rafa)
-            (base_idx + 1, 16, 20)  # Q-T (Vex)
+            (base_idx + 1, 6, 10),  # G-J (C4sh)
+            (base_idx + 1, 11, 15), # L-O (Harlowe)
+            (base_idx + 1, 16, 20)  # Q-T (Rafa)
+            (base_idx + 1, 21, 25)  # Q-T (Vex)
         ]
         requests = []
         for row_idx, col_start, col_end in merges:

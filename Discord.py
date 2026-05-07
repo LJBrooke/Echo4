@@ -122,7 +122,7 @@ class MyBot(commands.Bot):
                 await conn.execute("""
                     INSERT INTO command_metrics (command_name, response_time_ms, user_type, guild_context, command_options)
                     VALUES ($1, $2, $3, $4, $5)
-                """, command_name, response_time_ms, user_type, guild_context, command_options)
+                """, command_name, response_time_ms, user_type, str(guild_context), command_options)
                 
         except Exception as e:
             log.error(f"Failed to log command metric to database: {e}", exc_info=True)
