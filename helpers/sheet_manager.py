@@ -274,7 +274,7 @@ class TimeTrialsSheets:
             (base_idx + 1, 1, 5),   # B-E (Amon)
             (base_idx + 1, 6, 10),  # G-J (C4sh)
             (base_idx + 1, 11, 15), # L-O (Harlowe)
-            (base_idx + 1, 16, 20)  # Q-T (Rafa)
+            (base_idx + 1, 16, 20),  # Q-T (Rafa)
             (base_idx + 1, 21, 25)  # Q-T (Vex)
         ]
         requests = []
