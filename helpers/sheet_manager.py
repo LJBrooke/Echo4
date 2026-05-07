@@ -125,7 +125,7 @@ class TimeTrialsSheets:
         """Helper to build the 8-row block for a specific mode."""
         vh_row = []
         header_row = ["Rank"]
-        for vh in ["Amon", "C4sh" "Harlowe", "Rafa", "Vex"]:
+        for vh in ["Amon", "C4sh", "Harlowe", "Rafa", "Vex"]:
             vh_row.extend(["", f"{vh}", "", "", ""])
             header_row.extend([f"Player", "Action Skill", "Gear/Equipment", "Time", ""]) 
         
