@@ -50,7 +50,7 @@ class LookupCommand(commands.Cog):
         }
         color = color_map.get(rarity, discord.Color.orange())
 
-        com_name = record.get["name"]
+        com_name = record.get('name')
         
         if com_name=='Shatterwight':
             com_name=random.choice(['Shatterwight', 'Shitterwait', 'Shatterwaaaiiiit', 'Shatterwhey', 'Shatterweight', 'Shatterwaiter', 'Shatterwight', 'Shatterwight', 'Shatterwight', 'Shattermight', 'Shatterblue'])
