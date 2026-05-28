@@ -15,7 +15,7 @@ class TimeTrialsSheets:
     # Only list the BASE activity name (e.g., "Vault 1"). 
     # The code automatically handles splitting it into "True" and "Standard" tables.
     ACTIVITY_GROUPS = {
-        "Raid Bosses": ["Bloomreaper"], 
+        "Raid Bosses": ["Bloomreaper", "Subjugator", "Thol"], 
         "Vaults": ["Vault of Radix", "Vault of Inceptus", "Vault of Origo"] 
     }
 

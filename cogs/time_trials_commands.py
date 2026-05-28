@@ -11,7 +11,7 @@ from discord.ext import commands
 # --- CONFIGURATION / CONSTANTS ---
 # Single source of truth for game data
 
-ACTIVITY_LIST = ["Bloomreaper", "Vault of Origo", "Vault of Inceptus", "Vault of Radix"]
+ACTIVITY_LIST = ["Bloomreaper", "Subjugator", "Thol", "Vault of Origo", "Vault of Inceptus", "Vault of Radix"]
 
 VAULT_HUNTERS = ["Amon", "C4sh", "Harlowe", "Rafa", "Vex"]
 
@@ -25,7 +25,7 @@ ACTION_SKILLS = [
 
 # UVH Levels 6 down to 0
 # UVH_LEVELS = list(range(6, -1, -1))
-UVH_LEVELS = [6]
+UVH_LEVELS = [7, 6]
 MAX_LEVEL=60
 
 # Pre-compiled Choice lists for Discord Decorators
@@ -388,7 +388,7 @@ class TimeTrialsCommand(commands.Cog):
     @app_commands.describe(
         activity="Choose the activity to view",
         vault_hunter="[Optional] Filter by a specific Vault Hunter",
-        # uvh_level="[Optional] Filter by UVH Level (Default: 6)",
+        uvh_level="[Optional] Filter by UVH Level (Default: 7)",
         true_mode="[Optional] Filter by True Mode (Default: True)",
         tag="[Optional] Filter by a specific Tag (e.g. No DLC)",
         level="[Optional] Filter by character level (Default: 60)"
@@ -397,20 +397,19 @@ class TimeTrialsCommand(commands.Cog):
     @app_commands.choices(activity=ACTIVITY_CHOICES)
     @app_commands.choices(vault_hunter=VH_CHOICES)
     @app_commands.autocomplete(tag=tag_autocomplete)
-    # @app_commands.choices(uvh_level=UVH_CHOICES)
+    @app_commands.choices(uvh_level=UVH_CHOICES)
     async def time_trials(
         self,
         interaction: discord.Interaction,
         activity: app_commands.Choice[str],
         vault_hunter: app_commands.Choice[str] = None,
-        # uvh_level: app_commands.Choice[int] = None,
+        uvh_level: app_commands.Choice[int] = 7,
         true_mode: bool = True,
         tag: str = None,
         level: int = MAX_LEVEL
     ):
         await interaction.response.defer()
         
-        target_uvh = 6
         target_vh = vault_hunter.value if vault_hunter else None
         
         # 1. Fetch ALL excluders every time, regardless of what is searched
@@ -449,7 +448,7 @@ class TimeTrialsCommand(commands.Cog):
         
         results = await self.db_pool.fetch(
             query,
-            target_uvh,       # $1
+            uvh_level,       # $1
             true_mode,        # $2
             target_vh,        # $3
             activity.value,   # $4
@@ -466,7 +465,7 @@ class TimeTrialsCommand(commands.Cog):
         tag_str=''
         if tag: tag_str= f"\n[{tag}]"
         tm_text = "True Mode" if true_mode else "Standard Mode"
-        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*UVH {target_uvh} | {tm_text}{tag_str}*"
+        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*UVH {uvh_level} | {tm_text}{tag_str}*"
 
         description = []
         for rank, row in enumerate(results, start=1):

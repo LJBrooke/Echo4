@@ -115,7 +115,7 @@ class EnemyData(commands.Cog):
     @app_commands.describe(
         enemy_name="The enemy to check (search by name or ID).",
         level="The level of the enemy.",
-        uvh="UVH Level (0-6). Default is 6.",
+        uvh="UVH Level (0-7). Default is 7.",
         player_count="Number of players (1-4). Default is 1."
     )
     @app_commands.autocomplete(enemy_name=enemy_autocomplete)
@@ -131,12 +131,13 @@ class EnemyData(commands.Cog):
         app_commands.Choice(name="3", value=3),
         app_commands.Choice(name="4", value=4),
         app_commands.Choice(name="5", value=5),
-        app_commands.Choice(name="6", value=6)
+        app_commands.Choice(name="6", value=6),
+        app_commands.Choice(name="7", value=7)
     ])
-    async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 6, player_count: int = 1):
+    async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 7, player_count: int = 1):
         await interaction.response.defer(ephemeral=False)
         
-        if not (1 <= player_count <= 4) or not (0 <= uvh <= 6):
+        if not (1 <= player_count <= 4) or not (0 <= uvh <= 7):
             await interaction.followup.send("Player count must be between 1 and 4.")
             return
         
