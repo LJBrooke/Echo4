@@ -53,7 +53,7 @@ class LookupCommand(commands.Cog):
         com_name = record.get('name')
         
         if com_name=='Shatterwight':
-            com_name=random.choice(['Shatterwight', 'Shitterwait', 'Shatterwaaaiiiit', 'Shatterwhey', 'Shatterweight', 'Shatterwaiter', 'Shatterwight', 'Shatterwight', 'Shatterwight', 'Shattermight', 'Shatterblue'])
+            com_name=random.choice(['Shatterwight', 'Shitterwait', 'Shatterwaaaiiiit', 'Shatterwhey', 'Shatterweight', 'Shatterwaiter', 'Shatterwight', 'Shatterwight', 'Shatterwight', 'Shattermight', 'Shatterblue', "Shatterheight", "Meta nerd", "Shatterwheat"])
             
         # 2. Build Base Embed
         embed = discord.Embed(
