@@ -57,7 +57,7 @@ class LookupCommand(commands.Cog):
             
         # 2. Build Base Embed
         embed = discord.Embed(
-            title=record['com_name'],
+            title=com_name,
             color=color,
             url=attributes.get('lootlemon') # Link title to Lootlemon if available
         )
