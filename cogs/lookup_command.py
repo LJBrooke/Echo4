@@ -1,4 +1,5 @@
 import discord
+import random
 import asyncpg
 import json
 from discord import app_commands
@@ -49,9 +50,14 @@ class LookupCommand(commands.Cog):
         }
         color = color_map.get(rarity, discord.Color.orange())
 
+        com_name = record.get["name"]
+        
+        if com_name=='Shatterwight':
+            com_name=random.choice(['Shatterwight', 'Shitterwait', 'Shatterwaaaiiiit', 'Shatterwhey', 'Shatterweight', 'Shatterwaiter', 'Shatterwight', 'Shatterwight', 'Shatterwight', 'Shattermight', 'Shatterblue'])
+            
         # 2. Build Base Embed
         embed = discord.Embed(
-            title=record['name'],
+            title=record['com_name'],
             color=color,
             url=attributes.get('lootlemon') # Link title to Lootlemon if available
         )
