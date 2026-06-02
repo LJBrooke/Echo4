@@ -543,7 +543,7 @@ class TimeTrialsCommand(commands.Cog):
                     vault_hunter.value, 
                     action_skill.value, 
                     duration_obj, 
-                    6,
+                    7,
                     # uvh_level.value, 
                     true_mode, 
                     url, 
