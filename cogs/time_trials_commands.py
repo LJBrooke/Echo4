@@ -403,7 +403,7 @@ class TimeTrialsCommand(commands.Cog):
         interaction: discord.Interaction,
         activity: app_commands.Choice[str],
         vault_hunter: app_commands.Choice[str] = None,
-        uvh_level: app_commands.Choice[int] = 7,
+        uvh_level: app_commands.Choice[int] = None,
         true_mode: bool = True,
         tag: str = None,
         level: app_commands.Choice[int] = None
