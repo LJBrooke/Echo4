@@ -411,7 +411,7 @@ class TimeTrialsCommand(commands.Cog):
         await interaction.response.defer()
         
         target_vh = vault_hunter.value if vault_hunter else None
-        level = level.value if level else MAX_LEVEL
+        target_level = level.value if level else MAX_LEVEL
         
         # 1. Fetch ALL excluders every time, regardless of what is searched
         records = await self.db_pool.fetch("SELECT tag_name FROM time_trials_tag_definitions WHERE excluder = true")
@@ -454,7 +454,7 @@ class TimeTrialsCommand(commands.Cog):
             target_vh,        # $3
             activity.value,   # $4
             tag,              # $5
-            level,            # $6
+            target_level,            # $6
             active_excluders  # $7
         )
         if not results:
