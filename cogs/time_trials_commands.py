@@ -453,7 +453,7 @@ class TimeTrialsCommand(commands.Cog):
             target_vh,        # $3
             activity.value,   # $4
             tag,              # $5
-            level,            # $6
+            int(level),            # $6
             active_excluders  # $7
         )
         if not results:
