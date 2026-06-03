@@ -410,6 +410,7 @@ class TimeTrialsCommand(commands.Cog):
     ):
         await interaction.response.defer()
         
+        target_uvh_level = uvh_level.value if uvh_level else 7
         target_vh = vault_hunter.value if vault_hunter else None
         target_level = level.value if level else MAX_LEVEL
         
@@ -449,12 +450,12 @@ class TimeTrialsCommand(commands.Cog):
         
         results = await self.db_pool.fetch(
             query,
-            uvh_level,        # $1
+            target_uvh_level, # $1
             true_mode,        # $2
             target_vh,        # $3
             activity.value,   # $4
             tag,              # $5
-            target_level,            # $6
+            target_level,     # $6
             active_excluders  # $7
         )
         if not results:
