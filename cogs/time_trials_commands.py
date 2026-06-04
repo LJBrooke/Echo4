@@ -467,9 +467,9 @@ class TimeTrialsCommand(commands.Cog):
         tag_str=''
         if tag: tag_str= f"\n[{tag}]"
         tm_text = "True Mode" if true_mode else "Standard Mode"
-        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*UVH {uvh_level} | {tm_text}{tag_str}*"
+        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*UVH {target_uvh_level} | {tm_text}{tag_str}*"
 
-        description = []
+        description = [f"*Level: {target_level}*"]
         for rank, row in enumerate(results, start=1):
             time_str = TimeTrialsUtils.format_timedelta(row['run_time'])
             medal = {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, f"**{rank}.**")
