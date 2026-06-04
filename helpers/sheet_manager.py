@@ -92,7 +92,7 @@ class TimeTrialsSheets:
                         runner, run_time, vault_hunter, action_skill, true_mode, notes, url
                     FROM time_trials
                     WHERE activity = $1 
-                        AND uvh_level = 6 
+                        AND uvh_level = 7
                         AND mark_as_deleted IS NOT TRUE
                         AND level = $2
                         AND (tags IS NULL OR NOT (tags ?| $3::text[]))
