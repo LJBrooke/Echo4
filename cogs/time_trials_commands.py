@@ -415,7 +415,7 @@ class TimeTrialsCommand(commands.Cog):
         
         target_uvh_level = uvh_level.value if uvh_level else 7
         target_vh = vault_hunter.value if vault_hunter else None
-        target_level = level.value if level else MAX_LEVEL
+        target_level = int(level.value) if level else MAX_LEVEL
         
         # 1. Fetch ALL excluders every time, regardless of what is searched
         records = await self.db_pool.fetch("SELECT tag_name FROM time_trials_tag_definitions WHERE excluder = true")
