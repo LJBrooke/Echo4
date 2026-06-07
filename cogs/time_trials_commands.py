@@ -33,6 +33,7 @@ MAX_LEVEL=60
 VH_CHOICES = [app_commands.Choice(name=vh, value=vh) for vh in VAULT_HUNTERS]
 AS_CHOICES = [app_commands.Choice(name=askill, value=askill) for askill in ACTION_SKILLS]
 UVH_CHOICES = [app_commands.Choice(name=str(lvl), value=lvl) for lvl in UVH_LEVELS]
+VH_LEVELS = [app_commands.Choice(name=str(lvl), value=lvl) for lvl in VH_LEVELS]
 ACTIVITY_CHOICES = [app_commands.Choice(name=activity, value=activity) for activity in ACTIVITY_LIST]
 
 # --- UTILITIES ---
