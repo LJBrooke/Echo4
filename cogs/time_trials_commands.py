@@ -415,7 +415,7 @@ class TimeTrialsCommand(commands.Cog):
         
         target_uvh_level = uvh_level.value if uvh_level else 7
         target_vh = vault_hunter.value if vault_hunter else None
-        target_level = int(level.value) if level else MAX_LEVEL
+        target_level = level.value if level else MAX_LEVEL
         
         # 1. Fetch ALL excluders every time, regardless of what is searched
         records = await self.db_pool.fetch("SELECT tag_name FROM time_trials_tag_definitions WHERE excluder = true")
@@ -424,6 +424,8 @@ class TimeTrialsCommand(commands.Cog):
         # 2. Build the active excluders list by ignoring the tag currently being searched
         active_excluders = [e for e in all_excluders if e != tag]
         
+        print("Time Trials Search Parameters:")
+        print(target_uvh_level, target_vh, true_mode, tag, target_level, active_excluders)
         # 3. The SQL is now much cleaner
         query = """
             WITH records AS (
@@ -434,6 +436,8 @@ class TimeTrialsCommand(commands.Cog):
                     activity = $4 AND 
                     uvh_level = $1 AND 
                     true_mode = $2 AND 
+                    level = $6 AND
+                    mark_as_deleted IS NOT TRUE AND
                     ($3::text IS NULL OR vault_hunter = $3::text) AND 
                     
                     -- Rule 1: If a tag is searched, the run MUST have it
@@ -441,10 +445,8 @@ class TimeTrialsCommand(commands.Cog):
                     
                     -- Rule 2: The run MUST NOT have any active excluders
                     -- (We include 'tags IS NULL' so runs with no tags aren't accidentally dropped by the JSONB operator)
-                    (tags IS NULL OR NOT (tags ?| $7::text[])) AND
+                    (tags IS NULL OR NOT (tags ?| $7::text[]))
                     
-                    mark_as_deleted IS NOT TRUE AND
-                    level = $6
                 ORDER BY LOWER(runner), true_mode, run_time ASC 
             )
             SELECT * FROM records ORDER BY run_time
@@ -453,13 +455,13 @@ class TimeTrialsCommand(commands.Cog):
         
         results = await self.db_pool.fetch(
             query,
-            target_uvh_level, # $1
-            true_mode,        # $2
-            target_vh,        # $3
-            activity.value,   # $4
-            tag,              # $5
-            target_level,     # $6
-            active_excluders  # $7
+            target_uvh_level,   # $1
+            true_mode,          # $2
+            target_vh,          # $3
+            activity.value,     # $4
+            tag,                # $5
+            int(target_level),  # $6
+            active_excluders    # $7
         )
         if not results:
             await interaction.followup.send("No runs found for these settings.")
