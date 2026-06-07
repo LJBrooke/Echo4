@@ -26,6 +26,7 @@ ACTION_SKILLS = [
 # UVH Levels 6 down to 0
 # UVH_LEVELS = list(range(6, -1, -1))
 UVH_LEVELS = [7, 6]
+VH_LEVELS = [60, 50]
 MAX_LEVEL=60
 
 # Pre-compiled Choice lists for Discord Decorators
@@ -398,6 +399,7 @@ class TimeTrialsCommand(commands.Cog):
     @app_commands.choices(vault_hunter=VH_CHOICES)
     @app_commands.autocomplete(tag=tag_autocomplete)
     @app_commands.choices(uvh_level=UVH_CHOICES)
+    @app_commands.choices(level=VH_LEVELS)
     async def time_trials(
         self,
         interaction: discord.Interaction,
