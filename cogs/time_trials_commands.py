@@ -96,7 +96,7 @@ class RunEditModal(discord.ui.Modal, title="Edit Run Details"):
             label="Video URL", default=view.data['url'], required=True
         )
         self.notes_input = discord.ui.TextInput(
-            label="Gear/Equipment", default=view.data['notes'], 
+            label="Build/Gear", default=view.data['notes'], 
             style=discord.TextStyle.paragraph, required=False
         )
 
@@ -499,7 +499,7 @@ class TimeTrialsCommand(commands.Cog):
         true_mode="Was True Mode enabled?",
         url="Link to the video proof",
         tag="[Optional] A tag to associate with this run (e.g. No Homing)",
-        gear="[Optional] A brief description of the Build/Gear used",
+        setup="[Optional] A brief description of the Build/Gear used",
         level="[Optional] Character level at the time of the run (Default: 60)"
     )
     # Use constants for choices
@@ -519,7 +519,7 @@ class TimeTrialsCommand(commands.Cog):
         true_mode: bool, 
         url: str, 
         tag: str = None,
-        gear: str = None,
+        setup: str = None,
         level: int = MAX_LEVEL
     ):
         await interaction.response.defer(ephemeral=True)
@@ -555,7 +555,7 @@ class TimeTrialsCommand(commands.Cog):
                     true_mode, 
                     url, 
                     runner, 
-                    gear,
+                    setup,
                     json.dumps([tag]) if tag else json.dumps([]),
                     level
                 )

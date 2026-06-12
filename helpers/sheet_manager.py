@@ -127,7 +127,7 @@ class TimeTrialsSheets:
         header_row = ["Rank"]
         for vh in ["Amon", "C4sh", "Harlowe", "Rafa", "Vex"]:
             vh_row.extend(["", f"{vh}", "", "", ""])
-            header_row.extend([f"Player", "Action Skill", "Gear/Equipment", "Time", ""]) 
+            header_row.extend([f"Player", "Action Skill", "Build/Gear", "Time", ""]) 
         
         output_rows.append(vh_row)
         output_rows.append(header_row)
