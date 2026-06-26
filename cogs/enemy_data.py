@@ -110,6 +110,36 @@ class EnemyData(commands.Cog):
         
         return choices
 
+    async def fetch_friendly_name(self, balance_key: str, row_name: str) -> str:
+        """Looks up the localized name based on balance key and specific variant row_name."""
+        query = """
+            WITH valid_actor AS (
+                SELECT 
+                    substring(
+                        (attributes ->> 'uxdisplayname') 
+                        FROM 'display_data''([^'']+)'''
+                    ) as display_lookup_key
+                FROM gbxactor
+                WHERE lower(TRIM(BOTH '''' FROM REGEXP_REPLACE(
+                    (balance_data #>> '{balancetablerowhandle, datatable}'), 
+                    '^gbx_ue_data_table', 
+                    ''
+                ))) = lower($1) AND
+                lower(balance_data #>> '{balancetablerowhandle, rowname}') = lower($2)
+                ORDER BY internal_id DESC
+                LIMIT 1
+            )
+            SELECT 
+                TRIM(REGEXP_REPLACE(text, '^.*,', '')) as friendly_name
+            FROM display_data dd
+            JOIN valid_actor va ON lower(dd.entry_key) = lower(va.display_lookup_key)
+            ORDER BY dd.internal_id DESC
+            LIMIT 1;
+        """
+        async with self.bot.db_pool.acquire() as conn:
+            # Pass both the balance_key and row_name to the query
+            return await conn.fetchval(query, balance_key, row_name)
+        
     # --- COMMAND ---
     @app_commands.command(name="enemy_health", description="Calculate enemy health stats.")
     @app_commands.describe(
@@ -234,11 +264,11 @@ class EnemyData(commands.Cog):
         # --- OUTPUT ---
         enemy_rows = json.loads(bal_data) if isinstance(bal_data, str) else bal_data
         
-        # Display the Friendly ID (e.g. catunique) for reference
+        # Display the friendly ID for the main embed title as a fallback
         clean_id = balance_key.replace("table_", "").replace("_balance", "")
 
         embed = discord.Embed(
-            title=f"Health Stats: {clean_id}",
+            title=f"Health Stats",
             description=f"**Level:** {level} | **Players:** {player_count}\n**UVH:** {uvh} | **Mayhem:** {mayhem}\n**Rank:** {target_complexity}",
             color=discord.Color.fuchsia()
         )
@@ -249,14 +279,17 @@ class EnemyData(commands.Cog):
             row_name = row.get('row_name', 'Unknown Variant')
             values = row.get('row_value', {})
             
+            # Fetch the specific friendly name for this variant
+            friendly_name = await self.fetch_friendly_name(balance_key, row_name)
+            
+            # Fallback label if the database lookup fails
+            display_field_name = friendly_name if friendly_name else f"{clean_id} ({row_name})"
+            
             multipliers = {k: v for k, v in values.items() if k.startswith("healthmultiplier")}
             
-            # LOGIC CHANGE: Check if Bar 1 exists. If not, default it to 1.0.
-            # This ensures the loop always runs and calculates at least the base health.
+            # Check if Bar 1 exists. If not, default it to 1.0.
             if "healthmultiplier_01" not in multipliers:
                 multipliers["healthmultiplier_01"] = "1.0"
-
-            # (Removed the 'if not multipliers: continue' line since multipliers is guaranteed to have data now)
 
             found_multipliers = True
             lines = []
@@ -268,7 +301,7 @@ class EnemyData(commands.Cog):
                 bar_num = m_key.split('_')[-1] 
                 lines.append(f"**Bar {bar_num}:** {final_hp:,.0f}")
                 
-            embed.add_field(name=row_name, value="\n".join(lines), inline=False)
+            embed.add_field(name=display_field_name, value="\n".join(lines), inline=False)
 
         if not found_multipliers:
              await interaction.followup.send(f"Found data for `{clean_id}`, but it contained no health multipliers.")
