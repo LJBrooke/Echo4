@@ -164,8 +164,7 @@ class EnemyData(commands.Cog):
             await interaction.followup.send("Player count must be between 1 and 4.")
             return
         
-        # 1. UNPACK DATA (Speed Boost!)
-        # We don't need to query gbxactor because we passed the rank in the value string.
+        # 1. UNPACK DATA 
         try:
             balance_key, rank_raw = enemy_name.split('|')
         except ValueError:
