@@ -18,10 +18,10 @@ RANK_MAPPING = {
     "GbxActor.Character.Rank.Normal": "Normal"
 }
 
-def calc_enemy_health(base: float, level: int, uvh_scale: float, player_scale: float) -> int:
+def calc_enemy_health(base: float, level: int, uvh_scale: float, mayhem_scale: float, player_scale: float) -> int:
     # Formula: Base * 80 * PlayerScale * UVHScale * ((1.09 ^ Level) * (1 + 0.02*Level))
     level_multiplier = (1.09 ** level) * (1 + (0.02 * level))
-    final_health = base * 80 * player_scale * uvh_scale * level_multiplier
+    final_health = base * 80 * player_scale * uvh_scale * mayhem_scale * level_multiplier
     return int(final_health)
 
 class EnemyData(commands.Cog):
@@ -116,6 +116,7 @@ class EnemyData(commands.Cog):
         enemy_name="The enemy to check (search by name or ID).",
         level="The level of the enemy.",
         uvh="UVH Level (0-7). Default is 7.",
+        mayhem="Mayhem Level (0-20). Default is 0.",
         player_count="Number of players (1-4). Default is 1."
     )
     @app_commands.autocomplete(enemy_name=enemy_autocomplete)
@@ -133,8 +134,30 @@ class EnemyData(commands.Cog):
         app_commands.Choice(name="5", value=5),
         app_commands.Choice(name="6", value=6),
         app_commands.Choice(name="7", value=7)
+    ], mayhem=[
+        app_commands.Choice(name="0", value=0),
+        app_commands.Choice(name="1", value=1),
+        app_commands.Choice(name="2", value=2),
+        app_commands.Choice(name="3", value=3),
+        app_commands.Choice(name="4", value=4),
+        app_commands.Choice(name="5", value=5),
+        app_commands.Choice(name="6", value=6),
+        app_commands.Choice(name="7", value=7),
+        app_commands.Choice(name="8", value=8),
+        app_commands.Choice(name="9", value=9),
+        app_commands.Choice(name="10", value=10),
+        app_commands.Choice(name="11", value=11),
+        app_commands.Choice(name="12", value=12),
+        app_commands.Choice(name="13", value=13),
+        app_commands.Choice(name="14", value=14),
+        app_commands.Choice(name="15", value=15),
+        app_commands.Choice(name="16", value=16),
+        app_commands.Choice(name="17", value=17),
+        app_commands.Choice(name="18", value=18),
+        app_commands.Choice(name="19", value=19),
+        app_commands.Choice(name="20", value=20),
     ])
-    async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 7, player_count: int = 1):
+    async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 7, mayhem: int = 0, player_count: int = 1):
         await interaction.response.defer(ephemeral=False)
         
         if not (1 <= player_count <= 4) or not (0 <= uvh <= 7):
@@ -176,7 +199,22 @@ class EnemyData(commands.Cog):
                             uvh_scale = float(val_str)
                             break
             
-            # 4. FETCH PLAYER SCALE (Using the unpacked complexity)
+            # 4. FETCH MAYHEM SCALE
+            mayhem_scale = 1.0
+            if mayhem > 0:
+                uvh_scale = 1.0 # Mayhem overrides UVH, so we reset UVH scale to 1.0
+                mayhem_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'table_difficulty_mayhem' order by internal_id asc limit 1"
+                mayhem_json = await conn.fetchval(mayhem_query)
+                if mayhem_json:
+                    mayhem_data = json.loads(mayhem_json) if isinstance(mayhem_json, str) else mayhem_json
+                    target_row = f"Mayhem{mayhem}"
+                    for row in mayhem_data:
+                        if row.get('row_name') == target_row:
+                            val_str = row.get('row_value', {}).get('enemyhealth', "1.0")
+                            mayhem_scale = float(val_str)
+                            break
+            
+            # 5. FETCH PLAYER SCALE (Using the unpacked complexity)
             player_scale = 1.0
             if player_count > 1:
                 player_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'enemy_health_scalars_by_player_count'"
@@ -202,7 +240,7 @@ class EnemyData(commands.Cog):
 
         embed = discord.Embed(
             title=f"Health Stats: {clean_id}",
-            description=f"**Level:** {level} | **Players:** {player_count} | **UVH:** {uvh}\n**Rank:** {target_complexity}",
+            description=f"**Level:** {level} | **Players:** {player_count}\n**UVH:** {uvh} | **Mayhem:** {mayhem}\n**Rank:** {target_complexity}",
             color=discord.Color.fuchsia()
         )
 
@@ -226,7 +264,7 @@ class EnemyData(commands.Cog):
             
             for m_key in sorted(multipliers.keys()):
                 base_val = float(multipliers[m_key])
-                final_hp = calc_enemy_health(base_val, level, uvh_scale, player_scale)
+                final_hp = calc_enemy_health(base_val, level, uvh_scale, mayhem_scale, player_scale)
                 
                 bar_num = m_key.split('_')[-1] 
                 lines.append(f"**Bar {bar_num}:** {final_hp:,.0f}")
