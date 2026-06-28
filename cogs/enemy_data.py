@@ -278,7 +278,7 @@ class EnemyData(commands.Cog):
         field_count=0
         for row in enemy_rows:
             if field_count >= 24:
-                embed.add_field(name="Clanker issue", value="Only the first 25 variants are displayed. Some variants may be omitted.", inline=False)
+                embed.add_field(name="Clanker issue", value="Only the first 24 variants are displayed. Some variants may be omitted.", inline=False)
                 break
             row_name = row.get('row_name', 'Unknown Variant')
             values = row.get('row_value', {})
