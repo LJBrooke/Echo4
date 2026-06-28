@@ -275,7 +275,11 @@ class EnemyData(commands.Cog):
 
         found_multipliers = False
         
+        field_count=0
         for row in enemy_rows:
+            if field_count >= 24:
+                embed.add_field(name="Clanker issue", value="Only the first 25 variants are displayed. Some variants may be omitted.", inline=False)
+                break
             row_name = row.get('row_name', 'Unknown Variant')
             values = row.get('row_value', {})
             
@@ -302,6 +306,7 @@ class EnemyData(commands.Cog):
                 lines.append(f"**Bar {bar_num}:** {final_hp:,.0f}")
                 
             embed.add_field(name=display_field_name, value="\n".join(lines), inline=False)
+            field_count += 1
 
         if not found_multipliers:
              await interaction.followup.send(f"Found data for `{clean_id}`, but it contained no health multipliers.")
