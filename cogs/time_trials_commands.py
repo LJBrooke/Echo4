@@ -11,7 +11,7 @@ from discord.ext import commands
 # --- CONFIGURATION / CONSTANTS ---
 # Single source of truth for game data
 
-ACTIVITY_LIST = ["Bloomreaper", "Subjugator", "Thol", "Vault of Origo", "Vault of Inceptus", "Vault of Radix"]
+ACTIVITY_LIST = ["Bloomreaper", "Subjugator", "Thol", "Vault of Origo", "Vault of Inceptus", "Vault of Radix", "Takedown at Hadron Abyss", "Slaughter Shaft"]
 
 VAULT_HUNTERS = ["Amon", "C4sh", "Harlowe", "Rafa", "Vex"]
 
@@ -134,7 +134,9 @@ class RunEditView(discord.ui.View):
             'vault_hunter': record['vault_hunter'],
             'action_skill': record['action_skill'],
             'uvh_level': record['uvh_level'],
+            'mayhem_level': record['mayhem_level'],
             'true_mode': record['true_mode'],
+            'hardcore': record['hardcore'],
             'url': record['url'],
             'notes': record['notes'] or "",
             'run_time_str': TimeTrialsUtils.format_timedelta(record['run_time']),
@@ -183,6 +185,11 @@ class RunEditView(discord.ui.View):
         self.tm_button_obj = discord.ui.Button(label="True Mode", row=0)
         self.tm_button_obj.callback = self.tm_callback
         self.add_item(self.tm_button_obj)
+        
+        # Hardcore Button
+        self.hm_button_obj = discord.ui.Button(label="Hardcore", row=0)
+        self.hm_button_obj.callback = self.tm_callback
+        self.add_item(self.hm_button_obj)
 
         # Static Buttons
         edit_btn = discord.ui.Button(label="📝 Edit Text Details", style=discord.ButtonStyle.primary, row=0)
@@ -224,6 +231,10 @@ class RunEditView(discord.ui.View):
         state = self.data['true_mode']
         self.tm_button_obj.label = "True Mode: ON" if state else "True Mode: OFF"
         self.tm_button_obj.style = discord.ButtonStyle.green if state else discord.ButtonStyle.grey
+        
+        state = self.data['hardcore']
+        self.hm_button_obj.label = "Hardcore: ON" if state else "Hardcore: OFF"
+        self.hm_button_obj.style = discord.ButtonStyle.green if state else discord.ButtonStyle.grey
 
     def get_embed(self):
         tags_str = ", ".join(self.data['tags']) if self.data['tags'] else "None"
@@ -232,7 +243,7 @@ class RunEditView(discord.ui.View):
             f"**Time:** {self.data['run_time_str']}\n"
             f"**Class:** {self.data['vault_hunter']} / {self.data['action_skill']}\n"
             f"**Tags:** {tags_str}\n"
-            f"**Difficulty:** UVH {self.data['uvh_level']} | {'True Mode' if self.data['true_mode'] else 'Standard'}\n"
+            f"**Difficulty:** UVH {self.data['uvh_level']} | {'True Mode' if self.data['true_mode'] else 'Standard'}{'| Hardcore' if self.data['hardcore'] else ''}\n"
             f"**URL:** {self.data['url']}\n"
             f"**Build/Gear:** {self.data['notes']}"
         )
@@ -260,6 +271,10 @@ class RunEditView(discord.ui.View):
     #     self.data['uvh_level'] = int(self.uvh_select.values[0])
     #     await self.update_display(interaction)
 
+    async def hm_callback(self, interaction: discord.Interaction):
+        self.data['hardcore'] = not self.data['hardcore']
+        await self.update_display(interaction)
+        
     async def tm_callback(self, interaction: discord.Interaction):
         self.data['true_mode'] = not self.data['true_mode']
         await self.update_display(interaction)
@@ -282,12 +297,12 @@ class RunEditView(discord.ui.View):
                 UPDATE time_trials SET
                     runner = $1, vault_hunter = $2, action_skill = $3,
                     uvh_level = $4, true_mode = $5, url = $6, notes = $7, 
-                    run_time = $8, tags = $9::jsonb
-                WHERE id = $10
+                    run_time = $8, tags = $9::jsonb, mayhem_level = $10, hardcore = $11
+                WHERE id = $12
             """, 
             self.data['runner'], self.data['vault_hunter'], self.data['action_skill'],
             self.data['uvh_level'], self.data['true_mode'], self.data['url'], 
-            self.data['notes'], val, tags_json, self.record_id)
+            self.data['notes'], val, tags_json, self.data['mayhem_level'], self.data['hardcore'], self.record_id)
             
         # Trigger Sheet Update
         if self.sheet_callback and self.activity_name:
@@ -391,7 +406,9 @@ class TimeTrialsCommand(commands.Cog):
         activity="Choose the activity to view",
         vault_hunter="[Optional] Filter by a specific Vault Hunter",
         uvh_level="[Optional] Filter by UVH Level (Default: 7)",
+        mayhem_level="[Optional] Filter by Mayhem Level (Default: 0)",
         true_mode="[Optional] Filter by True Mode (Default: True)",
+        hardcore="[Optional] Filter by Hardcore (Default: False)",
         tag="[Optional] Filter by a specific Tag (e.g. No DLC)",
         level="[Optional] Filter by character level (Default: 60)"
     )
@@ -407,7 +424,9 @@ class TimeTrialsCommand(commands.Cog):
         activity: app_commands.Choice[str],
         vault_hunter: app_commands.Choice[str] = None,
         uvh_level: app_commands.Choice[int] = None,
+        mayhem_level: int = 0,
         true_mode: bool = True,
+        hardcore: bool = False,
         tag: str = None,
         level: app_commands.Choice[int] = None
     ):
@@ -416,6 +435,7 @@ class TimeTrialsCommand(commands.Cog):
         target_uvh_level = uvh_level.value if uvh_level else 7
         target_vh = vault_hunter.value if vault_hunter else None
         target_level = level.value if level else MAX_LEVEL
+        difficulty = f"UVH {target_uvh_level}" if mayhem_level == 0 else f"Mayhem {mayhem_level}"
         
         # 1. Fetch ALL excluders every time, regardless of what is searched
         records = await self.db_pool.fetch("SELECT tag_name FROM time_trials_tag_definitions WHERE excluder = true")
@@ -427,52 +447,96 @@ class TimeTrialsCommand(commands.Cog):
         print("Time Trials Search Parameters:")
         print(target_uvh_level, target_vh, true_mode, tag, target_level, active_excluders)
         # 3. The SQL is now much cleaner
-        query = """
-            WITH records AS (
-                SELECT DISTINCT ON (LOWER(runner), true_mode)
-                    runner, run_time, vault_hunter, action_skill, true_mode, notes, url
-                FROM time_trials
-                WHERE 
-                    activity = $4 AND 
-                    uvh_level = $1 AND 
-                    true_mode = $2 AND 
-                    level = $6 AND
-                    mark_as_deleted IS NOT TRUE AND
-                    ($3::text IS NULL OR vault_hunter = $3::text) AND 
-                    
-                    -- Rule 1: If a tag is searched, the run MUST have it
-                    ($5::text IS NULL OR tags ? $5) AND
-                    
-                    -- Rule 2: The run MUST NOT have any active excluders
-                    -- (We include 'tags IS NULL' so runs with no tags aren't accidentally dropped by the JSONB operator)
-                    (tags IS NULL OR NOT (tags ?| $7::text[]))
-                    
-                ORDER BY LOWER(runner), true_mode, run_time ASC 
+        if mayhem_level == 0:
+            query = """
+                WITH records AS (
+                    SELECT DISTINCT ON (LOWER(runner), true_mode)
+                        runner, run_time, vault_hunter, action_skill, true_mode, notes, url
+                    FROM time_trials
+                    WHERE 
+                        activity = $4 AND 
+                        uvh_level = $1 AND 
+                        true_mode = $2 AND 
+                        level = $6 AND
+                        mark_as_deleted IS NOT TRUE AND
+                        ($3::text IS NULL OR vault_hunter = $3::text) AND 
+                        
+                        -- Rule 1: If a tag is searched, the run MUST have it
+                        ($5::text IS NULL OR tags ? $5) AND
+                        
+                        -- Rule 2: The run MUST NOT have any active excluders
+                        -- (We include 'tags IS NULL' so runs with no tags aren't accidentally dropped by the JSONB operator)
+                        (tags IS NULL OR NOT (tags ?| $7::text[]))
+                        
+                    ORDER BY LOWER(runner), true_mode, run_time ASC 
+                )
+                SELECT * FROM records ORDER BY run_time
+                LIMIT 5
+            """
+            
+            results = await self.db_pool.fetch(
+                query,
+                target_uvh_level,   # $1
+                true_mode,          # $2
+                target_vh,          # $3
+                activity.value,     # $4
+                tag,                # $5
+                int(target_level),  # $6
+                active_excluders    # $7
             )
-            SELECT * FROM records ORDER BY run_time
-            LIMIT 5
-        """
-        
-        results = await self.db_pool.fetch(
-            query,
-            target_uvh_level,   # $1
-            true_mode,          # $2
-            target_vh,          # $3
-            activity.value,     # $4
-            tag,                # $5
-            int(target_level),  # $6
-            active_excluders    # $7
-        )
-        if not results:
-            await interaction.followup.send("No runs found for these settings.")
-            return
+            if not results:
+                await interaction.followup.send("No runs found for these settings.")
+                return
+        else:
+            query = """
+                WITH records AS (
+                    SELECT DISTINCT ON (LOWER(runner), true_mode)
+                        runner, run_time, vault_hunter, action_skill, true_mode, notes, url
+                    FROM time_trials
+                    WHERE 
+                        activity = $4 AND 
+                        mayhem_level = $1 AND 
+                        true_mode = $2 AND 
+                        hardcore = $8 AND
+                        level = $6 AND
+                        mark_as_deleted IS NOT TRUE AND
+                        ($3::text IS NULL OR vault_hunter = $3::text) AND 
+                        
+                        -- Rule 1: If a tag is searched, the run MUST have it
+                        ($5::text IS NULL OR tags ? $5) AND
+                        
+                        -- Rule 2: The run MUST NOT have any active excluders
+                        -- (We include 'tags IS NULL' so runs with no tags aren't accidentally dropped by the JSONB operator)
+                        (tags IS NULL OR NOT (tags ?| $7::text[]))
+                        
+                    ORDER BY LOWER(runner), true_mode, run_time ASC 
+                )
+                SELECT * FROM records ORDER BY run_time
+                LIMIT 5
+            """
+            
+            results = await self.db_pool.fetch(
+                query,
+                mayhem_level,       # $1
+                true_mode,          # $2
+                target_vh,          # $3
+                activity.value,     # $4
+                tag,                # $5
+                int(target_level),  # $6
+                active_excluders,   # $7
+                hardcore            # $8
+            )
+            if not results:
+                await interaction.followup.send("No runs found for these settings.")
+                return
 
         # Formatting
         vh_text = f" ({target_vh})" if target_vh else ""
         tag_str=''
         if tag: tag_str= f"\n[{tag}]"
         tm_text = "True Mode" if true_mode else "Standard Mode"
-        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*UVH {target_uvh_level} | {tm_text}{tag_str}*"
+        hm_text = "| Hardcore" if hardcore else ""
+        title = f"🏆 {activity.value.title()} Leaderboard{vh_text}\n*{difficulty} | {tm_text}{hm_text}{tag_str}*"
 
         description = [f"*Level: {target_level}*"]
         for rank, row in enumerate(results, start=1):
@@ -496,7 +560,9 @@ class TimeTrialsCommand(commands.Cog):
         vault_hunter="The character used",
         action_skill="The Action Skill used",
         # uvh_level="The UVH Level (0-6)",
+        mayhem_level="The Mayhem Level (0-20)",
         true_mode="Was True Mode enabled?",
+        hardcore="Was Hardcore enabled?",
         url="Link to the video proof",
         tag="[Optional] A tag to associate with this run (e.g. No Homing)",
         setup="[Optional] A brief description of the Build/Gear used",
@@ -520,6 +586,8 @@ class TimeTrialsCommand(commands.Cog):
         url: str, 
         tag: str = None,
         setup: str = None,
+        mayhem_level: int = 0,
+        hardcore: bool = False,
         level: int = MAX_LEVEL
     ):
         await interaction.response.defer(ephemeral=True)
@@ -539,11 +607,12 @@ class TimeTrialsCommand(commands.Cog):
         # 3. Insert Data
         async with self.db_pool.acquire() as conn:
             try:
+                difficulty = f"UVH 7" if mayhem_level == 0 else f"Mayhem {mayhem_level}"
                 record_id = await conn.fetchval(
                     """
                     INSERT INTO time_trials 
-                    (activity, vault_hunter, action_skill, run_time, uvh_level, true_mode, url, runner, notes, tags, level)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11)
+                    (activity, vault_hunter, action_skill, run_time, uvh_level, true_mode, url, runner, notes, tags, level, mayhem_level, hardcore)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13)
                     RETURNING id
                     """,
                     activity.value, 
@@ -557,14 +626,16 @@ class TimeTrialsCommand(commands.Cog):
                     runner, 
                     setup,
                     json.dumps([tag]) if tag else json.dumps([]),
-                    level
+                    level,
+                    mayhem_level,
+                    hardcore
                 )
 
                 await interaction.followup.send(
                     f"✅ **Run Added!** (ID: {record_id})\n"
                     f"**Runner:** {runner}\n"
                     f"**Time:** {duration_obj}\n"
-                    f"**Build:** {vault_hunter.name} / {action_skill.name} (UVH 6)"
+                    f"**Build:** {vault_hunter.name} / {action_skill.name} ({difficulty})\n"
                 )
             except Exception as e:
                 await interaction.followup.send(f"💥 Database Error: {e}")
