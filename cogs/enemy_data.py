@@ -291,22 +291,48 @@ class EnemyData(commands.Cog):
             
             multipliers = {k: v for k, v in values.items() if k.startswith("healthmultiplier")}
             
+            health_type_query = "SELECT attributes ->> 'healthtypes' FROM gbxactor WHERE balance_data -> 'balancetablerowhandle' ->> 'rowname' = $1 AND lower(balance_data -> 'balancetablerowhandle' ->> 'datatable') = lower($2::text);"
+            health_type_raw = await conn.fetchval(health_type_query, row_name, f"gbx_ue_data_table'{balance_key}'")
+
+            health_type_data = []
+            if health_type_raw:
+                health_type_data = json.loads(health_type_raw)
+
             # Check if Bar 1 exists. If not, default it to 1.0.
             if "healthmultiplier_01" not in multipliers:
                 multipliers["healthmultiplier_01"] = "1.0"
 
             found_multipliers = True
             lines = []
-            
+
             for m_key in sorted(multipliers.keys()):
-                base_val = float(multipliers[m_key])
-                final_hp = calc_enemy_health(base_val, level, uvh_scale, mayhem_scale, player_scale)
+                # Convert '01' to integer 1 for the label, and use it to find the 0-based array index
+                bar_num = int(m_key.split('_')[-1]) 
+                list_index = bar_num - 1
                 
-                bar_num = m_key.split('_')[-1] 
-                lines.append(f"**Bar {bar_num}:** {final_hp:,.0f}")
-                
-            embed.add_field(name=display_field_name, value="\n".join(lines), inline=False)
-            field_count += 1
+                # Only process this multiplier if a corresponding entry exists in the healthtypes list
+                if list_index < len(health_type_data):
+                    
+                    # Extract and clean the health type string
+                    raw_health_string = health_type_data[list_index].get("healthtype", "")
+                    prefix = "healthtype'HealthType_AI_"
+                    
+                    if raw_health_string.startswith(prefix):
+                        # Slice off the prefix and the trailing single quote
+                        clean_health_type = raw_health_string[len(prefix):-1]
+                    else:
+                        # Fallback if the string formatting is unexpected
+                        clean_health_type = raw_health_string 
+                    
+                    base_val = float(multipliers[m_key])
+                    final_hp = calc_enemy_health(base_val, level, uvh_scale, mayhem_scale, player_scale)
+                    
+                    # Build the formatted string: "**Bar 1 (Armor):** 10,000"
+                    lines.append(f"**Bar {bar_num} ({clean_health_type}):** {final_hp:,.0f}")
+                    
+            if lines:
+                embed.add_field(name=display_field_name, value="\n".join(lines), inline=False)
+                field_count += 1
 
         if not found_multipliers:
              await interaction.followup.send(f"Found data for `{clean_id}`, but it contained no health multipliers.")
