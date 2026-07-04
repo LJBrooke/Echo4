@@ -303,7 +303,7 @@ class EnemyData(commands.Cog):
             
             multipliers = {k: v for k, v in values.items() if k.startswith("healthmultiplier")}
             
-            health_type_data = self.get_health_types(row_name, f"gbx_ue_data_table'{balance_key}'")
+            health_type_data = await self.get_health_types(row_name, f"gbx_ue_data_table'{balance_key}'")
 
             # Check if Bar 1 exists. If not, default it to 1.0.
             if "healthmultiplier_01" not in multipliers:
