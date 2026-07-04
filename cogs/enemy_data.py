@@ -110,6 +110,18 @@ class EnemyData(commands.Cog):
         
         return choices
 
+    async def get_health_types(self, row_name: str, balance_path: str) -> list[dict]:
+        health_type_query = "SELECT attributes ->> 'healthtypes' FROM gbxactor WHERE balance_data -> 'balancetablerowhandle' ->> 'rowname' = $1 AND lower(balance_data -> 'balancetablerowhandle' ->> 'datatable') = lower($2::text);"
+        
+        async with self.bot.db_pool.acquire() as conn:
+            health_type_raw = await conn.fetchval(health_type_query, row_name, balance_path)
+            
+        health_type_data = []
+        if health_type_raw:
+            health_type_data = json.loads(health_type_raw)
+            
+        return health_type_data
+                
     async def fetch_friendly_name(self, balance_key: str, row_name: str) -> str:
         """Looks up the localized name based on balance key and specific variant row_name."""
         query = """
@@ -291,12 +303,7 @@ class EnemyData(commands.Cog):
             
             multipliers = {k: v for k, v in values.items() if k.startswith("healthmultiplier")}
             
-            health_type_query = "SELECT attributes ->> 'healthtypes' FROM gbxactor WHERE balance_data -> 'balancetablerowhandle' ->> 'rowname' = $1 AND lower(balance_data -> 'balancetablerowhandle' ->> 'datatable') = lower($2::text);"
-            health_type_raw = await conn.fetchval(health_type_query, row_name, f"gbx_ue_data_table'{balance_key}'")
-
-            health_type_data = []
-            if health_type_raw:
-                health_type_data = json.loads(health_type_raw)
+            health_type_data = self.get_health_types(row_name, f"gbx_ue_data_table'{balance_key}'")
 
             # Check if Bar 1 exists. If not, default it to 1.0.
             if "healthmultiplier_01" not in multipliers:
