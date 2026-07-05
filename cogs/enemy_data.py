@@ -303,7 +303,17 @@ class EnemyData(commands.Cog):
             
             multipliers = {k: v for k, v in values.items() if k.startswith("healthmultiplier")}
             
-            health_type_data = await self.get_health_types(row_name, f"gbx_ue_data_table'{balance_key}'")
+            # 1. Check for _TRUE and setup the base row name for the database query
+            is_true_variant = False
+            query_row_name = row_name
+
+            if row_name.endswith("_TRUE"):
+                is_true_variant = True
+                # Strip off the last 5 characters ("_TRUE") to get the base name
+                query_row_name = row_name[:-5] 
+
+            # 2. Fetch using the adjusted query_row_name so it correctly inherits
+            health_type_data = await self.get_health_types(query_row_name, f"gbx_ue_data_table'{balance_key}'")
 
             # Check if Bar 1 exists. If not, default it to 1.0.
             if "healthmultiplier_01" not in multipliers:
@@ -319,8 +329,6 @@ class EnemyData(commands.Cog):
                 
                 # Only process this multiplier if a corresponding entry exists in the healthtypes list
                 if list_index < len(health_type_data):
-                    
-                    # Extract and clean the health type string
                     raw_health_string = health_type_data[list_index].get("healthtype", "")
                     prefix = "healthtype'HealthType_AI_"
                     
@@ -328,7 +336,6 @@ class EnemyData(commands.Cog):
                         # Slice off the prefix and the trailing single quote
                         clean_health_type = raw_health_string[len(prefix):-1]
                     else:
-                        # Fallback if the string formatting is unexpected
                         clean_health_type = raw_health_string 
                     
                     base_val = float(multipliers[m_key])
@@ -338,6 +345,11 @@ class EnemyData(commands.Cog):
                     lines.append(f"**Bar {bar_num} ({clean_health_type}):** {final_hp:,.0f}")
                     
             if lines:
+                # 3. Handle the "Big Encore" naming logic for _TRUE variants
+                if is_true_variant:
+                    if not display_field_name.startswith("Big Encore"):
+                        display_field_name = f"Big Encore {display_field_name}"
+
                 embed.add_field(name=display_field_name, value="\n".join(lines), inline=False)
                 field_count += 1
 
