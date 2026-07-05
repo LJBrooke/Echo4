@@ -295,12 +295,6 @@ class EnemyData(commands.Cog):
             row_name = row.get('row_name', 'Unknown Variant')
             values = row.get('row_value', {})
             
-            # Fetch the specific friendly name for this variant
-            friendly_name = await self.fetch_friendly_name(balance_key, row_name)
-            
-            # Fallback label if the database lookup fails
-            display_field_name = friendly_name if friendly_name else f"{clean_id} ({row_name})"
-            
             multipliers = {k: v for k, v in values.items() if k.startswith("healthmultiplier")}
             
             # 1. Check for _TRUE and setup the base row name for the database query
@@ -314,6 +308,12 @@ class EnemyData(commands.Cog):
 
             # 2. Fetch using the adjusted query_row_name so it correctly inherits
             health_type_data = await self.get_health_types(query_row_name, f"gbx_ue_data_table'{balance_key}'")
+            
+            # Fetch the specific friendly name for this variant
+            friendly_name = await self.fetch_friendly_name(balance_key, query_row_name)
+            
+            # Fallback label if the database lookup fails
+            display_field_name = friendly_name if friendly_name else f"{clean_id} ({row_name})"
 
             # Check if Bar 1 exists. If not, default it to 1.0.
             if "healthmultiplier_01" not in multipliers:
