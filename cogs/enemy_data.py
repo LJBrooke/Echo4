@@ -165,7 +165,7 @@ class EnemyData(commands.Cog):
         for ht_list in collected_health_types:
             final_health_types.extend(ht_list)
             
-        return final_health_types
+        return final_health_types[-3:]
 
     # async def get_health_types(self, row_name: str, balance_path: str) -> list[dict]:
     #     health_type_query = "SELECT attributes ->> 'healthtypes' FROM gbxactor WHERE balance_data -> 'balancetablerowhandle' ->> 'rowname' = $1 AND lower(balance_data -> 'balancetablerowhandle' ->> 'datatable') = lower($2::text);"
