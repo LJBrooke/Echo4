@@ -110,17 +110,74 @@ class EnemyData(commands.Cog):
         
         return choices
 
+    import json
+
     async def get_health_types(self, row_name: str, balance_path: str) -> list[dict]:
-        health_type_query = "SELECT attributes ->> 'healthtypes' FROM gbxactor WHERE balance_data -> 'balancetablerowhandle' ->> 'rowname' = $1 AND lower(balance_data -> 'balancetablerowhandle' ->> 'datatable') = lower($2::text);"
+        # 1. The initial query uses the datatable and rowname
+        initial_query = """
+            SELECT attributes ->> 'healthtypes' AS healthtypes, 
+                attributes ->> 'parent' AS parent
+            FROM gbxactor 
+            WHERE balance_data -> 'balancetablerowhandle' ->> 'rowname' = $1 
+            AND lower(balance_data -> 'balancetablerowhandle' ->> 'datatable') = lower($2::text);
+        """
+        
+        # 2. The parent query only needs the entry_key
+        parent_query = """
+            SELECT attributes ->> 'healthtypes' AS healthtypes, 
+                attributes ->> 'parent' AS parent
+            FROM gbxactor 
+            WHERE entry_key = lower($1::text);
+        """
+        
+        # This will hold lists of healthtypes arrays. 
+        # By prepending parents, index 0 will always be the oldest ancestor.
+        collected_health_types = []
         
         async with self.bot.db_pool.acquire() as conn:
-            health_type_raw = await conn.fetchval(health_type_query, row_name, balance_path)
+            # Fetch the base child object
+            current_row = await conn.fetchrow(initial_query, row_name, balance_path)
             
-        health_type_data = []
-        if health_type_raw:
-            health_type_data = json.loads(health_type_raw)
+            # Traverse up the parent chain
+            while current_row:
+                # Process and store the current row's health types
+                ht_raw = current_row['healthtypes']
+                if ht_raw:
+                    ht_data = json.loads(ht_raw)
+                    if isinstance(ht_data, list):
+                        # Prepend so ancestors get pushed to the front of the line
+                        collected_health_types.insert(0, ht_data)
+                
+                # Check if a parent exists to continue the loop
+                parent_raw = current_row['parent']
+                if parent_raw and parent_raw.startswith("gbxactor'"):
+                    # Extract 'Char_Thresher_SHARED' from "gbxactor'Char_Thresher_SHARED'"
+                    parent_key = parent_raw.split("'")[1]
+                    
+                    # Run the parent query and update current_row for the next loop iteration
+                    current_row = await conn.fetchrow(parent_query, parent_key)
+                else:
+                    # No parent found, or format is unrecognized; break the loop
+                    break
+                    
+        # 3. Flatten our list of lists into a single continuous list of dictionaries
+        final_health_types = []
+        for ht_list in collected_health_types:
+            final_health_types.extend(ht_list)
             
-        return health_type_data
+        return final_health_types
+
+    # async def get_health_types(self, row_name: str, balance_path: str) -> list[dict]:
+    #     health_type_query = "SELECT attributes ->> 'healthtypes' FROM gbxactor WHERE balance_data -> 'balancetablerowhandle' ->> 'rowname' = $1 AND lower(balance_data -> 'balancetablerowhandle' ->> 'datatable') = lower($2::text);"
+        
+    #     async with self.bot.db_pool.acquire() as conn:
+    #         health_type_raw = await conn.fetchval(health_type_query, row_name, balance_path)
+            
+    #     health_type_data = []
+    #     if health_type_raw:
+    #         health_type_data = json.loads(health_type_raw)
+            
+    #     return health_type_data
                 
     async def fetch_friendly_name(self, balance_key: str, row_name: str) -> str:
         """Looks up the localized name based on balance key and specific variant row_name."""
