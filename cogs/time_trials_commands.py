@@ -13,12 +13,13 @@ from discord.ext import commands
 
 ACTIVITY_LIST = ["Bloomreaper", "Subjugator", "Thol", "Vault of Origo", "Vault of Inceptus", "Vault of Radix", "Takedown at Hadron Abyss", "Slaughter Shaft"]
 
-VAULT_HUNTERS = ["Amon", "C4sh", "Harlowe", "Rafa", "Vex"]
+VAULT_HUNTERS = ["Amon", "C4sh", "Harlowe", "Loveless", "Rafa", "Vex"]
 
 ACTION_SKILLS = [
     "Crucible", "Scourge", "Onslaughter", 
     "Cleromancy", "Sleight of Hand", "Cross-Fire",
     "Flux Generator", "Zero-Point", "CHROMA Accelerator", 
+    "Plague Star", "Visual Paradox Nexus", "Malignant Construct",
     "Arc-Knives", "APOPHIS Lance", "Peacebreaker Cannons", 
     "Incarnate", "Dead Ringer", "Phase Phamiliar"
 ]
@@ -26,8 +27,8 @@ ACTION_SKILLS = [
 # UVH Levels 6 down to 0
 # UVH_LEVELS = list(range(6, -1, -1))
 UVH_LEVELS = [7, 6]
-VH_LEVELS = [60, 50]
-MAX_LEVEL=60
+VH_LEVELS = [70, 60, 50]
+MAX_LEVEL=70
 
 # Pre-compiled Choice lists for Discord Decorators
 VH_CHOICES = [app_commands.Choice(name=vh, value=vh) for vh in VAULT_HUNTERS]
