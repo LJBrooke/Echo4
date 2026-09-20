@@ -256,11 +256,11 @@ class EnemyData(commands.Cog):
         app_commands.Choice(name="19", value=19),
         app_commands.Choice(name="20", value=20),
     ], show_all=[
-        app_commands.Choice(name="Yes", value=True),
-        app_commands.Choice(name="No", value=False)
+        app_commands.Choice(name="Yes", value=1),
+        app_commands.Choice(name="No", value=2)
     ]
     )
-    async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 7, mayhem: int = 0, player_count: int = 1, show_all: bool = False):
+    async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 7, mayhem: int = 0, player_count: int = 1, show_all: bool = 2):
         await interaction.response.defer(ephemeral=False)
         
         if not (1 <= player_count <= 4) or not (0 <= uvh <= 7):
@@ -404,7 +404,7 @@ class EnemyData(commands.Cog):
                     
                     # Build the formatted string: "**Bar 1 (Armor):** 10,000"
                     lines.append(f"**Bar {bar_num} ({clean_health_type}):** {final_hp:,.0f}")
-                elif show_all==True:                   
+                elif show_all==1:                   
                     base_val = float(multipliers[m_key])
                     final_hp = calc_enemy_health(base_val, level, uvh_scale, mayhem_scale, player_scale)
                     
