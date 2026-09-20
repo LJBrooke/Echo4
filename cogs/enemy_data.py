@@ -260,7 +260,7 @@ class EnemyData(commands.Cog):
         app_commands.Choice(name="No", value=2)
     ]
     )
-    async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 7, mayhem: int = 0, player_count: int = 1, show_all: bool = 2):
+    async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 7, mayhem: int = 0, player_count: int = 1, show_all: int = 2):
         await interaction.response.defer(ephemeral=False)
         
         if not (1 <= player_count <= 4) or not (0 <= uvh <= 7):
