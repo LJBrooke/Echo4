@@ -1,4 +1,5 @@
 import os
+import json
 import random
 import asyncpg
 import discord
@@ -11,11 +12,75 @@ OWNER_ID = int(os.getenv("OWNER_ID", 0))
 # NEW: Load the admin server ID
 ADMIN_SERVER_ID = int(os.getenv("ADMIN_SERVER_ID", 0))
 
+class ClassModModal(discord.ui.Modal, title='Add New Class Mod'):
+    # Define the 5 remaining text inputs
+    red_text = discord.ui.TextInput(label='Red Text Effect', style=discord.TextStyle.paragraph, required=False)
+    lootlemon = discord.ui.TextInput(label='Lootlemon URL', required=False)
+    fixed_stat = discord.ui.TextInput(label='Fixed Stat', required=False)
+    skill_notes = discord.ui.TextInput(label='Spaghet Explanation', style=discord.TextStyle.paragraph, required=False)
+    drop_location = discord.ui.TextInput(label='Drop Location', required=False)
+
+    def __init__(self, db_pool, base_data: dict):
+        super().__init__()
+        self.db_pool = db_pool
+        self.base_data = base_data  # Data passed from the slash command
+
+    async def on_submit(self, interaction: discord.Interaction):
+        # 1. Build the JSON attributes payload
+        attributes = {
+            "name": self.base_data['name'],
+            "rarity": self.base_data['rarity'],
+            "skills": self.base_data['skills'],
+            "red_text": self.red_text.value or None,
+            "character": self.base_data['character_name'],
+            "lootlemon": self.lootlemon.value or None,
+            "fixed_stat": self.fixed_stat.value or None,
+            "skill_notes": self.skill_notes.value or None,
+            "drop_location": self.drop_location.value or None,
+            "passive_count": self.base_data['passive_count']
+        }
+
+        # 2. Insert into the database
+        query = """
+            INSERT INTO entities (name, source_category, character_id, attributes)
+            VALUES ($1, $2, $3, $4::jsonb)
+        """
+        async with self.db_pool.acquire() as conn:
+            await conn.execute(
+                query,
+                self.base_data['name'],
+                "Class Mod",
+                self.base_data['character_id'],
+                json.dumps(attributes)
+            )
+
+        # 3. Confirm success (this is where we can safely use ephemeral)
+        await interaction.response.send_message(f"✅ Class Mod **{self.base_data['name']}** successfully added to the Echo-net.", ephemeral=True)
 
 class SystemCommands(commands.Cog):
     def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
         self.bot = bot
         self.db_pool = db_pool
+        
+    async def check_admin(self, interaction: discord.Interaction) -> bool:
+        """Centralized admin check. Works in both Servers (Guilds) and DMs."""
+        
+        # 1. Start with just the user's ID
+        ids_to_check = [interaction.user.id]
+
+        # 2. Safely add role IDs if they exist (only for discord.Member)
+        # The 'getattr' method returns an empty list [] if 'roles' doesn't exist
+        roles = getattr(interaction.user, 'roles', [])
+        ids_to_check.extend([role.id for role in roles])
+
+        async with self.db_pool.acquire() as conn:
+            # 3. Check if ANY of these IDs (User or Roles) are in the admin table
+            admin_check = await conn.fetchval(
+                "SELECT 1 FROM time_trials_admin WHERE user_id = ANY($1)", 
+                ids_to_check
+            )
+        
+        return admin_check is not None
         
     @app_commands.command(name="sync_sheet", description="[Owner Only] Force-sync the Google Sheet with the database.")
     @commands.is_owner()
@@ -163,6 +228,71 @@ class SystemCommands(commands.Cog):
             link='https://youtu.be/dQw4w9WgXcQ?si=il--ViA_ShirGhNC'
         updates=f'''[The latest Borderlands 4 Patch notes can be found here](<{link}>)'''
         await interaction.response.send_message(updates)
+        
+    @app_commands.command(name="add_com", description="[Admin] Add a new Class Mod to the Echo-net.")
+    @app_commands.describe(
+        name="The name of the class mod",
+        vault_hunter="The Vault Hunter this COM belongs to",
+        rarity="Epic or Legendary",
+        passive_count="Number of passives (2 or 3)",
+        skill_1="First skill name", skill_2="Second skill name",
+        skill_3="Third skill name", skill_4="Fourth skill name"
+    )
+    @app_commands.choices(
+        vault_hunter=[
+            app_commands.Choice(name="Amon", value=1),
+            app_commands.Choice(name="Harlowe", value=2),
+            app_commands.Choice(name="Rafa", value=3),
+            app_commands.Choice(name="Vex", value=4),
+            app_commands.Choice(name="C4sh", value=5),
+            app_commands.Choice(name="Loveless", value=6)
+        ],
+        rarity=[
+            app_commands.Choice(name="Legendary", value="Legendary"),
+            app_commands.Choice(name="Epic", value="Purple")
+        ],
+        passive_count=[
+            app_commands.Choice(name="2", value=2),
+            app_commands.Choice(name="3", value=3)
+        ]
+    )
+    async def add_com(
+        self, 
+        interaction: discord.Interaction, 
+        name: str, 
+        vault_hunter: app_commands.Choice[int], 
+        rarity: app_commands.Choice[str], 
+        passive_count: app_commands.Choice[int],
+        skill_1: str, 
+        skill_2: str, 
+        skill_3: str, 
+        skill_4: str
+    ):
+        # 1. Permission Check (Do NOT defer before this!)
+        if not await self.check_admin(interaction):
+            await interaction.response.send_message("⛔ Permission Denied.", ephemeral=True)
+            return
+
+        # 2. Extract values cleanly to prevent casting bugs
+        # If Discord passes a Choice object, we extract the value/name. If a raw fallback occurs, we use it directly[cite: 12].
+        vh_id = getattr(vault_hunter, 'value', vault_hunter)
+        vh_name = getattr(vault_hunter, 'name', "Unknown")
+        rarity_val = getattr(rarity, 'value', rarity)
+        passives_val = getattr(passive_count, 'value', passive_count)
+
+        # 3. Package the first-stage data to hand off to the Modal
+        base_data = {
+            'name': name,
+            'character_id': vh_id,
+            'character_name': vh_name,
+            'rarity': rarity_val,
+            'passive_count': passives_val,
+            'skills': [skill_1, skill_2, skill_3, skill_4]
+        }
+
+        # 4. Launch the Modal
+        modal = ClassModModal(self.db_pool, base_data)
+        await interaction.response.send_modal(modal)
 
 
 async def setup(bot: commands.Bot):
