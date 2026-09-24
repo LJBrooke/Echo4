@@ -57,6 +57,48 @@ class ClassModModal(discord.ui.Modal, title='Add New Class Mod'):
         # 3. Confirm success (this is where we can safely use ephemeral)
         await interaction.response.send_message(f"✅ Class Mod **{self.base_data['name']}** successfully added to the Echo-net.", ephemeral=True)
 
+import discord
+from discord import app_commands
+import json
+
+class GearModal(discord.ui.Modal, title='Add New Gear'):
+    red_text = discord.ui.TextInput(label='Red Text Effect', style=discord.TextStyle.paragraph, required=False)
+    lootlemon = discord.ui.TextInput(label='Lootlemon URL', required=False)
+    skill_notes = discord.ui.TextInput(label='Notes', style=discord.TextStyle.paragraph, required=False)
+    drop_location = discord.ui.TextInput(label='Drop Location', required=False)
+
+    def __init__(self, db_pool, base_data: dict):
+        super().__init__()
+        self.db_pool = db_pool
+        self.base_data = base_data 
+
+    async def on_submit(self, interaction: discord.Interaction):
+        # Build the simplified JSON attributes payload
+        attributes = {
+            "name": self.base_data['name'],
+            "rarity": self.base_data['rarity'],
+            "red_text": self.red_text.value or None,
+            "lootlemon": self.lootlemon.value or None,
+            "skill_notes": self.skill_notes.value or None,
+            "drop_location": self.drop_location.value or None
+        }
+
+        # Insert into the database (character_id is explicitly None/NULL)
+        query = """
+            INSERT INTO entities (name, source_category, character_id, attributes)
+            VALUES ($1, $2, $3, $4::jsonb)
+        """
+        async with self.db_pool.acquire() as conn:
+            await conn.execute(
+                query,
+                self.base_data['name'],
+                self.base_data['gear_type'], 
+                None, 
+                json.dumps(attributes)
+            )
+
+        await interaction.response.send_message(f"✅ Gear **{self.base_data['name']}** successfully added to the Echo-net.", ephemeral=True)
+        
 class SystemCommands(commands.Cog):
     def __init__(self, bot: commands.Bot, db_pool: asyncpg.Pool):
         self.bot = bot
@@ -295,6 +337,52 @@ class SystemCommands(commands.Cog):
         await interaction.response.send_modal(modal)
 
 
+    @app_commands.command(name="add_gear", description="[Admin] Add new Gear to the Echo-net.")
+    @app_commands.describe(
+        name="The name of the item",
+        gear_type="Gun, Enhancement, Shield, or Grenade",
+        rarity="Purple or Legendary"
+    )
+    @app_commands.choices(
+        gear_type=[
+            app_commands.Choice(name="Gun", value="Gun"),
+            app_commands.Choice(name="Enhancement", value="Enhancement"),
+            app_commands.Choice(name="Shield", value="Shield"),
+            app_commands.Choice(name="Grenade", value="Grenade")
+        ],
+        rarity=[
+            app_commands.Choice(name="Legendary", value="Legendary"),
+            app_commands.Choice(name="Epic", value="Purple")
+        ]
+    )
+    async def add_gear(
+        self, 
+        interaction: discord.Interaction, 
+        name: str, 
+        gear_type: app_commands.Choice[str], 
+        rarity: app_commands.Choice[str]
+    ):
+        # Permission Check
+        if not await self.check_admin(interaction):
+            await interaction.response.send_message("⛔ Permission Denied.", ephemeral=True)
+            return
+
+        # Extract values cleanly to prevent casting bugs[cite: 12]
+        gear_type_val = getattr(gear_type, 'value', gear_type)
+        rarity_val = getattr(rarity, 'value', rarity)
+
+        # Package the first-stage data to hand off to the Modal
+        base_data = {
+            'name': name,
+            'gear_type': gear_type_val,
+            'rarity': rarity_val
+        }
+
+        # Launch the Modal
+        modal = GearModal(self.db_pool, base_data)
+        await interaction.response.send_modal(modal)
+        
+        
 async def setup(bot: commands.Bot):
     # This check ensures the commands are only added if the ID is set
     if not hasattr(bot, 'db_pool'):
