@@ -341,7 +341,7 @@ class SystemCommands(commands.Cog):
     @app_commands.describe(
         name="The name of the item",
         gear_type="Gun, Enhancement, Shield, or Grenade",
-        rarity="Purple or Legendary"
+        rarity="Purple, Legendary, Pearlescent"
     )
     @app_commands.choices(
         gear_type=[
@@ -351,6 +351,7 @@ class SystemCommands(commands.Cog):
             app_commands.Choice(name="Grenade", value="Grenade")
         ],
         rarity=[
+            app_commands.Choice(name="Pearl", value="Pearl"),
             app_commands.Choice(name="Legendary", value="Legendary"),
             app_commands.Choice(name="Epic", value="Purple")
         ]
