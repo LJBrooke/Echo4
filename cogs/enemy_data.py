@@ -18,6 +18,23 @@ RANK_MAPPING = {
     "GbxActor.Character.Rank.Normal": "Normal"
 }
 
+# --- SHARED APP COMMAND CHOICES ---
+RANK_CHOICES = [
+    app_commands.Choice(name="Normal", value="Normal"),
+    app_commands.Choice(name="Elite", value="Elite"),
+    app_commands.Choice(name="Badass", value="Badass"),
+    app_commands.Choice(name="Boss", value="Boss")
+]
+
+UVH_CHOICES = [app_commands.Choice(name=str(i), value=i) for i in range(8)]
+MAYHEM_CHOICES = [app_commands.Choice(name=str(i), value=i) for i in range(21)]
+PLAYER_CHOICES = [app_commands.Choice(name=str(i), value=i) for i in range(1, 5)]
+
+SHOW_ALL_CHOICES = [
+    app_commands.Choice(name="Yes", value=1),
+    app_commands.Choice(name="No", value=2)
+]
+
 def calc_enemy_health(base: float, level: int, uvh_scale: float, mayhem_scale: float, player_scale: float) -> int:
     # Formula: Base * 80 * PlayerScale * UVHScale * ((1.09 ^ Level) * (1 + 0.02*Level))
     level_multiplier = (1.09 ** level) * (1 + (0.02 * level))
@@ -27,6 +44,51 @@ def calc_enemy_health(base: float, level: int, uvh_scale: float, mayhem_scale: f
 class EnemyData(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
+    # --- SCALE FETCHING FUNCTIONS ---
+    async def get_uvh_scale(self, conn, uvh: int) -> float:
+        if uvh <= 0:
+            return 1.0
+        uvh_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'table_difficulty_uvh'"
+        uvh_json = await conn.fetchval(uvh_query)
+        if uvh_json:
+            uvh_data = json.loads(uvh_json) if isinstance(uvh_json, str) else uvh_json
+            target_row = f"UVH{uvh}"
+            for row in uvh_data:
+                if row.get('row_name') == target_row:
+                    return float(row.get('row_value', {}).get('enemyhealth', "1.0"))
+        return 1.0
+
+    async def get_mayhem_scale(self, conn, mayhem: int) -> float:
+        if mayhem <= 0:
+            return 1.0
+        mayhem_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'table_difficulty_mayhem' order by internal_id asc limit 1"
+        mayhem_json = await conn.fetchval(mayhem_query)
+        if mayhem_json:
+            mayhem_data = json.loads(mayhem_json) if isinstance(mayhem_json, str) else mayhem_json
+            target_row = f"Mayhem{mayhem}"
+            for row in mayhem_data:
+                if row.get('row_name') == target_row:
+                    return float(row.get('row_value', {}).get('enemyhealth', "1.0"))
+        return 1.0
+
+    async def get_player_scales(self, conn, target_complexity: str) -> dict:
+        player_scales = {1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0}
+        player_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'enemy_health_scalars_by_player_count'"
+        player_json = await conn.fetchval(player_query)
+        
+        if player_json:
+            p_data = json.loads(player_json) if isinstance(player_json, str) else player_json
+            p_map = {1: "oneplayer", 2: "twoplayers", 3: "threeplayers", 4: "fourplayers"}
+            
+            for row in p_data:
+                if row.get('row_name') == target_complexity:
+                    row_vals = row.get('row_value', {})
+                    for pc in range(1, 5):
+                        p_key = p_map[pc]
+                        player_scales[pc] = float(row_vals.get(p_key, {}).get('constant', "1.0"))
+                    break
+        return player_scales
 
     # --- OPTIMIZED AUTOCOMPLETE ---
     async def enemy_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
@@ -110,8 +172,6 @@ class EnemyData(commands.Cog):
         
         return choices
 
-    import json
-
     async def get_health_types(self, row_name: str, balance_path: str) -> list[dict]:
         # 1. The initial query uses the datatable and rowname
         initial_query = """
@@ -166,18 +226,6 @@ class EnemyData(commands.Cog):
             final_health_types.extend(ht_list)
             
         return final_health_types[-3:]
-
-    # async def get_health_types(self, row_name: str, balance_path: str) -> list[dict]:
-    #     health_type_query = "SELECT attributes ->> 'healthtypes' FROM gbxactor WHERE balance_data -> 'balancetablerowhandle' ->> 'rowname' = $1 AND lower(balance_data -> 'balancetablerowhandle' ->> 'datatable') = lower($2::text);"
-        
-    #     async with self.bot.db_pool.acquire() as conn:
-    #         health_type_raw = await conn.fetchval(health_type_query, row_name, balance_path)
-            
-    #     health_type_data = []
-    #     if health_type_raw:
-    #         health_type_data = json.loads(health_type_raw)
-            
-    #     return health_type_data
                 
     async def fetch_friendly_name(self, balance_key: str, row_name: str) -> str:
         """Looks up the localized name based on balance key and specific variant row_name."""
@@ -209,7 +257,8 @@ class EnemyData(commands.Cog):
             # Pass both the balance_key and row_name to the query
             return await conn.fetchval(query, balance_key, row_name)
         
-    # --- COMMAND ---
+    # --- COMMANDS ---
+
     @app_commands.command(name="enemy_health", description="Calculate enemy health stats.")
     @app_commands.describe(
         enemy_name="The enemy to check (search by name or ID).",
@@ -219,46 +268,11 @@ class EnemyData(commands.Cog):
         player_count="Number of players (1-4). Default is 1."
     )
     @app_commands.autocomplete(enemy_name=enemy_autocomplete)
-    @app_commands.choices(player_count=[
-        app_commands.Choice(name="1", value=1),
-        app_commands.Choice(name="2", value=2),
-        app_commands.Choice(name="3", value=3),
-        app_commands.Choice(name="4", value=4)
-    ], uvh=[
-        app_commands.Choice(name="0", value=0),
-        app_commands.Choice(name="1", value=1),
-        app_commands.Choice(name="2", value=2),
-        app_commands.Choice(name="3", value=3),
-        app_commands.Choice(name="4", value=4),
-        app_commands.Choice(name="5", value=5),
-        app_commands.Choice(name="6", value=6),
-        app_commands.Choice(name="7", value=7)
-    ], mayhem=[
-        app_commands.Choice(name="0", value=0),
-        app_commands.Choice(name="1", value=1),
-        app_commands.Choice(name="2", value=2),
-        app_commands.Choice(name="3", value=3),
-        app_commands.Choice(name="4", value=4),
-        app_commands.Choice(name="5", value=5),
-        app_commands.Choice(name="6", value=6),
-        app_commands.Choice(name="7", value=7),
-        app_commands.Choice(name="8", value=8),
-        app_commands.Choice(name="9", value=9),
-        app_commands.Choice(name="10", value=10),
-        app_commands.Choice(name="11", value=11),
-        app_commands.Choice(name="12", value=12),
-        app_commands.Choice(name="13", value=13),
-        app_commands.Choice(name="14", value=14),
-        app_commands.Choice(name="15", value=15),
-        app_commands.Choice(name="16", value=16),
-        app_commands.Choice(name="17", value=17),
-        app_commands.Choice(name="18", value=18),
-        app_commands.Choice(name="19", value=19),
-        app_commands.Choice(name="20", value=20),
-    ], show_all=[
-        app_commands.Choice(name="Yes", value=1),
-        app_commands.Choice(name="No", value=2)
-    ]
+    @app_commands.choices(
+        player_count=PLAYER_CHOICES,
+        uvh=UVH_CHOICES,
+        mayhem=MAYHEM_CHOICES,
+        show_all=SHOW_ALL_CHOICES
     )
     async def check(self, interaction: discord.Interaction, enemy_name: str, level: int, uvh: int = 7, mayhem: int = 0, player_count: int = 1, show_all: int = 2):
         await interaction.response.defer(ephemeral=False)
@@ -287,52 +301,14 @@ class EnemyData(commands.Cog):
                 await interaction.followup.send(f"Could not find balance data for `{balance_key}`.")
                 return
 
-            # 3. FETCH UVH SCALE
-            uvh_scale = 1.0
-            if uvh > 0:
-                uvh_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'table_difficulty_uvh'"
-                uvh_json = await conn.fetchval(uvh_query)
-                if uvh_json:
-                    uvh_data = json.loads(uvh_json) if isinstance(uvh_json, str) else uvh_json
-                    target_row = f"UVH{uvh}"
-                    for row in uvh_data:
-                        if row.get('row_name') == target_row:
-                            val_str = row.get('row_value', {}).get('enemyhealth', "1.0")
-                            uvh_scale = float(val_str)
-                            break
-            
-            # 4. FETCH MAYHEM SCALE
-            mayhem_scale = 1.0
+            # 3. FETCH SCALES VIA HELPERS
+            uvh_scale = await self.get_uvh_scale(conn, uvh)
+            mayhem_scale = await self.get_mayhem_scale(conn, mayhem)
             if mayhem > 0:
-                uvh_scale = 1.0 # Mayhem overrides UVH, so we reset UVH scale to 1.0
-                mayhem_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'table_difficulty_mayhem' order by internal_id asc limit 1"
-                mayhem_json = await conn.fetchval(mayhem_query)
-                if mayhem_json:
-                    mayhem_data = json.loads(mayhem_json) if isinstance(mayhem_json, str) else mayhem_json
-                    target_row = f"Mayhem{mayhem}"
-                    for row in mayhem_data:
-                        if row.get('row_name') == target_row:
-                            val_str = row.get('row_value', {}).get('enemyhealth', "1.0")
-                            mayhem_scale = float(val_str)
-                            break
-            
-            # 5. FETCH PLAYER SCALE (Using the unpacked complexity)
-            player_scale = 1.0
-            if player_count > 1:
-                player_query = "SELECT data FROM gbx_ue_data_table WHERE entry_key = 'enemy_health_scalars_by_player_count'"
-                player_json = await conn.fetchval(player_query)
-                if player_json:
-                    p_data = json.loads(player_json) if isinstance(player_json, str) else player_json
-                    
-                    p_map = {1: "oneplayer", 2: "twoplayers", 3: "threeplayers", 4: "fourplayers"}
-                    p_key = p_map.get(player_count, "oneplayer")
-                    
-                    for row in p_data:
-                        if row.get('row_name') == target_complexity:
-                            val_obj = row.get('row_value', {}).get(p_key, {})
-                            val_str = val_obj.get('constant', "1.0")
-                            player_scale = float(val_str)
-                            break
+                uvh_scale = 1.0 # Mayhem overrides UVH
+                
+            all_player_scales = await self.get_player_scales(conn, target_complexity)
+            player_scale = all_player_scales.get(player_count, 1.0)
 
         # --- OUTPUT ---
         enemy_rows = json.loads(bal_data) if isinstance(bal_data, str) else bal_data
@@ -424,6 +400,157 @@ class EnemyData(commands.Cog):
              await interaction.followup.send(f"Found data for `{clean_id}`, but it contained no health multipliers.")
         else:
             await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="calc_health", description="Calculate health using a custom base value for modding.")
+    @app_commands.describe(
+        base_value="The custom base health value.",
+        level="The level of the enemy.",
+        enemy_rank="The rank of the enemy.",
+        uvh="UVH Level (0-7). Default is 7.",
+        mayhem="Mayhem Level (0-20). Default is 0."
+    )
+    @app_commands.choices(
+        enemy_rank=RANK_CHOICES,
+        uvh=UVH_CHOICES, 
+        mayhem=MAYHEM_CHOICES
+    )
+    async def custom_health(
+        self, 
+        interaction: discord.Interaction, 
+        base_value: float, 
+        level: int, 
+        enemy_rank: app_commands.Choice[str], 
+        uvh: int = 7, 
+        mayhem: int = 0
+    ):
+        await interaction.response.defer(ephemeral=False)
+        
+        target_complexity = getattr(enemy_rank, 'value', enemy_rank)
+
+        async with self.bot.db_pool.acquire() as conn:
+            # SCALES VIA HELPERS
+            uvh_scale = await self.get_uvh_scale(conn, uvh)
+            mayhem_scale = await self.get_mayhem_scale(conn, mayhem)
+            if mayhem > 0:
+                uvh_scale = 1.0 # Mayhem overrides UVH
+                
+            player_scales = await self.get_player_scales(conn, target_complexity)
+
+        # CALCULATE AND FORMAT OUTPUT
+        lines = []
+        for pc in range(1, 5):
+            final_hp = calc_enemy_health(base_value, level, uvh_scale, mayhem_scale, player_scales[pc])
+            lines.append(f"**{pc} Player{'s' if pc > 1 else ''}:** {final_hp:,.0f}")
+
+        embed = discord.Embed(
+            title="Custom Health Calculation",
+            description=f"**Base Value:** {base_value:,.2f} | **Level:** {level}\n**UVH:** {uvh} | **Mayhem:** {mayhem}\n**Rank:** {target_complexity}",
+            color=discord.Color.brand_green()
+        )
+        embed.add_field(name="HP Scaling", value="\n".join(lines), inline=False)
+        
+        # --- CALCULATION BREAKDOWN EMBED ---
+        level_multiplier = (1.09 ** level) * (1 + (0.02 * level))
+        example_hp = calc_enemy_health(base_value, level, uvh_scale, mayhem_scale, player_scales[4])
+        
+        calc_embed = discord.Embed(
+            title="Calculation Breakdown (4-Player Example)",
+            color=discord.Color.blue()
+        )
+        calc_embed.add_field(
+            name="Value Modifiers",
+            value=f"**Level Multiplier:** `(1.09 ^ {level}) x (1 + 0.02 x {level})` = {level_multiplier:.4f}\n"
+                  f"**4-Player Scale:** {player_scales[4]:.4f}\n"
+                  f"**UVH Scale:** {uvh_scale:.4f}\n"
+                  f"**Mayhem Scale:** {mayhem_scale:.4f}",
+            inline=False
+        )
+        calc_embed.add_field(
+            name="Values Inserted",
+            value=f"`Base x 80 x PlayerScale x UVHScale x MayhemScale x LevelMultiplier`\n"
+                  f"`{base_value:,.2f} * 80 * {player_scales[4]:.4f} * {uvh_scale:.4f} * {mayhem_scale:.4f} * {level_multiplier:.4f}` = **{example_hp:,.0f}**",
+            inline=False
+        )
+
+        await interaction.followup.send(embeds=[embed, calc_embed])
+
+
+    @app_commands.command(name="reverse_calc_health", description="Calculate the required base health to hit a target HP.")
+    @app_commands.describe(
+        target_hp="The final HP number you want to achieve.",
+        level="The level of the enemy.",
+        enemy_rank="The rank of the enemy.",
+        uvh="UVH Level (0-7). Default is 7.",
+        mayhem="Mayhem Level (0-20). Default is 0."
+    )
+    @app_commands.choices(
+        enemy_rank=RANK_CHOICES,
+        uvh=UVH_CHOICES, 
+        mayhem=MAYHEM_CHOICES
+    )
+    async def reverse_health(
+        self, 
+        interaction: discord.Interaction, 
+        target_hp: int, 
+        level: int, 
+        enemy_rank: app_commands.Choice[str], 
+        uvh: int = 7, 
+        mayhem: int = 0
+    ):
+        await interaction.response.defer(ephemeral=False)
+        
+        target_complexity = getattr(enemy_rank, 'value', enemy_rank)
+
+        async with self.bot.db_pool.acquire() as conn:
+            # SCALES VIA HELPERS
+            uvh_scale = await self.get_uvh_scale(conn, uvh)
+            mayhem_scale = await self.get_mayhem_scale(conn, mayhem)
+            if mayhem > 0:
+                uvh_scale = 1.0 # Mayhem overrides UVH
+                
+            player_scales = await self.get_player_scales(conn, target_complexity)
+
+        # REVERSE ENGINEER BASE VALUES
+        level_multiplier = (1.09 ** level) * (1 + (0.02 * level))
+        lines = []
+        
+        for pc in range(1, 5):
+            # Formula inversion: base = target_hp / (80 * player * uvh * mayhem * level_mult)
+            total_scaler = 80 * player_scales[pc] * uvh_scale * mayhem_scale * level_multiplier
+            req_base = target_hp / total_scaler if total_scaler > 0 else 0
+            lines.append(f"**{pc} Player{'s' if pc > 1 else ''}:** {req_base:,.2f}")
+
+        embed = discord.Embed(
+            title="Reverse Health Calculation",
+            description=f"**Target HP:** {target_hp:,} | **Level:** {level}\n**UVH:** {uvh} | **Mayhem:** {mayhem}\n**Rank:** {target_complexity}",
+            color=discord.Color.brand_red()
+        )
+        embed.add_field(name="Required Base Values", value="\n".join(lines), inline=False)
+        
+        # --- CALCULATION BREAKDOWN EMBED ---
+        total_scaler_4 = 80 * player_scales[4] * uvh_scale * mayhem_scale * level_multiplier
+        example_base = target_hp / total_scaler_4 if total_scaler_4 > 0 else 0
+        
+        calc_embed = discord.Embed(
+            title="Reverse Calculation Breakdown (4-Player Example)",
+            color=discord.Color.blue()
+        )
+        calc_embed.add_field(
+            name="Value Modifiers",
+            value=f"**Level Multiplier:** `(1.09 ^ {level}) x (1 + 0.02 x {level})` = {level_multiplier:.4f}\n"
+                  f"**4-Player Scale:** {player_scales[4]:.4f}\n"
+                  f"**UVH Scale:** {uvh_scale:.4f}\n"
+                  f"**Mayhem Scale:** {mayhem_scale:.4f}",
+            inline=False
+        )
+        calc_embed.add_field(
+            name="Values Inserted",
+            value=f"`TargetHP / (80 x PlayerScale x UVHScale x MayhemScale x LevelMultiplier)`\n"
+                  f"`{target_hp:,} / (80 * {player_scales[4]:.4f} * {uvh_scale:.4f} * {mayhem_scale:.4f} * {level_multiplier:.4f})` = **{example_base:,.2f}**",
+            inline=False
+        )
+
+        await interaction.followup.send(embeds=[embed, calc_embed])
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(EnemyData(bot))
