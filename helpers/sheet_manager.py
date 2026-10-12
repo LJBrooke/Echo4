@@ -222,8 +222,8 @@ class TimeTrialsSheets:
     def _apply_sheet_formatting(self, worksheet: gspread.worksheet):
         # UPDATE: Added column V, U, and W:X to accommodate the 5th VH shift
         set_column_widths(worksheet, [
-            ('A', 40), ('B', 150), ('G', 150), ('L', 150), ('Q', 150), ('V', 150), ('AA', 150)
-            ('F', 40), ('K', 40), ('P', 40), ('U', 40), ('Z', 40)
+            ('A', 40), ('B', 150), ('G', 150), ('L', 150), ('Q', 150), ('V', 150), ('AA', 150),
+            ('F', 40), ('K', 40), ('P', 40), ('U', 40), ('Z', 40),
             ('C:D', 150), ('H:I', 150), ('M:N', 150), ('R:S', 150), ('W:X', 150), ('AB:AC', 150)
         ])
 
