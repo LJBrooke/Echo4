@@ -153,7 +153,7 @@ class TimeTrialsSheets:
         try:
             worksheet = self.sheet.worksheet(sheet_name)
         except gspread.WorksheetNotFound:
-            worksheet = self.sheet.add_worksheet(title=sheet_name, rows=100, cols=26)
+            worksheet = self.sheet.add_worksheet(title=sheet_name, rows=100, cols=31)
 
         worksheet.clear()
         worksheet.freeze(cols=1)
@@ -174,7 +174,7 @@ class TimeTrialsSheets:
             fmt_idx = (color_start_index + (2*i))
             
             # --- TRUE MODE ---
-            output_rows.append(["", f"TRUE {activity_name.upper()} (UVH 8)"]) 
+            output_rows.append(["", f"TRUE {activity_name.upper()} (UVH 7)"]) 
             true_start = current_row
             
             output_rows = self._write_category_runs(output_rows, data_tree, True)
@@ -187,7 +187,7 @@ class TimeTrialsSheets:
             current_row += 1
 
             # --- STANDARD MODE ---
-            output_rows.append(["", f"{activity_name.upper()} (UVH 6)"]) 
+            output_rows.append(["", f"{activity_name.upper()} (UVH 7)"]) 
             std_start = current_row
             
             output_rows = self._write_category_runs(output_rows, data_tree, False)
@@ -222,9 +222,9 @@ class TimeTrialsSheets:
     def _apply_sheet_formatting(self, worksheet: gspread.worksheet):
         # UPDATE: Added column V, U, and W:X to accommodate the 5th VH shift
         set_column_widths(worksheet, [
-            ('A', 40), ('B', 150), ('G', 150), ('L', 150), ('Q', 150), ('V', 150),
-            ('F', 40), ('K', 40), ('P', 40), ('U', 40),
-            ('C:D', 150), ('H:I', 150), ('M:N', 150), ('R:S', 150), ('W:X', 150)
+            ('A', 40), ('B', 150), ('G', 150), ('L', 150), ('Q', 150), ('V', 150), ('AA', 150)
+            ('F', 40), ('K', 40), ('P', 40), ('U', 40), ('Z', 40)
+            ('C:D', 150), ('H:I', 150), ('M:N', 150), ('R:S', 150), ('W:X', 150), ('AB:AC', 150)
         ])
 
     def _apply_category_formatting(self, worksheet: gspread.worksheet, initial_row: int, format_choice: int):
@@ -250,19 +250,21 @@ class TimeTrialsSheets:
         center_fmt = cellFormat(horizontalAlignment='CENTER') # type: ignore
 
         format_cell_ranges(worksheet, [
-            (f'A{initial_row+0}:Y{initial_row+0}', activity_header),
-            (f'A{initial_row+1}:Y{initial_row+1}', char_header_fmt),
-            (f'A{initial_row+2}:Y{initial_row+2}', header_fmt),
+            (f'A{initial_row+0}:AD{initial_row+0}', activity_header),
+            (f'A{initial_row+1}:AD{initial_row+1}', char_header_fmt),
+            (f'A{initial_row+2}:AD{initial_row+2}', header_fmt),
             (f'B{initial_row+1}:E{initial_row+1}', center_fmt),
             (f'G{initial_row+1}:J{initial_row+1}', center_fmt),
             (f'L{initial_row+1}:O{initial_row+1}', center_fmt),
             (f'Q{initial_row+1}:T{initial_row+1}', center_fmt),
             (f'V{initial_row+1}:Y{initial_row+1}', center_fmt),
+            (f'AA{initial_row+1}:AD{initial_row+1}', center_fmt),
             (f'B{initial_row+3}:Y{initial_row+7}', content_fmt),
             (f'F{initial_row+0}:F{initial_row+7}', divider_fmt),
             (f'K{initial_row+0}:K{initial_row+7}', divider_fmt),
             (f'P{initial_row+0}:P{initial_row+7}', divider_fmt),
             (f'U{initial_row+0}:U{initial_row+7}', divider_fmt),
+            (f'Z{initial_row+0}:Z{initial_row+7}', divider_fmt),
             (f'A{initial_row+3}:A{initial_row+7}', rank_fmt)
         ])
         set_row_heights(worksheet, [(f"{initial_row+3}:{initial_row+7}", 48)])
