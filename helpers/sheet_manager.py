@@ -16,7 +16,7 @@ class TimeTrialsSheets:
     # The code automatically handles splitting it into "True" and "Standard" tables.
     ACTIVITY_GROUPS = {
         "Raid Bosses": ["Bloomreaper", "Subjugator", "Thol"], 
-        "Vaults": ["Vault of Radix", "Vault of Inceptus", "Vault of Origo"] 
+        "Vaults": ["Vault of Radix", "Vault of Inceptus", "Vault of Origo", "Takedown at Hadron Abyss"] 
     }
 
     def __init__(self, db_pool, level=60):
@@ -106,8 +106,8 @@ class TimeTrialsSheets:
                 
                 # Split single DB result into True/Standard buckets
                 data_tree = {
-                    True: {"Amon": [], "C4sh": [], "Harlowe": [], "Rafa": [], "Vex": []},
-                    False: {"Amon": [], "C4sh": [],  "Harlowe": [], "Rafa": [], "Vex": []}
+                    True: {"Amon": [], "C4sh": [], "Harlowe": [], "Loveless": [], "Rafa": [], "Vex": []},
+                    False: {"Amon": [], "C4sh": [],  "Harlowe": [], "Loveless": [], "Rafa": [], "Vex": []}
                 }
 
                 for row in rows:
@@ -125,7 +125,7 @@ class TimeTrialsSheets:
         """Helper to build the 8-row block for a specific mode."""
         vh_row = []
         header_row = ["Rank"]
-        for vh in ["Amon", "C4sh", "Harlowe", "Rafa", "Vex"]:
+        for vh in ["Amon", "C4sh", "Harlowe", "Loveless", "Rafa", "Vex"]:
             vh_row.extend(["", f"{vh}", "", "", ""])
             header_row.extend([f"Player", "Action Skill", "Build/Gear", "Time", ""]) 
         
@@ -134,7 +134,7 @@ class TimeTrialsSheets:
         
         for i in range(5):
             row_data = [f"#{i+1}"]
-            for vh in ["Amon",  "C4sh", "Harlowe", "Rafa", "Vex"]:
+            for vh in ["Amon",  "C4sh", "Harlowe", "Loveless", "Rafa", "Vex"]:
                 runs = data_tree[true_mode][vh]
                 if i < len(runs):
                     r = runs[i]
@@ -174,7 +174,7 @@ class TimeTrialsSheets:
             fmt_idx = (color_start_index + (2*i))
             
             # --- TRUE MODE ---
-            output_rows.append(["", f"TRUE {activity_name.upper()} (UVH 6)"]) 
+            output_rows.append(["", f"TRUE {activity_name.upper()} (UVH 8)"]) 
             true_start = current_row
             
             output_rows = self._write_category_runs(output_rows, data_tree, True)
