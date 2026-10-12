@@ -259,7 +259,7 @@ class TimeTrialsSheets:
             (f'Q{initial_row+1}:T{initial_row+1}', center_fmt),
             (f'V{initial_row+1}:Y{initial_row+1}', center_fmt),
             (f'AA{initial_row+1}:AD{initial_row+1}', center_fmt),
-            (f'B{initial_row+3}:Y{initial_row+7}', content_fmt),
+            (f'B{initial_row+3}:AD{initial_row+7}', content_fmt),
             (f'F{initial_row+0}:F{initial_row+7}', divider_fmt),
             (f'K{initial_row+0}:K{initial_row+7}', divider_fmt),
             (f'P{initial_row+0}:P{initial_row+7}', divider_fmt),
